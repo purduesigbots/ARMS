@@ -35,8 +35,8 @@ arcade(
 );
     
 tank(
-	controller.get_analog(ANALOG_LEFT_Y)*(double)100/127,
-	controller.get_analog(ANALOG_LEFT_X)*(double)100/127
+  controller.get_analog(ANALOG_LEFT_Y)*(double)100/127,
+  controller.get_analog(ANALOG_LEFT_X)*(double)100/127
 );
 ```
 In these examples, I am using the pros::controller, but you can use the okapi controller as well. Just scale the value between -100 and 100
