@@ -8,7 +8,7 @@ Greenhat is a library that makes programming the chassis of a vex v5 robot a pie
 ## Installing greenhat
 1. Download the [template](https://github.com/Marsgate/greenhatlib/raw/master/greenhat%401.0.0.zip)
 2. Move the zip file into your project directory
-3. Fetch the library `prosv5 conduct fetch greenhat@1.0.0.zip`
+3. Fetch the library `prosv5 conduct fetch greenhat@1.0.1.zip`
 4. Apply the library to the project `prosv5 conduct apply greenhat`
 
 ## Getting started
@@ -21,10 +21,10 @@ All configuration of the library will happen in the file `greenhat/config.h`. Th
 #define RIGHT_MOTORS -3, -4
 #define GEARSET green
 ```
- 
+
 This library was designed with the standard tank drives in mind.
 If your drive is using torque or turbo motors, you need to change the gearset to `red` or `blue` respectivly.
- 
+
 If you have an X-drive, mecanum drive, an H-drive, or any other non-standard type of drive, this library won't work without a bit of a makeover. Your options are to either modify this library, or write your own drive code (sorry).
 
 There are two default operator control modes supported, tank and arcade. Put one of the following into your opcontrol loop:
@@ -33,7 +33,7 @@ arcade(
   controller.get_analog(ANALOG_LEFT_Y)*(double)100/127,
   controller.get_analog(ANALOG_LEFT_X)*(double)100/127
 );
-    
+
 tank(
   controller.get_analog(ANALOG_LEFT_Y)*(double)100/127,
   controller.get_analog(ANALOG_LEFT_X)*(double)100/127
@@ -42,7 +42,7 @@ tank(
 In these examples, I am using the pros::controller, but you can use the okapi controller as well. Just scale the value between -100 and 100
 
 ## Autonomous movement
-With the drive motors properly configured, we can now control our robot’s movement autonomously. The drive function interprets positive numbers such as `2.5` as forward movement, and it interprets negative numbers such as `-0.8` as backwards movement. Similarly, the turn function interpret positive numbers as a left turn, and negative numbers as a right turn. 
+With the drive motors properly configured, we can now control our robot’s movement autonomously. The drive function interprets positive numbers such as `2.5` as forward movement, and it interprets negative numbers such as `-0.8` as backwards movement. Similarly, the turn function interpret positive numbers as a left turn, and negative numbers as a right turn.
 
 Here is an example of some common autonomous movements you may perform
 ```
@@ -66,14 +66,14 @@ Near the top of config.h there are two important constants we need to adjust.
 
 `DISTANCE_CONSTANT` correlates to the `drive()` function and `DEGREE_CONSTANT` correlates to the `turn()` function.
 
-To tune the constants, tell the robot to drive 1 unit in autonomous. 
+To tune the constants, tell the robot to drive 1 unit in autonomous.
 ```drive(1)```  
 Adjust the distance constant until 1 unit equals whatever real life equivalent. When you tell the robot to `drive(2.5);`, the distance constant determines if the robot drives 2.5 meters, 2.5 feet, 2.5 inches, or some other distance.
 
 If the robot was overshooting the target distance, then reduce the distance constant and try again. If the robot was undershooting, increase the distance constant. Don’t forget to re-upload the program each time you change the constant.
 
-The next thing to tune is the turns. Set the robot to turn 90 degrees in autonomous 
-```turn(90);``` 
+The next thing to tune is the turns. Set the robot to turn 90 degrees in autonomous
+```turn(90);```
 Go through the same trial and error process, except this time change the degree constant instead of the distance constant. A good way to test if your robot is turning exactly 90 is to run the auton four times and see if the robot does a near-perfect 360. If it's within a couple degrees, it's good enough for most autons.
 
 
@@ -145,7 +145,7 @@ To preform an arc turn, use one of the following functions:
 `arcLeft(1000, 0.5);`
 `arcRight(1000, 0.5);`
 The first value is the arc length in milliseconds. These movements are controlled with by velocity PID over a given time, so to make the arc longer, the time increases
-The second value is the radius of the movement. This in no way correlates to measurable value, it simply is the ratio between the fast and slow side of the drive. 
+The second value is the radius of the movement. This in no way correlates to measurable value, it simply is the ratio between the fast and slow side of the drive.
 The radius value should be less than 1 or the movement will be a straight line. Making the movement zero will lock one side of the drive and turn with the other.
 WARNING, these movements are more subject to changes based on the weight of the bot or charge of the battery than PID movements. They still are pretty consistent, but note that they can be finicky.
 
@@ -165,7 +165,7 @@ S-curves in greenhat are made up of 3 parts.
 2. Them mid movement - The second argument
 3. The final arc - The third argument
 
-The final arc length is longer than the first arc length because the robot should be slowing down during this part of the arc. 
+The final arc length is longer than the first arc length because the robot should be slowing down during this part of the arc.
 Although this may change depending on the length of the arc and the speed of the robot.
 
 These three arguments are all in milliseconds, so we can determine the movement will take about two seconds from start to finish.
