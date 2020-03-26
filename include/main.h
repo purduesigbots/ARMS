@@ -8,6 +8,7 @@
 #include "greenhat/api.h"
 
 //subsystems
+using namespace pros;
 using namespace greenhat;
 
 #ifdef __cplusplus
