@@ -5,8 +5,6 @@ using namespace pros;
 
 namespace greenhat{
 
-namespace drive{
-
 //drive motors
 okapi::MotorGroup leftMotors = {LEFT_MOTORS};
 okapi::MotorGroup rightMotors = {RIGHT_MOTORS};
@@ -372,5 +370,3 @@ void arcade(int vertical, int horizontal){
 }
 
 } // namespace drive
-
-}

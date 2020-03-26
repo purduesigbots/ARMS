@@ -25,22 +25,6 @@ namespace greenhat{
 #define TURN_KD 3
 #define ARC_KP .05
 
-namespace selector{
-
-//limit switch for auton selection
-#define ADI_NAV 'D'
-
-//limit switch for auton selection
-#define CONTROLLER_NAV E_CONTROLLER_DIGITAL_RIGHT
-
-//number of autons
-#define AUTO_COUNT 4
-
-//the names of the autons
-#define AUTO_NAMES "None","Red","Blue","Skills"
-
-}
-
 }
 
 #endif
