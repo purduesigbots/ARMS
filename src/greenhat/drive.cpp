@@ -139,7 +139,7 @@ void waitUntilSettled(){
 
 /**************************************************/
 //autonomous functions
-void moveAsync(double sp, int max){
+void driveAsync(double sp, int max){
   sp *= distance_constant;
   reset();
   maxSpeed = max;
@@ -155,8 +155,8 @@ void turnAsync(double sp, int max){
   driveMode = -1;
 }
 
-void move(double sp, int max){
-  moveAsync(sp, max);
+void drive(double sp, int max){
+  driveAsync(sp, max);
   delay(450);
   while(isDriving()) delay(20);
 }

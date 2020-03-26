@@ -12,9 +12,9 @@ int drivePos();
 bool isDriving();
 void waitUntilSettled();
 
-void moveAsync(double sp, int max = 100);
+void driveAsync(double sp, int max = 100);
 void turnAsync(double sp, int max = 100);
-void move(double sp, int max = 100);
+void drive(double sp, int max = 100);
 void turn(double sp, int max = 100);
 void fastDrive(double sp, int max = 100);
 void timeDrive(int t, int left = 100, int right = 0);
