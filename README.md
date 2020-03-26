@@ -6,7 +6,7 @@ By Micah Rassi
 Greenhat is a library that makes programming the chassis of a vex v5 robot a piece of cake. The code in this library was developed over the course of 2018-2019 season by team 574C. That original code can be found [here](https://github.com/Marsgate/cadmus5.0/blob/master/src/drive.cpp).
 
 ## Installing greenhat
-1. Download the [template](https://github.com/Marsgate/greenhatlib/blob/master/greenhat%401.0.0.zip)
+1. Download the [template](https://github.com/Marsgate/greenhatlib/raw/master/greenhat%401.0.0.zip)
 2. Move the zip file into your project directory
 3. Fetch the library `prosv5 conduct fetch greenhat@1.0.0.zip`
 4. Apply the library to the project `prosv5 conduct apply greenhat`
