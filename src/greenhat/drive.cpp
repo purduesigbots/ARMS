@@ -158,13 +158,13 @@ void turnAsync(double sp, int max){
 void drive(double sp, int max){
   driveAsync(sp, max);
   delay(450);
-  while(isDriving()) delay(20);
+  waitUntilSettled();
 }
 
 void turn(double sp, int max){
   turnAsync(sp, max);
   delay(450);
-  while(isDriving()) delay(20);
+  waitUntilSettled();
 }
 
 void fastDrive(double sp, int max){
