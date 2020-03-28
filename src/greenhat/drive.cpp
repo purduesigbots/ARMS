@@ -272,13 +272,13 @@ void arcRight(int arc_length, double rad, int max, int type) {
 void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 
 	// first arc
-	arc(mirror, arc1, 0, max, 1);
+	arc(mirror, arc1, 1, max, 1);
 
 	// middle movement
 	velocityDrive(mid, max);
 
 	// final arc
-	arc(!mirror, arc2, 0, max, 2);
+	arc(!mirror, arc2, 1, max, 2);
 }
 
 void sLeft(int arc1, int mid, int arc2, int max) {
