@@ -1,7 +1,7 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "blrs_template",
+        "project_name": "greenhatlib",
         "target": "v5",
         "templates": {
             "kernel": {

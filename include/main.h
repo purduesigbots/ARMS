@@ -7,7 +7,7 @@
 #include "api.h"
 #include "greenhat/api.h"
 
-//subsystems
+// subsystems
 using namespace pros;
 using namespace greenhat;
 
@@ -27,4 +27,4 @@ void opcontrol(void);
 
 #endif
 
-#endif  // _PROS_MAIN_H_
+#endif // _PROS_MAIN_H_

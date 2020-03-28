@@ -1,0 +1,20 @@
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+BraceWrapping:
+  BeforeElse: true
+BreakBeforeBraces: Attach
+ColumnLimit: 80
+DerivePointerAlignment: false
+IndentCaseLabels: false
+IndentWidth: 2
+Language: Cpp
+PointerAlignment: Left
+SortIncludes: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpacesBeforeTrailingComments: 1
+Standard: Cpp11
+TabWidth: 2
+UseTab: ForIndentation
