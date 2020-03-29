@@ -242,9 +242,9 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		double scaled_speed = speed * rad;
 
 		if (type == 1)
-			scaled_speed = speed * (double)time_step / arc_length;
+			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed = speed * (1 - (double)time_step / arc_length);
+			scaled_speed *=  (1 - (double)time_step / arc_length);
 
 		// assign drive motor speeds
 		left_drive_vel(mirror ? speed : scaled_speed);
