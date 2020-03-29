@@ -8,7 +8,7 @@ Greenhat is a library that makes programming the chassis of a vex v5 robot a pie
 ## Installing greenhat
 1. Download the most recent [template](https://github.com/Marsgate/greenhatlib/releases)
 2. Run this command from terminal `prosv5 c fetch greenhat@1.0.5.zip`
-3. 'cd' into your pros project directory in your terminal
+3. `cd` into your pros project directory in your terminal
 4. Apply the library to the project `prosv5 c apply greenhat`
 5. Put `#include "greenhat/api.h"` in your main.h
 6. Put `using namespace greenhat;` in your main.h (optional)
