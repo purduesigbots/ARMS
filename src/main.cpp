@@ -3,6 +3,7 @@
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
+	initDrive();
 }
 
 void disabled() {

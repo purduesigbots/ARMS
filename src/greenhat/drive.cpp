@@ -6,29 +6,24 @@ using namespace pros;
 namespace greenhat {
 
 // drive motors
-okapi::MotorGroup leftMotors = {LEFT_MOTORS};
-okapi::MotorGroup rightMotors = {RIGHT_MOTORS};
-okapi::AbstractMotor::gearset gearset = okapi::AbstractMotor::gearset::GEARSET;
-
-// gyro (set to 0 if not using)
-int gyro_port = GYRO_PORT;
-Imu iSens(gyro_port);
+std::shared_ptr<okapi::MotorGroup> leftMotors;
+std::shared_ptr<okapi::MotorGroup> rightMotors;
 
 // distance constants
-const int distance_constant = DISTANCE_CONSTANT; // ticks per foot
-const double degree_constant = DEGREE_CONSTANT;  // ticks per degree
+int distance_constant;  // ticks per foot
+double degree_constant; // ticks per degree
 
 // slew control (autonomous only)
-const int accel_step = ACCEL_STEP;   // smaller number = more slew
-const int deccel_step = DECCEL_STEP; // 200 = no slew
-const int arc_step = ARC_STEP;       // acceleration for arcs
+int accel_step;  // smaller number = more slew
+int deccel_step; // 200 = no slew
+int arc_step;    // acceleration for arcs
 
 // pid constants
-const double driveKP = DRIVE_KP;
-const double driveKD = DRIVE_KD;
-const double turnKP = TURN_KP;
-const double turnKD = TURN_KD;
-const double arcKP = ARC_KP;
+double driveKP;
+double driveKD;
+double turnKP;
+double turnKD;
+double arcKP;
 
 /**************************************************/
 // edit below with caution!!!
@@ -41,39 +36,38 @@ static int maxSpeed = 100;
 // basic control
 void left_drive(int vel) {
 	vel *= 120;
-	leftMotors.moveVoltage(vel);
+	leftMotors->moveVoltage(vel);
 }
 
 void right_drive(int vel) {
 	vel *= 120;
-	rightMotors.moveVoltage(vel);
+	rightMotors->moveVoltage(vel);
 }
 
 void left_drive_vel(int vel) {
-	vel *= (double)gearset / 100;
-	leftMotors.moveVelocity(vel);
+	vel *= (double)leftMotors->getGearing() / 100;
+	leftMotors->moveVelocity(vel);
 }
 
 void right_drive_vel(int vel) {
-	vel *= (double)gearset / 100;
-	rightMotors.moveVelocity(vel);
+	vel *= (double)leftMotors->getGearing() / 100;
+	rightMotors->moveVelocity(vel);
 }
 
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
-	leftMotors.setBrakeMode(b);
-	rightMotors.setBrakeMode(b);
-	leftMotors.moveVelocity(0);
-	rightMotors.moveVelocity(0);
+	leftMotors->setBrakeMode(b);
+	rightMotors->setBrakeMode(b);
+	left_drive_vel(0);
+	right_drive_vel(0);
 }
 
 void reset() {
-	leftMotors.tarePosition();
-	rightMotors.tarePosition();
-	setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
+	leftMotors->tarePosition();
+	rightMotors->tarePosition();
 }
 
 int drivePos() {
-	return (rightMotors.getPosition() + leftMotors.getPosition()) / 2;
+	return (rightMotors->getPosition() + leftMotors->getPosition()) / 2;
 }
 
 /**************************************************/
@@ -210,8 +204,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type != 2) {
-		leftMotors.moveVelocity(0);
-		rightMotors.moveVelocity(0);
+		left_drive_vel(0);
+		right_drive_vel(0);
 		delay(10);
 	}
 
@@ -244,7 +238,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (type == 1)
 			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed *=  (1 - (double)time_step / arc_length);
+			scaled_speed *= (1 - (double)time_step / arc_length);
 
 		// assign drive motor speeds
 		left_drive_vel(mirror ? speed : scaled_speed);
@@ -256,8 +250,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1) {
-		leftMotors.moveVelocity(0);
-		rightMotors.moveVelocity(0);
+		left_drive_vel(0);
+		right_drive_vel(0);
 	}
 }
 
@@ -322,10 +316,8 @@ int driveTask() {
 
 		// read sensors
 		int sv =
-		    (rightMotors.getPosition() + leftMotors.getPosition() * driveMode) / 2;
-		if (gyro_port != 0 && driveMode == -1) {
-			sv = -iSens.get_rotation();
-		}
+		    (rightMotors->getPosition() + leftMotors->getPosition() * driveMode) /
+		    2;
 
 		// speed
 		int error = sp - sv;
@@ -347,16 +339,36 @@ int driveTask() {
 	}
 }
 
-void initDrive() {
+void startTask() {
 	Task drive_task(driveTask);
-	if (gyro_port != 0) {
-		while (iSens.is_calibrating())
-			delay(20);
-	}
-	leftMotors.setGearing(gearset);
-	rightMotors.setGearing(gearset);
-	leftMotors.setEncoderUnits(okapi::AbstractMotor::encoderUnits::degrees);
-	rightMotors.setEncoderUnits(okapi::AbstractMotor::encoderUnits::degrees);
+}
+
+void initDrive(std::initializer_list<okapi::Motor> leftMotors,
+               std::initializer_list<okapi::Motor> rightMotors, int gearset,
+               int distance_constant, double degree_constant, int accel_step,
+               int deccel_step, int arc_step, double driveKP, double driveKD,
+               double turnKP, double turnKD, double arcKP) {
+
+	// assign constants
+	greenhat::distance_constant = distance_constant;
+	greenhat::degree_constant = degree_constant;
+	greenhat::accel_step = accel_step;
+	greenhat::deccel_step = deccel_step;
+	greenhat::arc_step = arc_step;
+	greenhat::driveKP = driveKP;
+	greenhat::driveKD = driveKD;
+	greenhat::turnKP = turnKP;
+	greenhat::turnKD = turnKD;
+	greenhat::arcKP = arcKP;
+
+	// configure drive motors
+	greenhat::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
+	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
+	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+
+	// start task
+	Task drive_task(driveTask);
 }
 
 /**************************************************/

@@ -7,7 +7,7 @@ Greenhat is a library that makes programming the chassis of a vex v5 robot a pie
 
 ## Installing greenhat
 1. Download the most recent [template](https://github.com/Marsgate/greenhatlib/releases)
-2. Run this command from terminal `prosv5 c fetch greenhat@1.0.5.zip`
+2. Run this command from terminal `prosv5 c fetch greenhat@1.1.0.zip`
 3. `cd` into your pros project directory in your terminal
 4. Apply the library to the project `prosv5 c apply greenhat`
 5. Put `#include "greenhat/api.h"` in your main.h
@@ -21,11 +21,11 @@ All configuration of the library will happen in the file `greenhat/config.h`. Th
 //negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
 #define RIGHT_MOTORS -3, -4
-#define GEARSET green
+#define GEARSET 200
 ```
 
 This library was designed with the standard tank drives in mind.
-If your drive is using torque or turbo motors, you need to change the gearset to `red` or `blue` respectivly.
+If your drive is using torque or turbo motors, you need to change the gearset to `100` or `600` respectively.
 
 If you have an X-drive, mecanum drive, an H-drive, or any other non-standard type of drive, this library won't work without a bit of a makeover. Your options are to either modify this library, or write your own drive code (sorry).
 
@@ -69,13 +69,17 @@ Near the top of config.h there are two important constants we need to adjust.
 `DISTANCE_CONSTANT` correlates to the `drive()` function and `DEGREE_CONSTANT` correlates to the `turn()` function.
 
 To tune the constants, tell the robot to drive 1 unit in autonomous.
-```drive(1)```  
+```
+drive(1)
+```  
 Adjust the distance constant until 1 unit equals whatever real life equivalent. When you tell the robot to `drive(2.5);`, the distance constant determines if the robot drives 2.5 meters, 2.5 feet, 2.5 inches, or some other distance.
 
 If the robot was overshooting the target distance, then reduce the distance constant and try again. If the robot was undershooting, increase the distance constant. Don’t forget to re-upload the program each time you change the constant.
 
 The next thing to tune is the turns. Set the robot to turn 90 degrees in autonomous
-```turn(90);```
+```
+turn(90);
+```
 Go through the same trial and error process, except this time change the degree constant instead of the distance constant. A good way to test if your robot is turning exactly 90 is to run the auton four times and see if the robot does a near-perfect 360. If it's within a couple degrees, it's good enough for most autons.
 
 
@@ -122,7 +126,7 @@ In autonomous, if you want to move the drive for duration of time rather than a 
 `timeDrive(1000, 50);`
 The first values is the duration of the movement in milliseconds, and the second values is the top speed. It is optional and defaults to 100 when omitted.
 
-If you want to send different power to each side of the drive, call the function with two seperate speeds.
+If you want to send different power to each side of the drive, call the function with two separate speeds.
 `timeDrive(1000, 50, 80);`
 This will produce a curved movement.
 
@@ -133,7 +137,7 @@ The previously covered drive movements will be good enough for most applications
 To start performing a drive movement asynchronously, use the following functions:
 `driveAsync(3)`
 `turnAsync(90)`
-These functions will not block the program during their execution so you can prefrom other tasks while in motion.
+These functions will not block the program during their execution so you can perform other tasks while in motion.
 Here is an example
 ```
 driveAsync(3);
