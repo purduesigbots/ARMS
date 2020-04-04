@@ -187,13 +187,21 @@ If the built-in s-curves are incapable of achieving the movement you desire, you
 ```
 arcLeft(800, 1, 50, 1);
 velocityDrive(200);
-arcRight(1600, 1, 50, 2);
+arcRight(1600, 1, 50, 3);
 ```
 
 The fourth arguments in the arc function calls determine the type of arc.
-The first arc must be of type 1 and the second arc must be of type 2 to get the s-curve shape.
-The advantage of programming s-curves with this method is the ability to adjust the radius of the arcs.
-Numbers greater than 1 will cause the robot to drive in a straight line for a duration before starting to curve, smaller numbers will cause tighter turns.
+The first arc must be of type 1 and the last arc must be of type 3 to get the s-curve shape.
+Paths can be made more complicated by adding more than 2 arc movements.
+```
+void redAuton(){
+  arcRight(1000, 1, 50, 1);
+  arcLeft(1800, 1, 50, 2);
+  arcRight(1600, 1, 50, 3);
+}
+```
+This movement will be more of a U shape. This is useful for navigating around an obstacle in one continuous movement.
+All arcs performed before the first and last arc must be type 2.
 
 ## Where to go from here
 With the basics covered, your team should be able to create a competitive program for your competition robot. For people who are interested in more advanced programming such as programming skills runs, there is a lot of potential customization with this library. People who want to take their programming skills further do the following:
