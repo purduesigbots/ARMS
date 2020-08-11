@@ -93,7 +93,7 @@ The second number after the comma is the new top speed on a scale of 0-100. In t
 
 
 ### Speeding it up
-Sometimes when driving, you may want to drive a certain distance, then have a new action happen after driving a certain distance.
+Sometimes when driving, you may want to drive a certain distance, then have a new action happen while in motion.
 For instance, we could drive 2 feet, then start running our intake, and keep driving another 1 foot. If we did this with the regular drive function it would look like this.
 ```
 drive(2);
