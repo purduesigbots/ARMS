@@ -5,9 +5,15 @@ using namespace pros;
 
 namespace greenhat {
 
-// drive motors
+// drive motor groups
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
+
+// individual drive motors
+std::shared_ptr<okapi::Motor> frontLeft;
+std::shared_ptr<okapi::Motor> frontRight;
+std::shared_ptr<okapi::Motor> backLeft;
+std::shared_ptr<okapi::Motor> backRight;
 
 // distance constants
 int distance_constant;  // ticks per foot
@@ -28,8 +34,9 @@ double arcKP;
 /**************************************************/
 // edit below with caution!!!
 static int driveMode = 0;
-static int driveTarget = 0;
-static int turnTarget = 0;
+static double driveTarget = 0;
+static double vectorAngle = 0;
+static double turnTarget = 0;
 static int maxSpeed = 100;
 
 /**************************************************/
@@ -54,6 +61,28 @@ void right_drive_vel(int vel) {
 	rightMotors->moveVelocity(vel);
 }
 
+// individual motors
+void fl(int vel){
+	vel *= 120;
+	frontLeft->moveVoltage(vel);
+}
+
+void fr(int vel){
+	vel *= 120;
+	frontRight->moveVoltage(vel);
+}
+
+void bl(int vel){
+	vel *= 120;
+	backLeft->moveVoltage(vel);
+}
+
+void br(int vel){
+	vel *= 120;
+	backRight->moveVoltage(vel);
+}
+
+
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	leftMotors->setBrakeMode(b);
 	rightMotors->setBrakeMode(b);
@@ -64,6 +93,11 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 void reset() {
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
+
+	frontLeft->tarePosition();
+	frontRight->tarePosition();
+	backLeft->tarePosition();
+	backRight->tarePosition();
 }
 
 int drivePos() {
@@ -138,6 +172,7 @@ void driveAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	driveTarget = sp;
+	vectorAngle = 0;
 	driveMode = 1;
 }
 
@@ -146,7 +181,18 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
+	vectorAngle = 0;
 	driveMode = -1;
+}
+
+void driveHoloAsync(double distance, double angle, int max){
+	distance *= distance_constant;
+	angle *= degree_constant;
+	reset();
+	maxSpeed = max;
+	driveTarget = distance;
+	vectorAngle = angle*M_PI/180;
+	driveMode = 1;
 }
 
 void drive(double sp, int max) {
@@ -157,6 +203,12 @@ void drive(double sp, int max) {
 
 void turn(double sp, int max) {
 	turnAsync(sp, max);
+	delay(450);
+	waitUntilSettled();
+}
+
+void driveHolo(double distance, double angle, int max){
+	driveHoloAsync(distance, angle, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -317,10 +369,26 @@ int driveTask() {
 			continue;
 		}
 
-		// read sensors
-		int sv =
-		    (rightMotors->getPosition() + leftMotors->getPosition() * driveMode) /
-		    2;
+		// get position in the x direction
+		int sv_x =
+		    (frontLeft->getPosition() + backLeft->getPosition() +
+				(frontRight->getPosition() + backRight->getPosition()) * driveMode) /
+		    4;
+
+		// get position in the y direction
+		int sv_y =
+				(frontLeft->getPosition() - backLeft->getPosition() -
+				frontRight->getPosition() + backRight->getPosition()) /
+				4;
+
+
+		// calculate total displacement using pythagorean theorem
+		int sv;
+		if(vectorAngle != 0){
+			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
+		}else{
+			sv = sv_x; // just use the x value for non-holonomic movements
+		}
 
 		// speed
 		int error = sp - sv;
@@ -336,9 +404,33 @@ int driveTask() {
 
 		speed = slew(speed); // slew
 
+
 		// set motors
-		left_drive(speed * driveMode);
-		right_drive(speed);
+		if(vectorAngle != 0){
+			// calculate vectors for each wheel set
+			double frontVector = sin(M_PI/4 - vectorAngle);
+			double backVector = sin(M_PI/4 + vectorAngle);
+
+			// set scaling factor based on largest vector
+			double largestVector;
+			if(abs(frontVector) > abs(backVector)){
+				largestVector = abs(frontVector);
+			}else{
+				largestVector = abs(backVector);
+			}
+
+			frontVector *= speed / largestVector;
+			backVector *= speed / largestVector;
+
+			fl(frontVector);
+			bl(backVector);
+			fr(backVector);
+			br(frontVector);
+
+		}else{
+			left_drive(speed * driveMode);
+			right_drive(speed);
+		}
 	}
 }
 
@@ -364,11 +456,23 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::turnKD = turnKD;
 	greenhat::arcKP = arcKP;
 
-	// configure drive motors
+	// configure motor groups
 	greenhat::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
 	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
 	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+
+	// configure individual motors for holonomic drives
+	greenhat::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	greenhat::backLeft = std::make_shared<okapi::Motor>(*leftMotors.end());
+	greenhat::frontRight = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	greenhat::backRight = std::make_shared<okapi::Motor>(*leftMotors.end());
+
+	// set gearing for individual motors
+	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
 
 	// start task
 	Task drive_task(driveTask);
@@ -386,6 +490,14 @@ void arcade(int vertical, int horizontal) {
 	driveMode = 0; // turns off autonomous task
 	left_drive(vertical + horizontal);
 	right_drive(vertical - horizontal);
+}
+
+void holonomic(int x, int y, int z){
+	driveMode = 0; // turns off autonomous task
+	fl(x+y+z);
+	fr(-x+y+z);
+	bl(x-y+z);
+	br(-x-y+z);
 }
 
 } // namespace greenhat
