@@ -296,6 +296,12 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 
 /**************************************************/
 // task control
+int odomTask() {
+	while(true){
+		printf("banana");
+		delay(10);
+	}
+}
 int driveTask() {
 	int prevError = 0;
 	double kp;
@@ -344,6 +350,7 @@ int driveTask() {
 
 void startTask() {
 	Task drive_task(driveTask);
+	Task odom_task(odomTask);
 }
 
 void initDrive(std::initializer_list<okapi::Motor> leftMotors,
