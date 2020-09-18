@@ -4,6 +4,8 @@
 using namespace pros;
 
 namespace greenhat {
+//imu
+Imu imu(9);
 
 // drive motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -297,8 +299,45 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 /**************************************************/
 // task control
 int odomTask() {
+	double global_x = 0;
+	double global_y = 0;
+	double global_orientation = M_PI/2;
+	double orientation_degrees;
+
+	double prev_left_pos = 0;
+	double prev_right_pos = 0;
+
+	double right_arc = 0;
+	double left_arc = 0;
+	double center_arc = 0;
+	double delta_angle = 0;
+	double current_radius = 0;
+	double center_displacement = 0;
+	double delta_x = 0;
+	double delta_y = 0;
+
 	while(true){
-		printf("banana");
+		right_arc = rightMotors->getPosition() - prev_right_pos;
+		left_arc = leftMotors->getPosition() - prev_left_pos;
+		center_arc = (right_arc + left_arc) / 2.0;
+
+		delta_angle = ((imu.get_rotation() * -1.0 * (M_PI/180.0)) + M_PI/2) - global_orientation;
+		global_orientation += delta_angle;
+
+		delta_x = cos(global_orientation) * center_arc;
+		delta_y = sin(global_orientation) * center_arc;
+		
+
+		prev_right_pos += right_arc;
+		prev_left_pos += left_arc;
+
+		global_x += delta_x;
+		global_y += delta_y;
+		
+		orientation_degrees = (global_orientation * 180) / M_PI;
+
+		printf( "%f, %f, %f \n" , global_x, global_y, global_orientation);
+		
 		delay(10);
 	}
 }
@@ -376,6 +415,8 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
 	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	//calibrate imu
+	imu.reset();
 
 	// start task
 	startTasks();
