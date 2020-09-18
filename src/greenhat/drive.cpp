@@ -4,8 +4,9 @@
 using namespace pros;
 
 namespace greenhat {
-//imu
-Imu imu(9);
+
+// imu
+std::shared_ptr<Imu> imu;
 
 // drive motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -240,10 +241,9 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (type == 1)
 			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed *= std::abs(2*(.5-(double)time_step/arc_length));
-		else if(type == 3)
+			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
+		else if (type == 3)
 			scaled_speed *= (1 - (double)time_step / arc_length);
-
 
 		// assign drive motor speeds
 		left_drive_vel(mirror ? speed : scaled_speed);
@@ -301,7 +301,7 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 int odomTask() {
 	double global_x = 0;
 	double global_y = 0;
-	double global_orientation = M_PI/2;
+	double global_orientation = M_PI / 2;
 	double orientation_degrees;
 
 	double prev_left_pos = 0;
@@ -316,27 +316,27 @@ int odomTask() {
 	double delta_x = 0;
 	double delta_y = 0;
 
-	while(true){
+	while (true) {
 		right_arc = rightMotors->getPosition() - prev_right_pos;
 		left_arc = leftMotors->getPosition() - prev_left_pos;
 		center_arc = (right_arc + left_arc) / 2.0;
 
-		delta_angle = ((imu.get_rotation() * -1.0 * (M_PI/180.0)) + M_PI/2) - global_orientation;
+		delta_angle = ((imu->get_rotation() * -1.0 * (M_PI / 180.0)) + M_PI / 2) -
+		              global_orientation;
 		global_orientation += delta_angle;
 
 		delta_x = cos(global_orientation) * center_arc;
 		delta_y = sin(global_orientation) * center_arc;
-		
 
 		prev_right_pos += right_arc;
 		prev_left_pos += left_arc;
 
 		global_x += delta_x;
 		global_y += delta_y;
-		
+
 		orientation_degrees = (global_orientation * 180) / M_PI;
 
-		printf( "%f, %f, %f \n" , global_x, global_y, orientation_degrees);
+		printf("%f, %f, %f \n", global_x, global_y, orientation_degrees);
 
 		delay(10);
 	}
@@ -396,7 +396,7 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
                std::initializer_list<okapi::Motor> rightMotors, int gearset,
                int distance_constant, double degree_constant, int accel_step,
                int deccel_step, int arc_step, double driveKP, double driveKD,
-               double turnKP, double turnKD, double arcKP) {
+               double turnKP, double turnKD, double arcKP, int imuPort) {
 
 	// assign constants
 	greenhat::distance_constant = distance_constant;
@@ -415,9 +415,16 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
 	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-	//calibrate imu
-	imu.reset();
-	delay(4000);
+
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		while (imu->is_calibrating()) {
+			delay(10);
+		}
+		printf("IMU calibrated!");
+	}
 
 	// start task
 	startTasks();
