@@ -348,7 +348,7 @@ int driveTask() {
 	}
 }
 
-void startTask() {
+void startTasks() {
 	Task drive_task(driveTask);
 	Task odom_task(odomTask);
 }
@@ -378,7 +378,7 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
 	// start task
-	Task drive_task(driveTask);
+	startTasks();
 }
 
 /**************************************************/
