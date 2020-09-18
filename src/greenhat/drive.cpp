@@ -336,8 +336,8 @@ int odomTask() {
 		
 		orientation_degrees = (global_orientation * 180) / M_PI;
 
-		printf( "%f, %f, %f \n" , global_x, global_y, global_orientation);
-		
+		printf( "%f, %f, %f \n" , global_x, global_y, orientation_degrees);
+
 		delay(10);
 	}
 }
@@ -417,6 +417,7 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	//calibrate imu
 	imu.reset();
+	delay(4000);
 
 	// start task
 	startTasks();

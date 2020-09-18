@@ -4,8 +4,8 @@
 namespace greenhat{
 
 //negative numbers mean reversed motor
-#define LEFT_MOTORS 1, 2
-#define RIGHT_MOTORS -3, -4
+#define LEFT_MOTORS 5, 12
+#define RIGHT_MOTORS -8, -19
 #define GEARSET 200 // rpm of drive motors
 
 #define DISTANCE_CONSTANT 273 //ticks per distance unit, the default is a foot
