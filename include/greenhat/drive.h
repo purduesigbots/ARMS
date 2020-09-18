@@ -1,10 +1,10 @@
 #ifndef _DRIVE_H_
 #define _DRIVE_H_
 
-#include "okapi/api.hpp"
 #include "greenhat/config.h"
+#include "okapi/api.hpp"
 
-namespace greenhat{
+namespace greenhat {
 
 /**
  * Set the brake mode for all drive motors
@@ -109,22 +109,16 @@ void arcade(int vertical, int horizontal);
 /**
  * initialize the drive
  */
-void initDrive(
- 	std::initializer_list<okapi::Motor>leftMotors = {LEFT_MOTORS},
- 	std::initializer_list<okapi::Motor>rightMotors = {RIGHT_MOTORS},
-  int gearset = GEARSET,
- 	int distance_constant = DISTANCE_CONSTANT,
- 	double degree_constant = DEGREE_CONSTANT,
- 	int accel_step = ACCEL_STEP,
- 	int deccel_step = DECCEL_STEP,
- 	int arc_step = ARC_STEP,
- 	double driveKP = DRIVE_KP,
- 	double driveKD = DRIVE_KD,
- 	double turnKP = TURN_KP,
- 	double turnKD = TURN_KD,
- 	double arcKP = ARC_KP
-);
+void initDrive(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
+               std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
+               int gearset = GEARSET, int distance_constant = DISTANCE_CONSTANT,
+               double degree_constant = DEGREE_CONSTANT,
+               int accel_step = ACCEL_STEP, int deccel_step = DECCEL_STEP,
+               int arc_step = ARC_STEP, double driveKP = DRIVE_KP,
+               double driveKD = DRIVE_KD, double turnKP = TURN_KP,
+               double turnKD = TURN_KD, double arcKP = ARC_KP,
+               int imuPort = IMU_PORT);
 
-}
+} // namespace greenhat
 
 #endif
