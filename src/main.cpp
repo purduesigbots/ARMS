@@ -3,7 +3,8 @@
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
-	initDrive();
+	/*greenhat::*/initDrive();
+	selector::init();
 }
 
 void disabled() {
