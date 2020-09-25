@@ -301,8 +301,9 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 int odomTask() {
 	double global_x = 0;
 	double global_y = 0;
-	double global_orientation = M_PI / 2;
-	double orientation_degrees;
+	double heading = M_PI / 2;
+	double heading_degrees;
+	double prev_heading = heading;
 
 	double prev_left_pos = 0;
 	double prev_right_pos = 0;
@@ -311,7 +312,7 @@ int odomTask() {
 	double left_arc = 0;
 	double center_arc = 0;
 	double delta_angle = 0;
-	double current_radius = 0;
+	double radius = 0;
 	double center_displacement = 0;
 	double delta_x = 0;
 	double delta_y = 0;
@@ -319,24 +320,29 @@ int odomTask() {
 	while (true) {
 		right_arc = rightMotors->getPosition() - prev_right_pos;
 		left_arc = leftMotors->getPosition() - prev_left_pos;
+		prev_right_pos = rightMotors->getPosition();
+		prev_left_pos = leftMotors->getPosition();
 		center_arc = (right_arc + left_arc) / 2.0;
 
-		delta_angle = ((imu->get_rotation() * -1.0 * (M_PI / 180.0)) + M_PI / 2) -
-		              global_orientation;
-		global_orientation += delta_angle;
+		heading_degrees = imu->get_rotation();
+		heading = heading_degrees * M_PI / 180;
+		delta_angle = heading - prev_heading;
+		prev_heading = heading;
 
-		delta_x = cos(global_orientation) * center_arc;
-		delta_y = sin(global_orientation) * center_arc;
+		if(delta_angle != 0) {
+			radius = center_arc / delta_angle;
+			center_displacement = 2 * sin(delta_angle / 2) * radius;
+		} else {
+			center_displacement = center_arc;
+		}
 
-		prev_right_pos += right_arc;
-		prev_left_pos += left_arc;
+		delta_x = cos(heading) * center_displacement;
+		delta_y = sin(heading) * center_displacement;
 
 		global_x += delta_x;
 		global_y += delta_y;
 
-		orientation_degrees = (global_orientation * 180) / M_PI;
-
-		printf("%f, %f, %f \n", global_x, global_y, orientation_degrees);
+		printf("%f, %f, %f \n", global_x, global_y, heading);
 
 		delay(10);
 	}
