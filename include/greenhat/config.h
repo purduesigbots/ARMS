@@ -4,7 +4,7 @@
 namespace greenhat {
 
 // negative numbers mean reversed motor
-#define LEFT_MOTORS 5, 12
+#define LEFT_MOTORS 1, 2
 #define RIGHT_MOTORS -8, -19
 #define GEARSET 200 // rpm of drive motors
 
