@@ -1,6 +1,7 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+
 // Drivetrain configuration constants
 namespace greenhat {
 
@@ -23,8 +24,11 @@ namespace greenhat {
 #define TURN_KP .8
 #define TURN_KD 3
 #define ARC_KP .05
+  
+#define IMU_PORT 0 // port 0 for disabled
 
 } // namespace greenhat
+
 
 // Auton selector configuration constants
 namespace selector {
@@ -39,5 +43,6 @@ namespace selector {
 #define AUTONS "Front", "Back", "Do Nothing"
 
 } // namespace selector
+
 
 #endif

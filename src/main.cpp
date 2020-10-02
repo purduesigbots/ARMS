@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/imu.hpp"
 
 pros::Controller master(CONTROLLER_MASTER);
 
@@ -17,6 +18,7 @@ void autonomous() {
 }
 
 void opcontrol() {
+
 	while (true) {
 		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected())
 			autonomous();

@@ -5,6 +5,9 @@ using namespace pros;
 
 namespace greenhat {
 
+// imu
+std::shared_ptr<Imu> imu;
+
 // drive motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
@@ -238,10 +241,9 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (type == 1)
 			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed *= std::abs(2*(.5-(double)time_step/arc_length));
-		else if(type == 3)
+			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
+		else if (type == 3)
 			scaled_speed *= (1 - (double)time_step / arc_length);
-
 
 		// assign drive motor speeds
 		left_drive_vel(mirror ? speed : scaled_speed);
@@ -296,6 +298,55 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 
 /**************************************************/
 // task control
+int odomTask() {
+	double global_x = 0;
+	double global_y = 0;
+	double heading = M_PI / 2;
+	double heading_degrees;
+	double prev_heading = heading;
+
+	double prev_left_pos = 0;
+	double prev_right_pos = 0;
+
+	double right_arc = 0;
+	double left_arc = 0;
+	double center_arc = 0;
+	double delta_angle = 0;
+	double radius = 0;
+	double center_displacement = 0;
+	double delta_x = 0;
+	double delta_y = 0;
+
+	while (true) {
+		right_arc = rightMotors->getPosition() - prev_right_pos;
+		left_arc = leftMotors->getPosition() - prev_left_pos;
+		prev_right_pos = rightMotors->getPosition();
+		prev_left_pos = leftMotors->getPosition();
+		center_arc = (right_arc + left_arc) / 2.0;
+
+		heading_degrees = imu->get_rotation();
+		heading = heading_degrees * M_PI / 180;
+		delta_angle = heading - prev_heading;
+		prev_heading = heading;
+
+		if(delta_angle != 0) {
+			radius = center_arc / delta_angle;
+			center_displacement = 2 * sin(delta_angle / 2) * radius;
+		} else {
+			center_displacement = center_arc;
+		}
+
+		delta_x = cos(heading) * center_displacement;
+		delta_y = sin(heading) * center_displacement;
+
+		global_x += delta_x;
+		global_y += delta_y;
+
+		printf("%f, %f, %f \n", global_x, global_y, heading);
+
+		delay(10);
+	}
+}
 int driveTask() {
 	int prevError = 0;
 	double kp;
@@ -342,15 +393,16 @@ int driveTask() {
 	}
 }
 
-void startTask() {
+void startTasks() {
 	Task drive_task(driveTask);
+	Task odom_task(odomTask);
 }
 
 void initDrive(std::initializer_list<okapi::Motor> leftMotors,
                std::initializer_list<okapi::Motor> rightMotors, int gearset,
                int distance_constant, double degree_constant, int accel_step,
                int deccel_step, int arc_step, double driveKP, double driveKD,
-               double turnKP, double turnKD, double arcKP) {
+               double turnKP, double turnKD, double arcKP, int imuPort) {
 
 	// assign constants
 	greenhat::distance_constant = distance_constant;
@@ -370,8 +422,18 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		while (imu->is_calibrating()) {
+			delay(10);
+		}
+		printf("IMU calibrated!");
+	}
+
 	// start task
-	Task drive_task(driveTask);
+	startTasks();
 }
 
 /**************************************************/
