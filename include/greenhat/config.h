@@ -1,6 +1,8 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+
+// Drivetrain configuration constants
 namespace greenhat {
 
 // negative numbers mean reversed motor
@@ -22,8 +24,25 @@ namespace greenhat {
 #define TURN_KP .8
 #define TURN_KD 3
 #define ARC_KP .05
-
+  
 #define IMU_PORT 0 // port 0 for disabled
+
 } // namespace greenhat
+
+
+// Auton selector configuration constants
+namespace selector {
+
+// Color of theme from 0-359(H part of HSV)
+#define HUE 360
+
+// Default auton numbers
+#define DEFAULT 1
+
+// Names of autonomi, up to 10
+#define AUTONS "Front", "Back", "Do Nothing"
+
+} // namespace selector
+
 
 #endif
