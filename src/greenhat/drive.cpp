@@ -12,6 +12,11 @@ std::shared_ptr<Imu> imu;
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
+//quad encoders
+std::shared_ptr<ADIEncoder> leftEncoder;
+std::shared_ptr<ADIEncoder> rightEncoder;
+bool encodersReversed;
+
 // distance constants
 int distance_constant;  // ticks per foot
 double degree_constant; // ticks per degree
@@ -402,7 +407,8 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
                std::initializer_list<okapi::Motor> rightMotors, int gearset,
                int distance_constant, double degree_constant, int accel_step,
                int deccel_step, int arc_step, double driveKP, double driveKD,
-               double turnKP, double turnKD, double arcKP, int imuPort) {
+               double turnKP, double turnKD, double arcKP, int imuPort, std::tuple<int, int, int, int> encoderPorts,
+						   bool encoderReversed = false) {
 
 	// assign constants
 	greenhat::distance_constant = distance_constant;
@@ -431,6 +437,14 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 		}
 		printf("IMU calibrated!");
 	}
+
+	if (std::get<0>(encoderPorts) != 0) {
+		leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts), std::get<1>(encoderPorts));
+		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts), std::get<3>(encoderPorts));
+	}
+
+	greenhat::encodersReversed = encoderReversed;  
+
 
 	// start task
 	startTasks();
