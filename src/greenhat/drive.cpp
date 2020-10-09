@@ -28,8 +28,13 @@ double turnKP;
 double turnKD;
 double arcKP;
 
-/**************************************************/
-// edit below with caution!!!
+// odom variables
+double global_x = 0;
+double global_y = 0;
+double heading = M_PI / 2;
+double heading_degrees;
+
+// local drive task variables
 static int driveMode = 0;
 static int driveTarget = 0;
 static int turnTarget = 0;
@@ -299,10 +304,6 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 /**************************************************/
 // task control
 int odomTask() {
-	double global_x = 0;
-	double global_y = 0;
-	double heading = M_PI / 2;
-	double heading_degrees;
 	double prev_heading = heading;
 
 	double prev_left_pos = 0;

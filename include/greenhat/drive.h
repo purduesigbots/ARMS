@@ -6,6 +6,11 @@
 
 namespace greenhat {
 
+extern double global_x;
+extern double global_y;
+extern double heading;
+extern double heading_degrees;
+
 /**
  * Set the brake mode for all drive motors
  */
