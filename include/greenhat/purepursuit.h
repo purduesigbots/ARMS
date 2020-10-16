@@ -6,7 +6,9 @@
 
 namespace purepursuit {
 
-std::array<double,2> findIntersectionPoint(double path [][2], double radius);
+std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
+
+void followPath(std::vector<std::array<double, 2>> path);
 
 } // namespace purepursuit
 

@@ -6,6 +6,9 @@
 
 namespace greenhat {
 
+extern std::shared_ptr<okapi::MotorGroup> leftMotors;
+extern std::shared_ptr<okapi::MotorGroup> rightMotors;
+
 extern double global_x;
 extern double global_y;
 extern double heading;

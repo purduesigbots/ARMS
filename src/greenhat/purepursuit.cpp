@@ -4,6 +4,58 @@
 using namespace pros;
 
 namespace purepursuit {
+
+double getAngle(std::array<double, 2> point) {
+    double x = point[0];
+    double y = point[1];
+    
+    x -= greenhat::global_x;
+    y -= greenhat::global_y;
+    double theta = atan2(y,x);
+
+    double delta_angle = theta - greenhat::heading;
+    while(fabs(delta_angle) > M_PI) {
+        theta -= (delta_angle / fabs(delta_angle)) * 2 * M_PI;
+        delta_angle = theta - greenhat::heading;
+    }
+
+    return theta;
+}
+
+double lastSpeed = 0;
+int slew(double speed) {
+	int step;
+    int accel_step = 100;
+    int deccel_step = 100;
+
+	if (abs(lastSpeed) < abs(speed))
+		step = accel_step;
+	else
+		step = deccel_step;
+
+	if (speed > lastSpeed + step)
+		lastSpeed += step;
+	else if (speed < lastSpeed - step)
+		lastSpeed -= step;
+	else {
+		lastSpeed = speed;
+	}
+
+	return lastSpeed;
+}
+
+bool checkForLastSegment(std::vector<std::array<double, 2>> path, std::array<double, 2> point) {
+    std::array<double, 2> last = path.at(path.size() - 1);
+    std::array<double, 2> second_last = path.at(path.size() - 2);
+
+    if(last[0] == second_last[0]) {
+        return last[0] == point[0];
+    } else {
+        if(last[0] > second_last[0])
+    }
+}
+
+bool last_segment = false;
 double m,a,b,c;
 double x1,x2,x3,y1,y2,y3;
 double x_int_1, x_int_2, y_int_1, y_int_2;
@@ -12,13 +64,13 @@ std::array<double,2> last_point;
 std::array<double,2> second_last_point;
 std::array<double,2> target_point;
 
-std::array<double,2> findIntersectionPoint(double path[][2], double radius) {
+std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius) {
   intersection_points.clear();
   x1 = greenhat::global_x;
   y1 = greenhat::global_y;
 
   while (intersection_points.size() == 0) {
-    for (int i = (sizeof(path) / sizeof(path[0])) - 1; i >= 0; i--) {
+    for (int i = path.size() - 1; i >= 0; i--) {
       x2 = path[i-1][0];
       y2 = path[i-1][1];
       x3 = path[i][0];
@@ -35,12 +87,14 @@ std::array<double,2> findIntersectionPoint(double path[][2], double radius) {
         x_int_2 = (a + b) / c;
 
         if (isfinite(x_int_1)) {
-          if ((x2 < x3 && x_int_1 < x3 && x_int_1 > x2) || (x2 > x3 && x_int_1 > x3 && x_int_1 < x2))
+          if ((x2 < x3 && x_int_1 < x3 && x_int_1 > x2) || (x2 > x3 && x_int_1 > x3 && x_int_1 < x2)) {
             y_int_1 = m * (x_int_1 - x2) + y2;
             intersection_points.push_back({x_int_1, y_int_1});
-          if ((x2 < x3 && x_int_2 < x3 && x_int_2 > x2) || (x2 > x3 && x_int_2 > x3 && x_int_2 < x2))
+          }
+          if ((x2 < x3 && x_int_2 < x3 && x_int_2 > x2) || (x2 > x3 && x_int_2 > x3 && x_int_2 < x2)) {
             y_int_2 = m * (x_int_2 - x2) + y2;
             intersection_points.push_back({x_int_2, y_int_2});
+          }
         }
       }
       // for vertical line segments
@@ -57,8 +111,12 @@ std::array<double,2> findIntersectionPoint(double path[][2], double radius) {
             intersection_points.push_back({x_int_1, y_int_2});
         }
       }
-      if (intersection_points.size() != 0) break;
+      if (intersection_points.size() != 0) {
+        last_segment = i == path.size() - 1;
+        break;
+      }
     }
+
     radius += 1;  // 1 inch, might need to be adjusted
   }
 
@@ -109,4 +167,85 @@ std::array<double,2> findIntersectionPoint(double path[][2], double radius) {
 
   return target_point;
 }
+
+void goToPoint(std::array<double, 2> point) {
+    
+}
+
+void followPath(std::vector<std::array<double, 2>> path) {
+    double inner_radius = 10.0;
+    double outer_radius = 12.0;
+
+    double kP_inner = 0.0;
+    double kI_inner = 0.0;
+    double kD_inner = 0.0;
+
+    double kP_outer = 0.0;
+    double kI_outer = 0.0;
+    double kD_outer = 0.0;
+
+    double ang_prev_error = 0;
+    double vel_prev_error = 0;
+
+    double max_speed = 80;
+
+	while (1) {
+		delay(20);
+
+        std::array<double, 2> ang_tracking_point = findIntersectionPoint(path, inner_radius);
+        std::array<double, 2> vel_tracking_point = findIntersectionPoint(path, outer_radius);
+
+        if(last_segment) {
+            goToPoint(path[path.size() - 1]);
+            break;
+        }
+
+        double ang_error = getAngle(ang_tracking_point);
+        double vel_error = getAngle(vel_tracking_point);
+
+		double ang_derivative = ang_error - ang_prev_error;
+        double vel_derivative = vel_error - vel_prev_error;
+		ang_prev_error = ang_error;
+        vel_prev_error = vel_error;
+
+		double forward_speed;
+        if(vel_error == 0) {
+            forward_speed = max_speed;
+        } else {
+            forward_speed = kP_outer / vel_error - kD_outer * vel_derivative;
+        }
+        double turn_modifier = kP_inner * ang_error + kD_inner * ang_derivative;
+
+        double left_speed = forward_speed + turn_modifier;
+        double right_speed = forward_speed - turn_modifier;
+
+        left_speed = slew(left_speed);
+        right_speed = slew(right_speed);
+
+        if(left_speed > max_speed) {
+            double diff = left_speed - max_speed;
+            left_speed -= diff;
+            right_speed -= diff;
+        } else if(left_speed < -max_speed) {
+            double diff = left_speed + max_speed;
+            left_speed -= diff;
+            right_speed -= diff;
+        }
+
+        if(right_speed > max_speed) {
+            double diff = right_speed - max_speed;
+            left_speed -= diff;
+            right_speed -= diff;
+        } else if(right_speed < -max_speed) {
+            double diff = right_speed + max_speed;
+            left_speed -= diff;
+            right_speed -= diff;
+        }
+
+        greenhat::leftMotors->moveVoltage(left_speed * 120);
+        greenhat::rightMotors->moveVoltage(right_speed * 120);
+
+	}
+}
+
 } // namespace purepursuit
