@@ -75,7 +75,7 @@ void reset() {
 }
 
 int drivePos() {
-	return (rightMotors->getPosition() + leftMotors->getPosition()) / 2;
+	return (rightMotors->getPosition() + leftMotors->getPosition() * driveMode) / 2;
 }
 
 /**************************************************/
@@ -374,9 +374,7 @@ int driveTask() {
 		}
 
 		// read sensors
-		int sv =
-		    (rightMotors->getPosition() + leftMotors->getPosition() * driveMode) /
-		    2;
+		int sv = drivePos();
 
 		// speed
 		int error = sp - sv;
@@ -443,7 +441,7 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts), std::get<3>(encoderPorts));
 	}
 
-	greenhat::encodersReversed = encoderReversed;  
+	greenhat::encodersReversed = encoderReversed;
 
 
 	// start task
