@@ -1,6 +1,7 @@
 #include "greenhat/drive.h"
 #include "api.h"
 #include "greenhat/config.h"
+#include "greenhat/odom.h"
 using namespace pros;
 
 namespace greenhat {
@@ -303,51 +304,6 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 
 /**************************************************/
 // task control
-int odomTask() {
-	double prev_heading = heading;
-
-	double prev_left_pos = 0;
-	double prev_right_pos = 0;
-
-	double right_arc = 0;
-	double left_arc = 0;
-	double center_arc = 0;
-	double delta_angle = 0;
-	double radius = 0;
-	double center_displacement = 0;
-	double delta_x = 0;
-	double delta_y = 0;
-
-	while (true) {
-		right_arc = rightMotors->getPosition() - prev_right_pos;
-		left_arc = leftMotors->getPosition() - prev_left_pos;
-		prev_right_pos = rightMotors->getPosition();
-		prev_left_pos = leftMotors->getPosition();
-		center_arc = (right_arc + left_arc) / 2.0;
-
-		heading_degrees = imu->get_rotation();
-		heading = heading_degrees * M_PI / 180;
-		delta_angle = heading - prev_heading;
-		prev_heading = heading;
-
-		if(delta_angle != 0) {
-			radius = center_arc / delta_angle;
-			center_displacement = 2 * sin(delta_angle / 2) * radius;
-		} else {
-			center_displacement = center_arc;
-		}
-
-		delta_x = cos(heading) * center_displacement;
-		delta_y = sin(heading) * center_displacement;
-
-		global_x += delta_x;
-		global_y += delta_y;
-
-		printf("%f, %f, %f \n", global_x, global_y, heading);
-
-		delay(10);
-	}
-}
 int driveTask() {
 	int prevError = 0;
 	double kp;
@@ -396,7 +352,7 @@ int driveTask() {
 
 void startTasks() {
 	Task drive_task(driveTask);
-	Task odom_task(odomTask);
+	Task odom_task(odom::odomTask);
 }
 
 void initDrive(std::initializer_list<okapi::Motor> leftMotors,

@@ -9,10 +9,7 @@ namespace greenhat {
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
-extern double global_x;
-extern double global_y;
-extern double heading;
-extern double heading_degrees;
+extern std::shared_ptr<pros::Imu> imu;
 
 /**
  * Set the brake mode for all drive motors

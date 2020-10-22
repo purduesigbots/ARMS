@@ -1,59 +1,10 @@
 #include "greenhat/purepursuit.h"
 #include "api.h"
 #include "greenhat/drive.h"
+#include "greenhat/odom.h"
 using namespace pros;
 
 namespace purepursuit {
-
-double getAngle(std::array<double, 2> point) {
-  double x = point[0];
-  double y = point[1];
-
-  x -= greenhat::global_x;
-  y -= greenhat::global_y;
-  double theta = atan2(y,x);
-
-  double delta_angle = theta - greenhat::heading;
-  while(fabs(delta_angle) > M_PI) {
-      theta -= (delta_angle / fabs(delta_angle)) * 2 * M_PI;
-      delta_angle = theta - greenhat::heading;
-  }
-  return theta;
-}
-
-
-double getDistance(std::array<double, 2> point) {
-  double x = point[0];
-  double y = point[1];
-
-  x -= greenhat::global_x;
-  y -= greenhat::global_y;
-  return sqrt(x*x + y*y);
-}
-
-
-double lastSpeed = 0;
-int slew(double speed) {
-	int step;
-    int accel_step = 100;
-    int deccel_step = 100;
-
-	if (abs(lastSpeed) < abs(speed))
-		step = accel_step;
-	else
-		step = deccel_step;
-
-	if (speed > lastSpeed + step)
-		lastSpeed += step;
-	else if (speed < lastSpeed - step)
-		lastSpeed -= step;
-	else {
-		lastSpeed = speed;
-	}
-
-	return lastSpeed;
-}
-
 
 bool last_segment = false;
 double m,a,b,c;
@@ -66,8 +17,8 @@ std::array<double,2> target_point;
 
 std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius) {
   intersection_points.clear();
-  x1 = greenhat::global_x;
-  y1 = greenhat::global_y;
+  x1 = odom::global_x;
+  y1 = odom::global_y;
 
   while (intersection_points.size() == 0) {
     for (int i = path.size() - 1; i >= 0; i--) {
@@ -167,74 +118,6 @@ std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> pa
   return target_point;
 }
 
-
-void goToPoint(std::array<double, 2> point) {
-  double kP_vel = 0.0;
-  double kI_vel = 0.0;
-  double kD_vel = 0.0;
-
-  double kP_ang = 0.0;
-  double kI_ang = 0.0;
-  double kD_ang = 0.0;
-
-  double vel_prev_error = getDistance(point);
-  double ang_prev_error = getAngle(point);
-
-  double max_speed = 80;
-  double exit_error = 1;
-
-  while(1) {
-    delay(20);
-
-    double vel_error = getDistance(point);
-    double ang_error = getAngle(point);
-
-    double vel_derivative = vel_error - vel_prev_error;
-    double ang_derivative = ang_error - ang_prev_error;
-
-    vel_prev_error = vel_error;
-    ang_prev_error = ang_error;
-
-    double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
-    double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
-
-    double left_speed = forward_speed + turn_modifier;
-    double right_speed = forward_speed - turn_modifier;
-
-    if(left_speed > max_speed) {
-      double diff = left_speed - max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    } else if(left_speed < -max_speed) {
-      double diff = left_speed + max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    }
-
-    if(right_speed > max_speed) {
-      double diff = right_speed - max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    } else if(right_speed < -max_speed) {
-      double diff = right_speed + max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    }
-
-    left_speed = slew(left_speed);
-    right_speed = slew(right_speed);
-
-    greenhat::leftMotors->moveVoltage(left_speed * 120);
-    greenhat::rightMotors->moveVoltage(right_speed * 120);
-
-    if (vel_error < exit_error)
-      break;
-  }
-  greenhat::leftMotors->moveVoltage(0);
-  greenhat::rightMotors->moveVoltage(0);
-}
-
-
 void followPath(std::vector<std::array<double, 2>> path) {
     double inner_radius = 10.0;
     double outer_radius = 12.0;
@@ -259,12 +142,12 @@ void followPath(std::vector<std::array<double, 2>> path) {
     std::array<double, 2> vel_tracking_point = findIntersectionPoint(path, outer_radius);
 
     if(last_segment) {
-      goToPoint(path[path.size() - 1]);
+      odom::goToPoint(path[path.size() - 1]);
       break;
     }
 
-    double ang_error = getAngle(ang_tracking_point);
-    double vel_error = getAngle(vel_tracking_point);
+    double ang_error = odom::getAngle(ang_tracking_point);
+    double vel_error = odom::getAngle(vel_tracking_point);
 
 		double ang_derivative = ang_error - ang_prev_error;
     double vel_derivative = vel_error - vel_prev_error;
@@ -302,8 +185,8 @@ void followPath(std::vector<std::array<double, 2>> path) {
       right_speed -= diff;
     }
 
-    left_speed = slew(left_speed);
-    right_speed = slew(right_speed);
+    left_speed = odom::slew(left_speed);
+    right_speed = odom::slew(right_speed);
 
     greenhat::leftMotors->moveVoltage(left_speed * 120);
     greenhat::rightMotors->moveVoltage(right_speed * 120);
