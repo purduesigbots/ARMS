@@ -1,0 +1,4 @@
+site_name: ARMS Docs
+nav:
+    - Home: index.md
+    - Getting Started: getting_started.md
