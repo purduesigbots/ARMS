@@ -75,6 +75,9 @@ void reset() {
 }
 
 int drivePos() {
+	if (leftEncoder != NULL) {
+		return (rightEncoder->get_value() + leftEncoder->get_value() * driveMode) / 2;
+	}
 	return (rightMotors->getPosition() + leftMotors->getPosition() * driveMode) / 2;
 }
 
