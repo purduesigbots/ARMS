@@ -1,7 +1,7 @@
 {
     "py/object": "pros.conductor.project.Project",
     "py/state": {
-        "project_name": "greenhatlib",
+        "project_name": "ARMS",
         "target": "v5",
         "templates": {
             "kernel": {

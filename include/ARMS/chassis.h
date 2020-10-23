@@ -1,10 +1,10 @@
 #ifndef _DRIVE_H_
 #define _DRIVE_H_
 
-#include "greenhat/config.h"
+#include "ARMS/config.h"
 #include "okapi/api.hpp"
 
-namespace greenhat {
+namespace chassis {
 
 /**
  * Set the brake mode for all drive motors
@@ -119,6 +119,6 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
                double turnKD = TURN_KD, double arcKP = ARC_KP,
                int imuPort = IMU_PORT);
 
-} // namespace greenhat
+} // namespace chassis
 
 #endif

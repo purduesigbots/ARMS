@@ -4,12 +4,11 @@
 #define PROS_USE_SIMPLE_NAMES
 #define PROS_USE_LITERALS
 
+#include "ARMS/api.h"
 #include "api.h"
-#include "greenhat/api.h"
 
 // subsystems
 using namespace pros;
-using namespace greenhat;
 
 #ifdef __cplusplus
 extern "C" {
