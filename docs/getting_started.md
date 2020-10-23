@@ -1,9 +1,5 @@
 # Getting Started
 
-### Introduction
-ARMS is a library that greatly simplifies programming the chassis of a vex v5 robot.  
-**DISCLAIMER**: This library was designed with standard tank drive bases in mind. If your bot has an X-drive, mecanum drive, H-drive, or any other non-standard type of drive, this library will not work without significant modifications (you may be better off writing your own drive code).
-
 ## Installing ARMS
 1. Download the most recent [template](https://github.com/Marsgate/greenhatlib/releases)
 2. Run this terminal command: `prosv5 c fetch greenhat@1.1.0.zip` (replace with your version number)

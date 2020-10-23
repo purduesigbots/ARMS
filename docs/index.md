@@ -1,17 +1,11 @@
-# Welcome to MkDocs
+# Introduction
+ARMS is a library that greatly simplifies programming the chassis of a vex v5 robot.  
+**DISCLAIMER**: This library was designed with standard tank drive bases in mind. If your bot has an X-drive, mecanum drive, H-drive, or any other non-standard type of drive, this library will not work without significant modifications (you may be better off writing your own drive code).  
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+## New Users
+For users unfamiliar with ARMS, consider reading the [Getting Started guide](/getting_started/) for help.
 
-## Commands
+## Experienced Users
+For users familiar with ARMS, a comprehensive [API](/api/) is available, detailing the full functionality of the library.
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
 
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
