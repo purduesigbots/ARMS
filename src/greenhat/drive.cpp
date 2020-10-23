@@ -383,6 +383,7 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	if (imuPort != 0) {
 		imu = std::make_shared<Imu>(imuPort);
 		imu->reset();
+		delay(1500);
 		while (imu->is_calibrating()) {
 			delay(10);
 		}

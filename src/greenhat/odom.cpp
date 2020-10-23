@@ -12,7 +12,8 @@ double heading;
 double heading_degrees;
 
 int odomTask() {
-	double prev_heading = heading;
+	double drive_constant = 47.94;
+	double prev_heading = 0;
 
 	double prev_left_pos = 0;
 	double prev_right_pos = 0;
@@ -51,8 +52,8 @@ int odomTask() {
 		delta_x = cos(heading) * center_displacement;
 		delta_y = sin(heading) * center_displacement;
 
-		global_x += delta_x;
-		global_y += delta_y;
+		global_x += delta_x / drive_constant;
+		global_y += delta_y / drive_constant;
 
 		printf("%f, %f, %f \n", global_x, global_y, heading_degrees);
 
