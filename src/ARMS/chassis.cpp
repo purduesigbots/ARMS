@@ -1,9 +1,10 @@
-#include "greenhat/drive.h"
+#include "ARMS/chassis.h"
+#include "ARMS/config.h"
 #include "api.h"
-#include "greenhat/config.h"
+
 using namespace pros;
 
-namespace greenhat {
+namespace chassis {
 
 // imu
 std::shared_ptr<Imu> imu;
@@ -329,7 +330,7 @@ int odomTask() {
 		delta_angle = heading - prev_heading;
 		prev_heading = heading;
 
-		if(delta_angle != 0) {
+		if (delta_angle != 0) {
 			radius = center_arc / delta_angle;
 			center_displacement = 2 * sin(delta_angle / 2) * radius;
 		} else {
@@ -405,22 +406,22 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
                double turnKP, double turnKD, double arcKP, int imuPort) {
 
 	// assign constants
-	greenhat::distance_constant = distance_constant;
-	greenhat::degree_constant = degree_constant;
-	greenhat::accel_step = accel_step;
-	greenhat::deccel_step = deccel_step;
-	greenhat::arc_step = arc_step;
-	greenhat::driveKP = driveKP;
-	greenhat::driveKD = driveKD;
-	greenhat::turnKP = turnKP;
-	greenhat::turnKD = turnKD;
-	greenhat::arcKP = arcKP;
+	chassis::distance_constant = distance_constant;
+	chassis::degree_constant = degree_constant;
+	chassis::accel_step = accel_step;
+	chassis::deccel_step = deccel_step;
+	chassis::arc_step = arc_step;
+	chassis::driveKP = driveKP;
+	chassis::driveKD = driveKD;
+	chassis::turnKP = turnKP;
+	chassis::turnKD = turnKD;
+	chassis::arcKP = arcKP;
 
 	// configure drive motors
-	greenhat::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
-	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
-	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
+	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
+	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
 	// initialize imu
 	if (imuPort != 0) {
@@ -450,4 +451,4 @@ void arcade(int vertical, int horizontal) {
 	right_drive(vertical - horizontal);
 }
 
-} // namespace greenhat
+} // namespace chassis
