@@ -26,8 +26,6 @@ void opcontrol() {
 
 		arcade(master.get_analog(ANALOG_LEFT_Y) * (double)100 / 127,
 		       master.get_analog(ANALOG_RIGHT_X) * (double)100 / 127);
-        
-        printf("x: %lf y: %lf angle: %lf\n", odom::global_x, odom::global_y, odom::heading);
 
 		pros::delay(20);
 	}

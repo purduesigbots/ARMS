@@ -26,6 +26,9 @@ int odomTask() {
 	double delta_x = 0;
 	double delta_y = 0;
 
+	global_x = 0;
+	global_y = 0;
+
 	while (true) {
 		right_arc = greenhat::rightMotors->getPosition() - prev_right_pos;
 		left_arc = greenhat::leftMotors->getPosition() - prev_left_pos;
@@ -51,7 +54,7 @@ int odomTask() {
 		global_x += delta_x;
 		global_y += delta_y;
 
-		printf("%f, %f, %f \n", global_x, global_y, heading);
+		printf("%f, %f, %f \n", global_x, global_y, heading_degrees);
 
 		delay(10);
 	}
