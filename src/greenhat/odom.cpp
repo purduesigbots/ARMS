@@ -12,9 +12,9 @@ double heading;
 double heading_degrees;
 
 int odomTask() {
-	double drive_constant = 47.94;
-	double prev_heading = 0;
+	double drive_constant = 47.94; // ticks per inch
 
+	double prev_heading = 0;
 	double prev_left_pos = 0;
 	double prev_right_pos = 0;
 
@@ -61,6 +61,7 @@ int odomTask() {
 	}
 }
 
+
 double getAngle(std::array<double, 2> point) {
   double x = point[0];
   double y = point[1];
@@ -88,10 +89,11 @@ double getDistance(std::array<double, 2> point) {
 }
 
 double lastSpeed = 0;
-int slew(double speed) {
+double slew(double speed) {
 	int step;
-    int accel_step = 100;
-    int deccel_step = 100;
+
+	int accel_step = 100;
+	int deccel_step = 100;
 
 	if (abs(lastSpeed) < abs(speed))
 		step = accel_step;
@@ -109,7 +111,11 @@ int slew(double speed) {
 	return lastSpeed;
 }
 
+
 void goToPoint(std::array<double, 2> point) {
+	double max_speed = 100; // 100 max
+	double exit_error = 1; // radius around point in inches
+
   double kP_vel = 0.0;
   double kI_vel = 0.0;
   double kD_vel = 0.0;
@@ -121,12 +127,7 @@ void goToPoint(std::array<double, 2> point) {
   double vel_prev_error = getDistance(point);
   double ang_prev_error = getAngle(point);
 
-  double max_speed = 80;
-  double exit_error = 1;
-
   while(1) {
-    delay(20);
-
     double vel_error = getDistance(point);
     double ang_error = getAngle(point);
 
@@ -142,21 +143,21 @@ void goToPoint(std::array<double, 2> point) {
     double left_speed = forward_speed + turn_modifier;
     double right_speed = forward_speed - turn_modifier;
 
-    if(left_speed > max_speed) {
+    if (left_speed > max_speed) {
       double diff = left_speed - max_speed;
       left_speed -= diff;
       right_speed -= diff;
-    } else if(left_speed < -max_speed) {
+    } else if (left_speed < -max_speed) {
       double diff = left_speed + max_speed;
       left_speed -= diff;
       right_speed -= diff;
     }
 
-    if(right_speed > max_speed) {
+    if (right_speed > max_speed) {
       double diff = right_speed - max_speed;
       left_speed -= diff;
       right_speed -= diff;
-    } else if(right_speed < -max_speed) {
+    } else if (right_speed < -max_speed) {
       double diff = right_speed + max_speed;
       left_speed -= diff;
       right_speed -= diff;
@@ -170,6 +171,43 @@ void goToPoint(std::array<double, 2> point) {
 
     if (vel_error < exit_error)
       break;
+		delay(20);
+  }
+  greenhat::leftMotors->moveVoltage(0);
+  greenhat::rightMotors->moveVoltage(0);
+}
+
+
+void facePoint(std::array<double, 2> point) {
+	double max_speed = 100; // 100 max
+  double exit_error = 0.05; // radians
+
+  double kP = 0.0;
+  double kI = 0.0;
+  double kD = 0.0;
+
+  double prev_error = getAngle(point);
+
+  while(1) {
+    double error = getAngle(point);
+    double derivative = error - prev_error;
+    prev_error = error;
+
+    double speed = kP * error + kD * derivative;
+
+		if (speed > max_speed)
+			speed = max_speed;
+		else if (speed < -max_speed)
+			speed = -max_speed;
+
+    speed = slew(speed);
+
+    greenhat::leftMotors->moveVoltage(speed * 120);
+    greenhat::rightMotors->moveVoltage(speed * 120);
+
+    if (error < exit_error)
+      break;
+		delay(20);
   }
   greenhat::leftMotors->moveVoltage(0);
   greenhat::rightMotors->moveVoltage(0);

@@ -2,6 +2,7 @@
 #define _ODOM_H_
 
 #include "greenhat/config.h"
+#include "okapi/api.hpp"
 #include <array>
 
 namespace odom {
@@ -17,10 +18,12 @@ double getAngle(std::array<double, 2> point);
 
 double getDistance(std::array<double, 2> point);
 
+double slew(double speed);
+
 void goToPoint(std::array<double, 2> point);
 
-int slew(double speed);
+void facePoint(std::array<double, 2> point);
 
 } // namespace odom
 
-#endif 
+#endif

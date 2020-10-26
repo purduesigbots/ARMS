@@ -67,7 +67,6 @@ std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> pa
         break;
       }
     }
-
     radius += 1;  // 1 inch, might need to be adjusted
   }
 
@@ -118,39 +117,38 @@ std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> pa
   return target_point;
 }
 
+
 void followPath(std::vector<std::array<double, 2>> path) {
-    double inner_radius = 10.0;
-    double outer_radius = 12.0;
+  double max_speed = 100; // 100 max
 
-    double kP_inner = 0.0;
-    double kI_inner = 0.0;
-    double kD_inner = 0.0;
+  double inner_radius = 10.0;
+  double outer_radius = 15.0;
 
-    double kP_outer = 0.0;
-    double kI_outer = 0.0;
-    double kD_outer = 0.0;
+  double kP_ang = 0.0;
+  double kI_ang = 0.0;
+  double kD_ang = 0.0;
 
-    double ang_prev_error = 0;
-    double vel_prev_error = 0;
+  double kP_vel = 0.0;
+  double kI_vel = 0.0;
+  double kD_vel = 0.0;
 
-    double max_speed = 80;
+  double ang_prev_error = 0;
+  double vel_prev_error = 0;
 
 	while (1) {
-		delay(20);
-
     std::array<double, 2> ang_tracking_point = findIntersectionPoint(path, inner_radius);
-    std::array<double, 2> vel_tracking_point = findIntersectionPoint(path, outer_radius);
-
     if(last_segment) {
       odom::goToPoint(path[path.size() - 1]);
       break;
     }
+    std::array<double, 2> vel_tracking_point = findIntersectionPoint(path, outer_radius);
 
     double ang_error = odom::getAngle(ang_tracking_point);
     double vel_error = odom::getAngle(vel_tracking_point);
 
 		double ang_derivative = ang_error - ang_prev_error;
     double vel_derivative = vel_error - vel_prev_error;
+
 		ang_prev_error = ang_error;
     vel_prev_error = vel_error;
 
@@ -158,9 +156,9 @@ void followPath(std::vector<std::array<double, 2>> path) {
     if(vel_error == 0) {
       forward_speed = max_speed;
     } else {
-      forward_speed = kP_outer / vel_error - kD_outer * vel_derivative;
+      forward_speed = kP_vel / vel_error - kD_vel * vel_derivative;
     }
-    double turn_modifier = kP_inner * ang_error + kD_inner * ang_derivative;
+    double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
 
     double left_speed = forward_speed + turn_modifier;
     double right_speed = forward_speed - turn_modifier;
@@ -191,6 +189,7 @@ void followPath(std::vector<std::array<double, 2>> path) {
     greenhat::leftMotors->moveVoltage(left_speed * 120);
     greenhat::rightMotors->moveVoltage(right_speed * 120);
 
+    delay(20);
 	}
 }
 
