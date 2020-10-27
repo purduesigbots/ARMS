@@ -18,8 +18,8 @@ namespace chassis {
 #define ARC_STEP 2      // acceleration for arcs
 
 // pid constants
-#define DRIVE_KP .3
-#define DRIVE_KD .5
+#define LINEAR_KP .3
+#define LINEAR_KD .5
 #define TURN_KP .8
 #define TURN_KD 3
 #define ARC_KP .05
