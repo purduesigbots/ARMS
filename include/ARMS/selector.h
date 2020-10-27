@@ -1,6 +1,6 @@
 #pragma once
 
-#include "greenhat/config.h"
+#include "ARMS/config.h"
 #include <string>
 
 namespace selector {
