@@ -24,7 +24,10 @@ namespace chassis {
 #define TURN_KD 3
 #define ARC_KP .05
 
-#define IMU_PORT 0 // port 0 for disabled
+// sensors
+#define IMU_PORT 0                       // port 0 for disabled
+#define ENCODER_PORTS '0', '0', '0', '0' // port 0 for disabled
+#define ENCODERS_REVERSED false
 
 } // namespace chassis
 
