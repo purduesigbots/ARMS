@@ -4,7 +4,7 @@
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
-	chassis::initDrive();
+	chassis::init();
 	selector::init();
 }
 
