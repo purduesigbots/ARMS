@@ -9,7 +9,7 @@ namespace chassis {
 // imu
 std::shared_ptr<Imu> imu;
 
-// drive motors
+// chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
@@ -28,37 +28,37 @@ int deccel_step; // 200 = no slew
 int arc_step;    // acceleration for arcs
 
 // pid constants
-double driveKP;
-double driveKD;
+double linearKP;
+double linearKD;
 double turnKP;
 double turnKD;
 double arcKP;
 
 /**************************************************/
 // edit below with caution!!!
-static int driveMode = 0;
-static int driveTarget = 0;
+static int chassisMode = 0;
+static int linearTarget = 0;
 static int turnTarget = 0;
 static int maxSpeed = 100;
 
 /**************************************************/
 // basic control
-void left_drive(int vel) {
+void left(int vel) {
 	vel *= 120;
 	leftMotors->moveVoltage(vel);
 }
 
-void right_drive(int vel) {
+void right(int vel) {
 	vel *= 120;
 	rightMotors->moveVoltage(vel);
 }
 
-void left_drive_vel(int vel) {
+void left_vel(int vel) {
 	vel *= (double)leftMotors->getGearing() / 100;
 	leftMotors->moveVelocity(vel);
 }
 
-void right_drive_vel(int vel) {
+void right_vel(int vel) {
 	vel *= (double)leftMotors->getGearing() / 100;
 	rightMotors->moveVelocity(vel);
 }
@@ -66,8 +66,8 @@ void right_drive_vel(int vel) {
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	leftMotors->setBrakeMode(b);
 	rightMotors->setBrakeMode(b);
-	left_drive_vel(0);
-	right_drive_vel(0);
+	left_vel(0);
+	right_vel(0);
 }
 
 void reset() {
@@ -75,7 +75,7 @@ void reset() {
 	rightMotors->tarePosition();
 }
 
-int drivePos() {
+int position() {
 	if (leftEncoder != NULL) {
 		return (rightEncoder->get_value() + leftEncoder->get_value() * driveMode) /
 		       2;
@@ -91,7 +91,7 @@ int slew(int speed) {
 	int step;
 
 	if (abs(lastSpeed) < abs(speed))
-		if (driveMode == 0)
+		if (chassisMode == 0)
 			step = arc_step;
 		else
 			step = accel_step;
@@ -110,17 +110,17 @@ int slew(int speed) {
 }
 
 /**************************************************/
-// drive settling
+// chassis settling
 bool isDriving() {
 	static int count = 0;
 	static int last = 0;
 	static int lastTarget = 0;
 
-	int curr = drivePos();
+	int curr = position();
 
 	int target = turnTarget;
-	if (driveMode == 1)
-		target = driveTarget;
+	if (chassisMode == 1)
+		target = linearTarget;
 
 	if (abs(last - curr) < 3)
 		count++;
@@ -147,12 +147,12 @@ void waitUntilSettled() {
 
 /**************************************************/
 // autonomous functions
-void driveAsync(double sp, int max) {
+void moveAsync(double sp, int max) {
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
-	driveTarget = sp;
-	driveMode = 1;
+	linearTarget = sp;
+	chassisMode = 1;
 }
 
 void turnAsync(double sp, int max) {
@@ -160,11 +160,11 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
-	driveMode = -1;
+	chassisMode = -1;
 }
 
-void drive(double sp, int max) {
-	driveAsync(sp, max);
+void move(double sp, int max) {
+	moveAsync(sp, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -175,39 +175,39 @@ void turn(double sp, int max) {
 	waitUntilSettled();
 }
 
-void fastDrive(double sp, int max) {
+void fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
 	lastSpeed = max;
-	driveMode = 0;
-	left_drive(max);
-	right_drive(max);
+	chassisMode = 0;
+	left(max);
+	right(max);
 
 	if (sp > 0)
-		while (drivePos() < sp * distance_constant)
+		while (position() < sp * distance_constant)
 			delay(20);
 	else
-		while (drivePos() > sp * distance_constant)
+		while (position() > sp * distance_constant)
 			delay(20);
 }
 
-void timeDrive(int t, int left, int right) {
-	left_drive(left);
-	right_drive(right == 0 ? left : right);
+void time(int t, int left_speed, int right_speed) {
+	left(left_speed);
+	right(right_speed == 0 ? left_speed : right_speed);
 	delay(t);
 }
 
-void velocityDrive(int t, int max) {
-	left_drive_vel(max);
-	right_drive_vel(max);
+void velocity(int t, int max) {
+	left_vel(max);
+	right_vel(max);
 	delay(t);
 }
 
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	driveMode = 0;
+	chassisMode = 0;
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -218,8 +218,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type < 2) {
-		left_drive_vel(0);
-		right_drive_vel(0);
+		left_vel(0);
+		right_vel(0);
 		delay(10);
 	}
 
@@ -256,9 +256,9 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		else if (type == 3)
 			scaled_speed *= (1 - (double)time_step / arc_length);
 
-		// assign drive motor speeds
-		left_drive_vel(mirror ? speed : scaled_speed);
-		right_drive_vel(mirror ? scaled_speed : speed);
+		// assign chassis motor speeds
+		left_vel(mirror ? speed : scaled_speed);
+		right_vel(mirror ? scaled_speed : speed);
 
 		// increment time step
 		time_step += 10;
@@ -266,8 +266,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1 && type != 2) {
-		left_drive_vel(0);
-		right_drive_vel(0);
+		left_vel(0);
+		right_vel(0);
 	}
 }
 
@@ -285,7 +285,7 @@ void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 	arc(mirror, arc1, 1, max, 1);
 
 	// middle movement
-	velocityDrive(mid, max);
+	velocity(mid, max);
 
 	// final arc
 	arc(!mirror, arc2, 1, max, 2);
@@ -358,7 +358,7 @@ int odomTask() {
 		delay(10);
 	}
 }
-int driveTask() {
+int chassisTask() {
 	int prevError = 0;
 	double kp;
 	double kd;
@@ -367,11 +367,11 @@ int driveTask() {
 	while (1) {
 		delay(20);
 
-		if (driveMode == 1) {
-			sp = driveTarget;
-			kp = driveKP;
-			kd = driveKD;
-		} else if (driveMode == -1) {
+		if (chassisMode == 1) {
+			sp = linearTarget;
+			kp = linearKP;
+			kd = linearKD;
+		} else if (chassisMode == -1) {
 			sp = turnTarget;
 			kp = turnKP;
 			kd = turnKD;
@@ -397,17 +397,17 @@ int driveTask() {
 		speed = slew(speed); // slew
 
 		// set motors
-		left_drive(speed * driveMode);
-		right_drive(speed);
+		left(speed * chassisMode);
+		right(speed);
 	}
 }
 
 void startTasks() {
-	Task drive_task(driveTask);
+	Task chassis_task(chassisTask);
 	Task odom_task(odomTask);
 }
 
-void initDrive(std::initializer_list<okapi::Motor> leftMotors,
+void init(std::initializer_list<okapi::Motor> leftMotors,
                std::initializer_list<okapi::Motor> rightMotors, int gearset,
                int distance_constant, double degree_constant, int accel_step,
                int deccel_step, int arc_step, double driveKP, double driveKD,
@@ -421,13 +421,13 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::accel_step = accel_step;
 	chassis::deccel_step = deccel_step;
 	chassis::arc_step = arc_step;
-	chassis::driveKP = driveKP;
-	chassis::driveKD = driveKD;
+	chassis::linearKP = linearKP;
+	chassis::linearKD = linearKD;
 	chassis::turnKP = turnKP;
 	chassis::turnKD = turnKD;
 	chassis::arcKP = arcKP;
 
-	// configure drive motors
+	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
 	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
@@ -458,16 +458,16 @@ void initDrive(std::initializer_list<okapi::Motor> leftMotors,
 
 /**************************************************/
 // operator control
-void tank(int left, int right) {
-	driveMode = 0; // turns off autonomous tasks
-	left_drive(left);
-	right_drive(right);
+void tank(int left_speed, int right_speed) {
+	chassisMode = 0; // turns off autonomous tasks
+	left(left_speed);
+	right(right_speed);
 }
 
 void arcade(int vertical, int horizontal) {
-	driveMode = 0; // turns off autonomous task
-	left_drive(vertical + horizontal);
-	right_drive(vertical - horizontal);
+	chassisMode = 0; // turns off autonomous task
+	left(vertical + horizontal);
+	right(vertical - horizontal);
 }
 
 } // namespace chassis
