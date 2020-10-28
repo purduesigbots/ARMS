@@ -408,12 +408,11 @@ void startTasks() {
 }
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
-               std::initializer_list<okapi::Motor> rightMotors, int gearset,
-               int distance_constant, double degree_constant, int accel_step,
-               int deccel_step, int arc_step, double driveKP, double driveKD,
-               double turnKP, double turnKD, double arcKP, int imuPort,
-               std::tuple<int, int, int, int> encoderPorts,
-               bool encoderReversed) {
+          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+          int distance_constant, double degree_constant, int accel_step,
+          int deccel_step, int arc_step, double driveKP, double driveKD,
+          double turnKP, double turnKD, double arcKP, int imuPort,
+          std::tuple<int, int, int, int> encoderPorts, bool encoderReversed) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;

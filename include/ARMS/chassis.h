@@ -112,12 +112,11 @@ void arcade(int vertical, int horizontal);
 void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
           int gearset = GEARSET, int distance_constant = DISTANCE_CONSTANT,
-          double degree_constant = DEGREE_CONSTANT,
-          int accel_step = ACCEL_STEP, int deccel_step = DECCEL_STEP,
-          int arc_step = ARC_STEP, double driveKP = DRIVE_KP,
-          double driveKD = DRIVE_KD, double turnKP = TURN_KP,
-          double turnKD = TURN_KD, double arcKP = ARC_KP,
-          int imuPort = IMU_PORT,
+          double degree_constant = DEGREE_CONSTANT, int accel_step = ACCEL_STEP,
+          int deccel_step = DECCEL_STEP, int arc_step = ARC_STEP,
+          double driveKP = DRIVE_KP, double driveKD = DRIVE_KD,
+          double turnKP = TURN_KP, double turnKD = TURN_KD,
+          double arcKP = ARC_KP, int imuPort = IMU_PORT,
           std::tuple<int, int, int, int> encoderPorts = {ENCODER_PORTS},
           bool encodersReversed = ENCODERS_REVERSED);
 
