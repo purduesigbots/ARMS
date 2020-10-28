@@ -13,6 +13,11 @@ std::shared_ptr<Imu> imu;
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
+// quad encoders
+std::shared_ptr<ADIEncoder> leftEncoder;
+std::shared_ptr<ADIEncoder> rightEncoder;
+bool encodersReversed;
+
 // distance constants
 int distance_constant;  // ticks per foot
 double degree_constant; // ticks per degree
@@ -71,7 +76,14 @@ void reset() {
 }
 
 int position() {
-	return (rightMotors->getPosition() + leftMotors->getPosition()) / 2;
+	if (leftEncoder != NULL) {
+		return (rightEncoder->get_value() +
+		        leftEncoder->get_value() * chassisMode) /
+		       2;
+	}
+	return (rightMotors->getPosition() +
+	        leftMotors->getPosition() * chassisMode) /
+	       2;
 }
 
 /**************************************************/
@@ -370,9 +382,7 @@ int chassisTask() {
 		}
 
 		// read sensors
-		int sv =
-		    (rightMotors->getPosition() + leftMotors->getPosition() * chassisMode) /
-		    2;
+		int sv = position();
 
 		// speed
 		int error = sp - sv;
@@ -403,7 +413,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           int distance_constant, double degree_constant, int accel_step,
           int deccel_step, int arc_step, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, int imuPort) {
+          double turnKP, double turnKD, double arcKP, int imuPort,
+          std::tuple<int, int, int, int> encoderPorts, bool encoderReversed) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -432,6 +443,15 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		}
 		printf("IMU calibrated!");
 	}
+
+	if (std::get<0>(encoderPorts) != 0) {
+		leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
+		                                           std::get<1>(encoderPorts));
+		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
+		                                            std::get<3>(encoderPorts));
+	}
+
+	chassis::encodersReversed = encoderReversed;
 
 	// start task
 	startTasks();

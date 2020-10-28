@@ -114,9 +114,11 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           int gearset = GEARSET, int distance_constant = DISTANCE_CONSTANT,
           double degree_constant = DEGREE_CONSTANT, int accel_step = ACCEL_STEP,
           int deccel_step = DECCEL_STEP, int arc_step = ARC_STEP,
-          double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
+          double driveKP = LINEAR_KP, double driveKD = LINEAR_KD,
           double turnKP = TURN_KP, double turnKD = TURN_KD,
-          double arcKP = ARC_KP, int imuPort = IMU_PORT);
+          double arcKP = ARC_KP, int imuPort = IMU_PORT,
+          std::tuple<int, int, int, int> encoderPorts = {ENCODER_PORTS},
+          bool encodersReversed = ENCODERS_REVERSED);
 
 } // namespace chassis
 
