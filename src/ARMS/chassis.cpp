@@ -406,7 +406,9 @@ int chassisTask() {
 
 void startTasks() {
 	Task chassis_task(chassisTask);
-	Task odom_task(odomTask);
+	if(imu){
+		Task odom_task(odomTask);
+	}
 }
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
