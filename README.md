@@ -1,22 +1,22 @@
-# PROS With Greenhat
+# PROS With ARMS
 By Micah Rassi
 
 
 ### Introduction
-Greenhat is a library that makes programming the chassis of a vex v5 robot a piece of cake. The code in this library was developed over the course of 2018-2019 season by team 574C. That original code can be found [here](https://github.com/Marsgate/cadmus5.0/blob/master/src/drive.cpp).
+ARMS is a library that makes programming the chassis of a vex v5 robot a piece of cake. 
 
-## Installing greenhat
-1. Download the most recent [template](https://github.com/Marsgate/greenhatlib/releases)
-2. Run this command from terminal `prosv5 c fetch greenhat@1.1.0.zip`
+## Installing ARMS
+1. Download the most recent [template](https://github.com/purduesigbots/ARMS/releases)
+2. Run this command from terminal `prosv5 c fetch ARMS@1.1.0.zip`
 3. `cd` into your pros project directory in your terminal
-4. Apply the library to the project `prosv5 c apply greenhat`
-5. Put `#include "greenhat/api.h"` in your main.h
-6. Put `using namespace greenhat;` in your main.h (optional)
+4. Apply the library to the project `prosv5 c apply ARMS`
+5. Put `#include "ARMS/api.h"` in your main.h
+6. Put `using namespace ARMS;` in your main.h (optional)
 
 ## Getting started
 
 ### Configuring the drive
-All configuration of the library will happen in the file `greenhat/config.h`. These are the settings we can use to configure how the drive motors perform. Start by configuring the motor ports according to what ports your drive motors are plugged into.
+All configuration of the library will happen in the file `ARMS/config.h`. These are the settings we can use to configure how the drive motors perform. Start by configuring the motor ports according to what ports your drive motors are plugged into.
 ```
 //negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
@@ -166,7 +166,7 @@ To preform one, use on of the following functions:
 sLeft(800, 200, 1200);
 sRight(800, 200, 1200);
 ```
-S-curves in greenhat are made up of 3 parts.
+S-curves in ARMS are made up of 3 parts.
 1. The first arc - The first argument
 2. Them mid movement - The second argument
 3. The final arc - The third argument
