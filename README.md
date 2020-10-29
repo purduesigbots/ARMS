@@ -1,22 +1,20 @@
-# PROS With Greenhat
-By Micah Rassi
-
+# PROS With ARMS
 
 ### Introduction
-Greenhat is a library that makes programming the chassis of a vex v5 robot a piece of cake. The code in this library was developed over the course of 2018-2019 season by team 574C. That original code can be found [here](https://github.com/Marsgate/cadmus5.0/blob/master/src/drive.cpp).
+ARMS is a library that makes programming a VEX V5 robot a piece of cake. 
 
-## Installing greenhat
-1. Download the most recent [template](https://github.com/Marsgate/greenhatlib/releases)
-2. Run this command from terminal `prosv5 c fetch greenhat@1.1.0.zip`
+## Installing ARMS
+1. Download the most recent [template](https://github.com/purduesigbots/ARMS/releases)
+2. Run this command from terminal `prosv5 c fetch ARMS@1.1.0.zip`
 3. `cd` into your pros project directory in your terminal
-4. Apply the library to the project `prosv5 c apply greenhat`
-5. Put `#include "greenhat/api.h"` in your main.h
-6. Put `using namespace greenhat;` in your main.h (optional)
+4. Apply the library to the project `prosv5 c apply ARMS`
+5. Put `#include "ARMS/api.h"` in your main.h
+6. Put `using namespace ARMS;` in your main.h (optional)
 
 ## Getting started
 
 ### Configuring the drive
-All configuration of the library will happen in the file `greenhat/config.h`. These are the settings we can use to configure how the drive motors perform. Start by configuring the motor ports according to what ports your drive motors are plugged into.
+All configuration of the library will happen in the file `ARMS/config.h`. These are the settings we can use to configure how the drive motors perform. Start by configuring the motor ports according to what ports your drive motors are plugged into.
 ```
 //negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
@@ -166,7 +164,7 @@ To preform one, use on of the following functions:
 sLeft(800, 200, 1200);
 sRight(800, 200, 1200);
 ```
-S-curves in greenhat are made up of 3 parts.
+S-curves in ARMS are made up of 3 parts.
 1. The first arc - The first argument
 2. Them mid movement - The second argument
 3. The final arc - The third argument
@@ -203,12 +201,44 @@ void redAuton(){
 This movement will be more of a U shape. This is useful for navigating around an obstacle in one continuous movement.
 All arcs performed before the first and last arc must be type 2.
 
+# Vex Autonomous Selector
+![Screenshot_of_Selector](https://user-images.githubusercontent.com/22580992/67626102-d9e1d080-f814-11e9-84cd-63a44e6a35af.png)
+
+## How to use:
+2. Place `selector::init();` in `void initazlize(){}` in your main.cpp file.
+3. Make if statements in your void `void autonomous() {}` like so:
+
+  `if(selector::auton == 1){ //run auton for Front Red }`
+
+7. Create multiple if statements for all possible numbers of selector::auton.
+8. All default cases are listed below:
+
+* selector::auton == 1 : Red Front
+* selector::auton == 2 : Red Back
+* selector::auton == 3 : Do Nothing
+* selector::auton == -1 : Blue Front
+* selector::auton == -2 : Blue Back
+* selector::auton == -3 : Do Nothing
+* selector::auton == 0 : Skills
+
+## How to customize the selector
+All configuration is done from the `autoSelect/selection.h` file.
+```
+// selector configuration
+#define HUE 360 // color of theme from 0-360
+#define AUTONS "Do Nothing", "Front", "Back" // names of the autonomous programs
+#define DEFAULT 1 // default auton
+```
+* `HUE` - Controls the color of the theme.
+* `AUTONS` - A list of every autonomous option. This list can be made any length, but may format weirdly.
+* `DEFAULT` - The auton will be selected on startup. This is required for starting a programming skills run from the controller.
+
+Credit also to Sully|80508X
+
 ## Where to go from here
 With the basics covered, your team should be able to create a competitive program for your competition robot. For people who are interested in more advanced programming such as programming skills runs, there is a lot of potential customization with this library. People who want to take their programming skills further do the following:
-- Take a C++ programming course. https://www.codecademy.com/learn/learn-c-plus-plus
-- Explore the PROS api: https://pros.cs.purdue.edu/v5/index.html
-- Learn PID http://georgegillard.com/documents/2-introduction-to-pid-controllers
-- Read the Vex Forums a lot http://vexforum.com
-- Get help from other teams on discord https://discordapp.com/invite/9JDWW8e
-
-Feel free to contact me personally with questions on discord `micah#5302`
+- [Take a C++ programming course.](https://www.codecademy.com/learn/learn-c-plus-plus)
+- [Explore the PROS API](https://pros.cs.purdue.edu/v5/index.html)
+- [Learn PID](http://georgegillard.com/documents/2-introduction-to-pid-controllers)
+- [Read the Vex Forums a lot](http://vexforum.com)
+- [Get help from other teams on discord](https://discordapp.com/invite/9JDWW8e)

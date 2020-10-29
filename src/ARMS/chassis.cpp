@@ -1,19 +1,28 @@
-#include "greenhat/drive.h"
+#include "ARMS/chassis.h"
+#include "ARMS/config.h"
 #include "api.h"
-#include "greenhat/config.h"
+
 using namespace pros;
 
-namespace greenhat {
+namespace chassis {
 
-// drive motor groups
+// imu
+std::shared_ptr<Imu> imu;
+
+// chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
-// individual drive motors
+// individual motors
 std::shared_ptr<okapi::Motor> frontLeft;
 std::shared_ptr<okapi::Motor> frontRight;
 std::shared_ptr<okapi::Motor> backLeft;
 std::shared_ptr<okapi::Motor> backRight;
+
+// quad encoders
+std::shared_ptr<ADIEncoder> leftEncoder;
+std::shared_ptr<ADIEncoder> rightEncoder;
+bool encodersReversed;
 
 // distance constants
 int distance_constant;  // ticks per foot
@@ -25,38 +34,38 @@ int deccel_step; // 200 = no slew
 int arc_step;    // acceleration for arcs
 
 // pid constants
-double driveKP;
-double driveKD;
+double linearKP;
+double linearKD;
 double turnKP;
 double turnKD;
 double arcKP;
 
 /**************************************************/
 // edit below with caution!!!
-static int driveMode = 0;
-static double driveTarget = 0;
+static int chassisMode = 0;
+static int linearTarget = 0;
+static int turnTarget = 0;
 static double vectorAngle = 0;
-static double turnTarget = 0;
 static int maxSpeed = 100;
 
 /**************************************************/
 // basic control
-void left_drive(int vel) {
+void left(int vel) {
 	vel *= 120;
 	leftMotors->moveVoltage(vel);
 }
 
-void right_drive(int vel) {
+void right(int vel) {
 	vel *= 120;
 	rightMotors->moveVoltage(vel);
 }
 
-void left_drive_vel(int vel) {
+void left_vel(int vel) {
 	vel *= (double)leftMotors->getGearing() / 100;
 	leftMotors->moveVelocity(vel);
 }
 
-void right_drive_vel(int vel) {
+void right_vel(int vel) {
 	vel *= (double)leftMotors->getGearing() / 100;
 	rightMotors->moveVelocity(vel);
 }
@@ -86,8 +95,8 @@ void br(int vel){
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	leftMotors->setBrakeMode(b);
 	rightMotors->setBrakeMode(b);
-	left_drive_vel(0);
-	right_drive_vel(0);
+	left_vel(0);
+	right_vel(0);
 }
 
 void reset() {
@@ -100,8 +109,15 @@ void reset() {
 	backRight->tarePosition();
 }
 
-int drivePos() {
-	return (rightMotors->getPosition() + leftMotors->getPosition()) / 2;
+int position() {
+	if (leftEncoder != NULL) {
+		return (rightEncoder->get_value() +
+		        leftEncoder->get_value() * chassisMode) /
+		       2;
+	}
+	return (rightMotors->getPosition() +
+	        leftMotors->getPosition() * chassisMode) /
+	       2;
 }
 
 /**************************************************/
@@ -111,7 +127,7 @@ int slew(int speed) {
 	int step;
 
 	if (abs(lastSpeed) < abs(speed))
-		if (driveMode == 0)
+		if (chassisMode == 0)
 			step = arc_step;
 		else
 			step = accel_step;
@@ -130,17 +146,17 @@ int slew(int speed) {
 }
 
 /**************************************************/
-// drive settling
+// chassis settling
 bool isDriving() {
 	static int count = 0;
 	static int last = 0;
 	static int lastTarget = 0;
 
-	int curr = drivePos();
+	int curr = position();
 
 	int target = turnTarget;
-	if (driveMode == 1)
-		target = driveTarget;
+	if (chassisMode == 1)
+		target = linearTarget;
 
 	if (abs(last - curr) < 3)
 		count++;
@@ -167,13 +183,13 @@ void waitUntilSettled() {
 
 /**************************************************/
 // autonomous functions
-void driveAsync(double sp, int max) {
+void moveAsync(double sp, int max) {
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
-	driveTarget = sp;
+	linearTarget = sp;
+	chassisMode = 1;
 	vectorAngle = 0;
-	driveMode = 1;
 }
 
 void turnAsync(double sp, int max) {
@@ -182,21 +198,21 @@ void turnAsync(double sp, int max) {
 	maxSpeed = max;
 	turnTarget = sp;
 	vectorAngle = 0;
-	driveMode = -1;
+	chassisMode = -1;
 }
 
-void driveHoloAsync(double distance, double angle, int max){
+void moveHoloAsync(double distance, double angle, int max){
 	distance *= distance_constant;
 	angle *= degree_constant;
 	reset();
 	maxSpeed = max;
-	driveTarget = distance;
+	linearTarget = distance;
 	vectorAngle = angle*M_PI/180;
-	driveMode = 1;
+	chassisMode = 1;
 }
 
-void drive(double sp, int max) {
-	driveAsync(sp, max);
+void move(double sp, int max) {
+	moveAsync(sp, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -207,45 +223,45 @@ void turn(double sp, int max) {
 	waitUntilSettled();
 }
 
-void driveHolo(double distance, double angle, int max){
-	driveHoloAsync(distance, angle, max);
+void moveHolo(double distance, double angle, int max){
+	moveHoloAsync(distance, angle, max);
 	delay(450);
 	waitUntilSettled();
 }
 
-void fastDrive(double sp, int max) {
+void fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
 	lastSpeed = max;
-	driveMode = 0;
-	left_drive(max);
-	right_drive(max);
+	chassisMode = 0;
+	left(max);
+	right(max);
 
 	if (sp > 0)
-		while (drivePos() < sp * distance_constant)
+		while (position() < sp * distance_constant)
 			delay(20);
 	else
-		while (drivePos() > sp * distance_constant)
+		while (position() > sp * distance_constant)
 			delay(20);
 }
 
-void timeDrive(int t, int left, int right) {
-	left_drive(left);
-	right_drive(right == 0 ? left : right);
+void time(int t, int left_speed, int right_speed) {
+	left(left_speed);
+	right(right_speed == 0 ? left_speed : right_speed);
 	delay(t);
 }
 
-void velocityDrive(int t, int max) {
-	left_drive_vel(max);
-	right_drive_vel(max);
+void velocity(int t, int max) {
+	left_vel(max);
+	right_vel(max);
 	delay(t);
 }
 
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	driveMode = 0;
+	chassisMode = 0;
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -256,8 +272,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type < 2) {
-		left_drive_vel(0);
-		right_drive_vel(0);
+		left_vel(0);
+		right_vel(0);
 		delay(10);
 	}
 
@@ -290,14 +306,13 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (type == 1)
 			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed *= std::abs(2*(.5-(double)time_step/arc_length));
-		else if(type == 3)
+			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
+		else if (type == 3)
 			scaled_speed *= (1 - (double)time_step / arc_length);
 
-
-		// assign drive motor speeds
-		left_drive_vel(mirror ? speed : scaled_speed);
-		right_drive_vel(mirror ? scaled_speed : speed);
+		// assign chassis motor speeds
+		left_vel(mirror ? speed : scaled_speed);
+		right_vel(mirror ? scaled_speed : speed);
 
 		// increment time step
 		time_step += 10;
@@ -305,8 +320,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1 && type != 2) {
-		left_drive_vel(0);
-		right_drive_vel(0);
+		left_vel(0);
+		right_vel(0);
 	}
 }
 
@@ -324,7 +339,7 @@ void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 	arc(mirror, arc1, 1, max, 1);
 
 	// middle movement
-	velocityDrive(mid, max);
+	velocity(mid, max);
 
 	// final arc
 	arc(!mirror, arc2, 1, max, 2);
@@ -348,7 +363,56 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 
 /**************************************************/
 // task control
-int driveTask() {
+int odomTask() {
+	double global_x = 0;
+	double global_y = 0;
+	double heading = M_PI / 2;
+	double heading_degrees;
+	double prev_heading = heading;
+
+	double prev_left_pos = 0;
+	double prev_right_pos = 0;
+
+	double right_arc = 0;
+	double left_arc = 0;
+	double center_arc = 0;
+	double delta_angle = 0;
+	double radius = 0;
+	double center_displacement = 0;
+	double delta_x = 0;
+	double delta_y = 0;
+
+	while (true) {
+		right_arc = rightMotors->getPosition() - prev_right_pos;
+		left_arc = leftMotors->getPosition() - prev_left_pos;
+		prev_right_pos = rightMotors->getPosition();
+		prev_left_pos = leftMotors->getPosition();
+		center_arc = (right_arc + left_arc) / 2.0;
+
+		heading_degrees = imu->get_rotation();
+		heading = heading_degrees * M_PI / 180;
+		delta_angle = heading - prev_heading;
+		prev_heading = heading;
+
+		if (delta_angle != 0) {
+			radius = center_arc / delta_angle;
+			center_displacement = 2 * sin(delta_angle / 2) * radius;
+		} else {
+			center_displacement = center_arc;
+		}
+
+		delta_x = cos(heading) * center_displacement;
+		delta_y = sin(heading) * center_displacement;
+
+		global_x += delta_x;
+		global_y += delta_y;
+
+		printf("%f, %f, %f \n", global_x, global_y, heading);
+
+		delay(10);
+	}
+}
+int chassisTask() {
 	int prevError = 0;
 	double kp;
 	double kd;
@@ -357,11 +421,11 @@ int driveTask() {
 	while (1) {
 		delay(20);
 
-		if (driveMode == 1) {
-			sp = driveTarget;
-			kp = driveKP;
-			kd = driveKD;
-		} else if (driveMode == -1) {
+		if (chassisMode == 1) {
+			sp = linearTarget;
+			kp = linearKP;
+			kd = linearKD;
+		} else if (chassisMode == -1) {
 			sp = turnTarget;
 			kp = turnKP;
 			kd = turnKD;
@@ -372,7 +436,7 @@ int driveTask() {
 		// get position in the x direction
 		int sv_x =
 		    (frontLeft->getPosition() + backLeft->getPosition() +
-				(frontRight->getPosition() + backRight->getPosition()) * driveMode) /
+				(frontRight->getPosition() + backRight->getPosition()) * chassisMode) /
 		    4;
 
 		// get position in the y direction
@@ -428,76 +492,99 @@ int driveTask() {
 			br(frontVector);
 
 		}else{
-			left_drive(speed * driveMode);
-			right_drive(speed);
+			left(speed * chassisMode);
+			right(speed);
 		}
 	}
 }
 
-void startTask() {
-	Task drive_task(driveTask);
+void startTasks() {
+	Task chassis_task(chassisTask);
+	if(imu){
+		Task odom_task(odomTask);
+	}
 }
 
-void initDrive(std::initializer_list<okapi::Motor> leftMotors,
-               std::initializer_list<okapi::Motor> rightMotors, int gearset,
-               int distance_constant, double degree_constant, int accel_step,
-               int deccel_step, int arc_step, double driveKP, double driveKD,
-               double turnKP, double turnKD, double arcKP) {
+void init(std::initializer_list<okapi::Motor> leftMotors,
+          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+          int distance_constant, double degree_constant, int accel_step,
+          int deccel_step, int arc_step, double linearKP, double linearKD,
+          double turnKP, double turnKD, double arcKP, int imuPort,
+          std::tuple<int, int, int, int> encoderPorts, bool encoderReversed) {
 
 	// assign constants
-	greenhat::distance_constant = distance_constant;
-	greenhat::degree_constant = degree_constant;
-	greenhat::accel_step = accel_step;
-	greenhat::deccel_step = deccel_step;
-	greenhat::arc_step = arc_step;
-	greenhat::driveKP = driveKP;
-	greenhat::driveKD = driveKD;
-	greenhat::turnKP = turnKP;
-	greenhat::turnKD = turnKD;
-	greenhat::arcKP = arcKP;
+	chassis::distance_constant = distance_constant;
+	chassis::degree_constant = degree_constant;
+	chassis::accel_step = accel_step;
+	chassis::deccel_step = deccel_step;
+	chassis::arc_step = arc_step;
+	chassis::linearKP = linearKP;
+	chassis::linearKD = linearKD;
+	chassis::turnKP = turnKP;
+	chassis::turnKD = turnKD;
+	chassis::arcKP = arcKP;
 
-	// configure motor groups
-	greenhat::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
-	greenhat::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
-	greenhat::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-	greenhat::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	// configure chassis motors
+	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
+	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
+	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
-	// configure individual motors for holonomic drives
-	greenhat::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	greenhat::backLeft = std::make_shared<okapi::Motor>(*leftMotors.end());
-	greenhat::frontRight = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	greenhat::backRight = std::make_shared<okapi::Motor>(*leftMotors.end());
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		while (imu->is_calibrating()) {
+			delay(10);
+		}
+		printf("IMU calibrated!");
+	}
+
+	if (std::get<0>(encoderPorts) != 0) {
+		leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
+		                                           std::get<1>(encoderPorts));
+		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
+		                                            std::get<3>(encoderPorts));
+	}
+
+	chassis::encodersReversed = encoderReversed;
+
+	// configure individual motors for holonomic chassis
+	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	chassis::backLeft = std::make_shared<okapi::Motor>(*leftMotors.end());
+	chassis::frontRight = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	chassis::backRight = std::make_shared<okapi::Motor>(*leftMotors.end());
 
 	// set gearing for individual motors
-	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	greenhat::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
 
 	// start task
-	Task drive_task(driveTask);
+	startTasks();
 }
 
 /**************************************************/
 // operator control
-void tank(int left, int right) {
-	driveMode = 0; // turns off autonomous tasks
-	left_drive(left);
-	right_drive(right);
+void tank(int left_speed, int right_speed) {
+	chassisMode = 0; // turns off autonomous tasks
+	left(left_speed);
+	right(right_speed);
 }
 
 void arcade(int vertical, int horizontal) {
-	driveMode = 0; // turns off autonomous task
-	left_drive(vertical + horizontal);
-	right_drive(vertical - horizontal);
+	chassisMode = 0; // turns off autonomous task
+	left(vertical + horizontal);
+	right(vertical - horizontal);
 }
 
-void holonomic(int x, int y, int z){
-	driveMode = 0; // turns off autonomous task
+void holonomic(int x, int y, int z) {
+	chassisMode = 0; // turns off autonomous task
 	fl(x+y+z);
 	fr(-x+y+z);
 	bl(x-y+z);
 	br(-x-y+z);
 }
 
-} // namespace greenhat
+} // namespace chassis
