@@ -80,15 +80,17 @@ void reset() {
 }
 
 int position() {
-	int left_pos;
-	if (leftEncoder != NULL) {
-		left_pos = leftEncoder->getPosition();
-		return ((mode == ANGULAR ? -left_pos : left_pos) +
-                        (rightEncoder->getPosition()));
+	int left_pos, right_pos;
+
+	if (leftEncoder) {
+		left_pos = leftEncoder->get_value();
+		right_pos = rightEncoder->get_value();
+	} else {
+		left_pos = leftMotors->getPosition();
+		right_pos = leftMotors->getPosition();
 	}
-	left_pos = leftMotors->getPosition();
-	return ((mode == ANGULAR ? -left_pos : left_pos) +
-                (rightMotors->getPosition()));
+
+	return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
 }
 
 /**************************************************/
@@ -411,7 +413,7 @@ int chassisTask() {
 
 void startTasks() {
 	Task chassis_task(chassisTask);
-	if(imu){
+	if (imu) {
 		Task odom_task(odomTask);
 	}
 }
