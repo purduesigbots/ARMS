@@ -75,6 +75,9 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void reset() {
+	left_vel(0);
+	right_vel(0);
+	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
 }
@@ -106,6 +109,9 @@ int slew(int speed) {
 			step = accel_step;
 	else
 		step = deccel_step;
+
+	// modify the step to pull harder at the bottom
+	step = pow(.18, step) + 1;
 
 	if (speed > lastSpeed + step)
 		lastSpeed += step;
@@ -406,8 +412,8 @@ int chassisTask() {
 		speed = slew(speed); // slew
 
 		// set motors
-		left(speed * mode);
-		right(speed);
+		left_vel(speed * mode);
+		right_vel(speed);
 	}
 }
 
