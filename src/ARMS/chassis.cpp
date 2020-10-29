@@ -6,6 +6,10 @@ using namespace pros;
 
 namespace chassis {
 
+#define LINEAR_PID_MODE 1
+#define NON_PID_MODE 0
+#define ANGULAR_PID_MODE -1
+
 // imu
 std::shared_ptr<Imu> imu;
 
@@ -16,7 +20,6 @@ std::shared_ptr<okapi::MotorGroup> rightMotors;
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
-bool encodersReversed;
 
 // distance constants
 int distance_constant;  // ticks per foot
@@ -36,7 +39,7 @@ double arcKP;
 
 /**************************************************/
 // edit below with caution!!!
-static int chassisMode = 0;
+static int mode = NON_PID_MODE;
 static int linearTarget = 0;
 static int turnTarget = 0;
 static int maxSpeed = 100;
@@ -76,14 +79,15 @@ void reset() {
 }
 
 int position() {
+	int left_pos;
 	if (leftEncoder != NULL) {
-		return (rightEncoder->get_value() +
-		        leftEncoder->get_value() * chassisMode) /
-		       2;
+		left_pos = leftEncoder->getPosition();
+		return ((mode == ANGULAR_PID_MODE ? -left_pos : left_pos) +
+                        (rightEncoder->getPosition()));
 	}
-	return (rightMotors->getPosition() +
-	        leftMotors->getPosition() * chassisMode) /
-	       2;
+	left_pos = leftMotors->getPosition();
+	return ((mode == ANGULAR_PID_MODE ? -left_pos : left_pos) +
+                (rightMotors->getPosition()));
 }
 
 /**************************************************/
@@ -93,7 +97,7 @@ int slew(int speed) {
 	int step;
 
 	if (abs(lastSpeed) < abs(speed))
-		if (chassisMode == 0)
+		if (mode == NON_PID_MODE)
 			step = arc_step;
 		else
 			step = accel_step;
@@ -121,7 +125,7 @@ bool isDriving() {
 	int curr = position();
 
 	int target = turnTarget;
-	if (chassisMode == 1)
+	if (mode == ANGULAR_PID_MODE)
 		target = linearTarget;
 
 	if (abs(last - curr) < 3)
@@ -154,7 +158,7 @@ void moveAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	linearTarget = sp;
-	chassisMode = 1;
+	mode = LINEAR_PID_MODE;
 }
 
 void turnAsync(double sp, int max) {
@@ -162,7 +166,7 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
-	chassisMode = -1;
+	mode = ANGULAR_PID_MODE;
 }
 
 void move(double sp, int max) {
@@ -182,7 +186,7 @@ void fast(double sp, int max) {
 		max = -max;
 	reset();
 	lastSpeed = max;
-	chassisMode = 0;
+	mode = NON_PID_MODE;
 	left(max);
 	right(max);
 
@@ -209,7 +213,7 @@ void velocity(int t, int max) {
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	chassisMode = 0;
+	mode = NON_PID_MODE;
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -369,11 +373,11 @@ int chassisTask() {
 	while (1) {
 		delay(20);
 
-		if (chassisMode == 1) {
+		if (mode == LINEAR_PID_MODE) {
 			sp = linearTarget;
 			kp = linearKP;
 			kd = linearKD;
-		} else if (chassisMode == -1) {
+		} else if (mode == ANGULAR_PID_MODE) {
 			sp = turnTarget;
 			kp = turnKP;
 			kd = turnKD;
@@ -399,7 +403,7 @@ int chassisTask() {
 		speed = slew(speed); // slew
 
 		// set motors
-		left(speed * chassisMode);
+		left(speed * mode);
 		right(speed);
 	}
 }
@@ -453,8 +457,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		                                            std::get<3>(encoderPorts));
 	}
 
-	chassis::encodersReversed = encoderReversed;
-
 	// start task
 	startTasks();
 }
@@ -462,13 +464,13 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 /**************************************************/
 // operator control
 void tank(int left_speed, int right_speed) {
-	chassisMode = 0; // turns off autonomous tasks
+	mode = NON_PID_MODE; // turns off autonomous tasks
 	left(left_speed);
 	right(right_speed);
 }
 
 void arcade(int vertical, int horizontal) {
-	chassisMode = 0; // turns off autonomous task
+	mode = NON_PID_MODE; // turns off autonomous task
 	left(vertical + horizontal);
 	right(vertical - horizontal);
 }
