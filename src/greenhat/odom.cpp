@@ -88,27 +88,26 @@ double getDistance(std::array<double, 2> point) {
   return sqrt(x*x + y*y);
 }
 
-double lastSpeed = 0;
-double slew(double speed) {
+double slew(double speed, double last_speed) {
 	int step;
 
 	int accel_step = 100;
 	int deccel_step = 100;
 
-	if (abs(lastSpeed) < abs(speed))
+	if (abs(last_speed) < abs(speed))
 		step = accel_step;
 	else
 		step = deccel_step;
 
-	if (speed > lastSpeed + step)
-		lastSpeed += step;
-	else if (speed < lastSpeed - step)
-		lastSpeed -= step;
+	if (speed > last_speed + step)
+		last_speed += step;
+	else if (speed < last_speed - step)
+		last_speed -= step;
 	else {
-		lastSpeed = speed;
+		last_speed = speed;
 	}
 
-	return lastSpeed;
+	return last_speed;
 }
 
 
@@ -123,6 +122,9 @@ void goToPoint(std::array<double, 2> point) {
   double kP_ang = 0.0;
   double kI_ang = 0.0;
   double kD_ang = 0.0;
+
+	double left_prev = 0;
+	double right_prev = 0;
 
   double vel_prev_error = getDistance(point);
   double ang_prev_error = getAngle(point);
@@ -163,8 +165,11 @@ void goToPoint(std::array<double, 2> point) {
       right_speed -= diff;
     }
 
-    left_speed = slew(left_speed);
-    right_speed = slew(right_speed);
+    left_speed = slew(left_speed, left_prev);
+    right_speed = slew(right_speed, right_prev);
+
+		left_prev = left_speed;
+		right_prev = right_speed;
 
     greenhat::leftMotors->moveVoltage(left_speed * 120);
     greenhat::rightMotors->moveVoltage(right_speed * 120);
