@@ -117,8 +117,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
           double turnKP = TURN_KP, double turnKD = TURN_KD,
           double arcKP = ARC_KP, int imuPort = IMU_PORT,
-          std::tuple<int, int, int, int> encoderPorts = {ENCODER_PORTS},
-          bool encodersReversed = ENCODERS_REVERSED);
+          std::tuple<int, int, int, int> encoderPorts = {ENCODER_PORTS});
 
 } // namespace chassis
 

@@ -6,6 +6,11 @@ using namespace pros;
 
 namespace chassis {
 
+// chassis mode enums
+#define LINEAR 1
+#define DISABLE 0
+#define ANGULAR -1
+
 // imu
 std::shared_ptr<Imu> imu;
 
@@ -16,7 +21,6 @@ std::shared_ptr<okapi::MotorGroup> rightMotors;
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
-bool encodersReversed;
 
 // distance constants
 int distance_constant;  // ticks per foot
@@ -36,7 +40,7 @@ double arcKP;
 
 /**************************************************/
 // edit below with caution!!!
-static int chassisMode = 0;
+static int mode = DISABLE;
 static int linearTarget = 0;
 static int turnTarget = 0;
 static int maxSpeed = 100;
@@ -76,14 +80,15 @@ void reset() {
 }
 
 int position() {
+	int left_pos;
 	if (leftEncoder != NULL) {
-		return (rightEncoder->get_value() +
-		        leftEncoder->get_value() * chassisMode) /
-		       2;
+		left_pos = leftEncoder->getPosition();
+		return ((mode == ANGULAR ? -left_pos : left_pos) +
+                        (rightEncoder->getPosition()));
 	}
-	return (rightMotors->getPosition() +
-	        leftMotors->getPosition() * chassisMode) /
-	       2;
+	left_pos = leftMotors->getPosition();
+	return ((mode == ANGULAR ? -left_pos : left_pos) +
+                (rightMotors->getPosition()));
 }
 
 /**************************************************/
@@ -93,7 +98,7 @@ int slew(int speed) {
 	int step;
 
 	if (abs(lastSpeed) < abs(speed))
-		if (chassisMode == 0)
+		if (mode == DISABLE)
 			step = arc_step;
 		else
 			step = accel_step;
@@ -121,7 +126,7 @@ bool isDriving() {
 	int curr = position();
 
 	int target = turnTarget;
-	if (chassisMode == 1)
+	if (mode == ANGULAR)
 		target = linearTarget;
 
 	if (abs(last - curr) < 3)
@@ -154,7 +159,7 @@ void moveAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	linearTarget = sp;
-	chassisMode = 1;
+	mode = LINEAR;
 }
 
 void turnAsync(double sp, int max) {
@@ -162,7 +167,7 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
-	chassisMode = -1;
+	mode = ANGULAR;
 }
 
 void move(double sp, int max) {
@@ -182,7 +187,7 @@ void fast(double sp, int max) {
 		max = -max;
 	reset();
 	lastSpeed = max;
-	chassisMode = 0;
+	mode = DISABLE;
 	left(max);
 	right(max);
 
@@ -209,7 +214,7 @@ void velocity(int t, int max) {
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	chassisMode = 0;
+	mode = DISABLE;
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -369,11 +374,11 @@ int chassisTask() {
 	while (1) {
 		delay(20);
 
-		if (chassisMode == 1) {
+		if (mode == LINEAR) {
 			sp = linearTarget;
 			kp = linearKP;
 			kd = linearKD;
-		} else if (chassisMode == -1) {
+		} else if (mode == ANGULAR) {
 			sp = turnTarget;
 			kp = turnKP;
 			kd = turnKD;
@@ -399,7 +404,7 @@ int chassisTask() {
 		speed = slew(speed); // slew
 
 		// set motors
-		left(speed * chassisMode);
+		left(speed * mode);
 		right(speed);
 	}
 }
@@ -416,7 +421,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           int distance_constant, double degree_constant, int accel_step,
           int deccel_step, int arc_step, double linearKP, double linearKD,
           double turnKP, double turnKD, double arcKP, int imuPort,
-          std::tuple<int, int, int, int> encoderPorts, bool encoderReversed) {
+          std::tuple<int, int, int, int> encoderPorts) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -453,8 +458,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		                                            std::get<3>(encoderPorts));
 	}
 
-	chassis::encodersReversed = encoderReversed;
-
 	// start task
 	startTasks();
 }
@@ -462,13 +465,13 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 /**************************************************/
 // operator control
 void tank(int left_speed, int right_speed) {
-	chassisMode = 0; // turns off autonomous tasks
+	mode = DISABLE; // turns off autonomous tasks
 	left(left_speed);
 	right(right_speed);
 }
 
 void arcade(int vertical, int horizontal) {
-	chassisMode = 0; // turns off autonomous task
+	mode = DISABLE; // turns off autonomous task
 	left(vertical + horizontal);
 	right(vertical - horizontal);
 }
