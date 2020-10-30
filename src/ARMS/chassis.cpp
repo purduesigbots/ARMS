@@ -21,6 +21,7 @@ std::shared_ptr<okapi::MotorGroup> rightMotors;
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
+std::shared_ptr<ADIEncoder> middleEncoder;
 
 // distance constants
 int distance_constant;  // ticks per foot
@@ -418,12 +419,33 @@ void startTasks() {
 	}
 }
 
+ADIEncoder initEncoder(int encoderPort, int expanderPort) {
+	ADIEncoder returnEncoder;
+	if (encoderPort < 0) {
+		int negativeEncoderPort = abs(encoderPort);
+		if (expanderPort != 0) {
+			returnEncoder = ADIEncoder({expanderPort, negativeEncoderPort + 1,
+																							negativeEncoderPort}, false);
+		} else {
+			returnEncoder = ADIEncoder(negativeEncoderPort + 1, negativeEncoderPort);
+		}
+	} else {
+		if (expanderPort != 0) {
+			returnEncoder = ADIEncoder({expanderPort, encoderPort,
+																							encoderPort + 1}, false);
+		} else {
+		returnEncoder = ADIEncoder(encoderPort,encoderPort + 1);
+		}
+	}
+	return returnEncoder;
+}
+
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           int distance_constant, double degree_constant, int accel_step,
           int deccel_step, int arc_step, double linearKP, double linearKD,
           double turnKP, double turnKD, double arcKP, int imuPort,
-          std::tuple<int, int, int, int> encoderPorts) {
+          std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -454,10 +476,33 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	}
 
 	if (std::get<0>(encoderPorts) != 0) {
-		leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
-		                                           std::get<1>(encoderPorts));
-		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
-		                                            std::get<3>(encoderPorts));
+		if (std::get<0>(encoderPorts) < 0) {
+			leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts) + 1,
+			                                           std::get<0>(encoderPorts));
+		} else {
+			leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
+																								 std::get<0>(encoderPorts) + 1);
+		}
+	}
+
+	if (std::get<1>(encoderPorts) != 0) {
+		if (std::get<1>(encoderPorts) < 0) {
+			rightEncoder = std::make_shared<ADIEncoder>(std::get<1>(encoderPorts) + 1,
+																									std::get<1>(encoderPorts));
+		} else {
+			rightEncoder = std::make_shared<ADIEncoder>(std::get<1>(encoderPorts),
+																									std::get<1>(encoderPorts) + 1);
+		}
+	}
+
+	if (std::get<2>(encoderPorts) != 0) {
+		if (std::get<2>(encoderPorts) < 0) {
+			middleEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts) + 1,
+																									std::get<2>(encoderPorts));
+		} else {
+			middleEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
+																									std::get<2>(encoderPorts) + 1);
+		}
 	}
 
 	// start task
