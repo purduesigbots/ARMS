@@ -30,6 +30,7 @@ double degree_constant; // ticks per degree
 int accel_step;  // smaller number = more slew
 int deccel_step; // 200 = no slew
 int arc_step;    // acceleration for arcs
+int min_speed;
 
 // pid constants
 double linearKP;
@@ -110,9 +111,6 @@ int slew(int speed) {
 	else
 		step = deccel_step;
 
-	// modify the step to pull harder at the bottom
-	step = pow(.18, step) + 1;
-
 	if (speed > lastSpeed + step)
 		lastSpeed += step;
 	else if (speed < lastSpeed - step)
@@ -121,7 +119,8 @@ int slew(int speed) {
 		lastSpeed = speed;
 	}
 
-	return lastSpeed;
+	return abs(lastSpeed) < min_speed && step == accel_step ? min_speed
+	                                                        : lastSpeed;
 }
 
 /**************************************************/
@@ -427,9 +426,9 @@ void startTasks() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           int distance_constant, double degree_constant, int accel_step,
-          int deccel_step, int arc_step, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, int imuPort,
-          std::tuple<int, int, int, int> encoderPorts) {
+          int deccel_step, int arc_step, int min_speed, double linearKP,
+          double linearKD, double turnKP, double turnKD, double arcKP,
+          int imuPort, std::tuple<int, int, int, int> encoderPorts) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -437,6 +436,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::accel_step = accel_step;
 	chassis::deccel_step = deccel_step;
 	chassis::arc_step = arc_step;
+	chassis::min_speed = min_speed;
 	chassis::linearKP = linearKP;
 	chassis::linearKD = linearKD;
 	chassis::turnKP = turnKP;
