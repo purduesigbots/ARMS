@@ -5,11 +5,11 @@
 namespace chassis {
 
 // negative numbers mean reversed motor
-#define LEFT_MOTORS 1, 2
-#define RIGHT_MOTORS -3, -4
+#define LEFT_MOTORS -14, -13
+#define RIGHT_MOTORS 3, 1
 #define GEARSET 200 // rpm of chassis motors
 
-#define DISTANCE_CONSTANT 273 // ticks per distance unit, the default is a foot
+#define DISTANCE_CONSTANT 273 * 2 // ticks per distance unit, the default is a foot
 #define DEGREE_CONSTANT 2.3   // ticks per degree
 
 // slew control (autonomous only)

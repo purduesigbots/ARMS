@@ -203,7 +203,6 @@ void turnAsync(double sp, int max) {
 
 void moveHoloAsync(double distance, double angle, int max){
 	distance *= distance_constant;
-	angle *= degree_constant;
 	reset();
 	maxSpeed = max;
 	linearTarget = distance;
@@ -551,15 +550,15 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	chassis::backLeft = std::make_shared<okapi::Motor>(*leftMotors.end());
-	chassis::frontRight = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	chassis::backRight = std::make_shared<okapi::Motor>(*leftMotors.end());
+	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
+	chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
+	chassis::backRight = std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
 
 	// set gearing for individual motors
 	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 
 	// start task
 	startTasks();
@@ -582,9 +581,9 @@ void arcade(int vertical, int horizontal) {
 void holonomic(int x, int y, int z) {
 	chassisMode = 0; // turns off autonomous task
 	fl(x+y+z);
-	fr(-x+y+z);
-	bl(x-y+z);
-	br(-x-y+z);
+	fr(x-y-z);
+	bl(x+y-z);
+	br(x-y+z);
 }
 
 } // namespace chassis
