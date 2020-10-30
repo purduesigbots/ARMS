@@ -23,6 +23,7 @@ namespace chassis {
 #define TURN_KP .8
 #define TURN_KD 3
 #define ARC_KP .05
+#define DIF_KP .5
 
 // sensors
 #define IMU_PORT 0                       // port 0 for disabled

@@ -38,6 +38,7 @@ double linearKD;
 double turnKP;
 double turnKD;
 double arcKP;
+double difKP;
 
 /**************************************************/
 // edit below with caution!!!
@@ -81,6 +82,10 @@ void reset() {
 	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
+	if (leftEncoder) {
+		leftEncoder->reset();
+		rightEncoder->reset();
+	}
 }
 
 int position() {
@@ -95,6 +100,20 @@ int position() {
 	}
 
 	return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+}
+
+int difference() {
+	int left_pos, right_pos;
+
+	if (leftEncoder) {
+		left_pos = leftEncoder->get_value();
+		right_pos = rightEncoder->get_value();
+	} else {
+		left_pos = leftMotors->getPosition();
+		right_pos = leftMotors->getPosition();
+	}
+
+	return (mode == ANGULAR ? 0 : left_pos - right_pos);
 }
 
 /**************************************************/
@@ -410,9 +429,11 @@ int chassisTask() {
 
 		speed = slew(speed); // slew
 
+		int dif = difference() * difKP;
+
 		// set motors
-		left_vel(speed * mode);
-		right_vel(speed);
+		left_vel((speed - dif) * mode);
+		right_vel(speed + dif);
 	}
 }
 
@@ -428,7 +449,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           int distance_constant, double degree_constant, int accel_step,
           int deccel_step, int arc_step, int min_speed, double linearKP,
           double linearKD, double turnKP, double turnKD, double arcKP,
-          int imuPort, std::tuple<int, int, int, int> encoderPorts) {
+          double difKP, int imuPort,
+          std::tuple<int, int, int, int> encoderPorts) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -442,6 +464,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::turnKP = turnKP;
 	chassis::turnKD = turnKD;
 	chassis::arcKP = arcKP;
+	chassis::difKP = difKP;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
