@@ -284,9 +284,8 @@ bool queue_append(queue_t queue, const void* item, uint32_t timeout);
  * \param buffer
  *        Pointer to a buffer to which the received item will be copied
  * \param timeout
- *        Time to wait for space to become available. A timeout of 0 can be used
- *        to attempt to post without blocking. TIMEOUT_MAX can be used to block
- *        indefinitely.
+ *        The maximum amount of time the task should block waiting for an item to receive should the queue be empty at
+ *        the time of the call. TIMEOUT_MAX can be used to block indefinitely.
  *
  * \return True if an item was copied into the buffer, false otherwise.
  */
@@ -303,9 +302,10 @@ bool queue_peek(queue_t queue, void* const buffer, uint32_t timeout);
  * \param buffer
  *        Pointer to a buffer to which the received item will be copied
  * \param timeout
- *        Time to wait for space to become available. A timeout of 0 can be used
- *        to attempt to post without blocking. TIMEOUT_MAX can be used to block
- *        indefinitely.
+ *        The maximum amount of time the task should block
+ *        waiting for an item to receive should the queue be empty at the time
+ *        of the call. queue_recv() will return immediately if timeout
+ *        is zero and the queue is empty.
  *
  * \return True if an item was copied into the buffer, false otherwise.
  */
@@ -369,10 +369,13 @@ void queue_reset(queue_t queue);
 typedef enum v5_device_e {
 	E_DEVICE_NONE = 0,
 	E_DEVICE_MOTOR = 2,
+	E_DEVICE_ROTATION = 4,
 	E_DEVICE_IMU = 6,
+	E_DEVICE_DISTANCE = 7,
 	E_DEVICE_RADIO = 8,
 	E_DEVICE_VISION = 11,
 	E_DEVICE_ADI = 12,
+	E_DEVICE_OPTICAL = 16,
 	E_DEVICE_GENERIC = 129,
 	E_DEVICE_UNDEFINED = 255
 } v5_device_e_t;

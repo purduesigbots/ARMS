@@ -1,6 +1,4 @@
 /*
- * @author Ryan Benasutti, WPI
- *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -45,6 +43,22 @@ class OdomMath {
    */
   static std::pair<QLength, QAngle> computeDistanceAndAngleToPoint(const Point &ipoint,
                                                                    const OdomState &istate);
+
+  /**
+   * Constraints the angle to [0,360] degrees.
+   *
+   * @param angle The input angle.
+   * @return The angle normalized to [0,360] degrees.
+   */
+  static QAngle constrainAngle360(const QAngle &angle);
+
+  /**
+   * Constraints the angle to [-180,180) degrees.
+   *
+   * @param angle The input angle.
+   * @return The angle normalized to [-180,180) degrees.
+   */
+  static QAngle constrainAngle180(const QAngle &angle);
 
   private:
   OdomMath();
