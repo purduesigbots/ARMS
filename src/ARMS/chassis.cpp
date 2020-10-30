@@ -30,6 +30,7 @@ double degree_constant; // ticks per degree
 int accel_step;  // smaller number = more slew
 int deccel_step; // 200 = no slew
 int arc_step;    // acceleration for arcs
+int min_speed;
 
 // pid constants
 double linearKP;
@@ -37,6 +38,7 @@ double linearKD;
 double turnKP;
 double turnKD;
 double arcKP;
+double difKP;
 
 /**************************************************/
 // edit below with caution!!!
@@ -75,8 +77,15 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void reset() {
+	left_vel(0);
+	right_vel(0);
+	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
+	if (leftEncoder) {
+		leftEncoder->reset();
+		rightEncoder->reset();
+	}
 }
 
 int position() {
@@ -91,6 +100,20 @@ int position() {
 	}
 
 	return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+}
+
+int difference() {
+	int left_pos, right_pos;
+
+	if (leftEncoder) {
+		left_pos = leftEncoder->get_value();
+		right_pos = rightEncoder->get_value();
+	} else {
+		left_pos = leftMotors->getPosition();
+		right_pos = leftMotors->getPosition();
+	}
+
+	return (mode == ANGULAR ? 0 : left_pos - right_pos);
 }
 
 /**************************************************/
@@ -115,7 +138,8 @@ int slew(int speed) {
 		lastSpeed = speed;
 	}
 
-	return lastSpeed;
+	return abs(lastSpeed) < min_speed && step == accel_step ? min_speed
+	                                                        : lastSpeed;
 }
 
 /**************************************************/
@@ -405,9 +429,11 @@ int chassisTask() {
 
 		speed = slew(speed); // slew
 
+		int dif = difference() * difKP;
+
 		// set motors
-		left(speed * mode);
-		right(speed);
+		left_vel((speed - dif) * mode);
+		right_vel(speed + dif);
 	}
 }
 
@@ -421,8 +447,9 @@ void startTasks() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           int distance_constant, double degree_constant, int accel_step,
-          int deccel_step, int arc_step, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, int imuPort,
+          int deccel_step, int arc_step, int min_speed, double linearKP,
+          double linearKD, double turnKP, double turnKD, double arcKP,
+          double difKP, int imuPort,
           std::tuple<int, int, int, int> encoderPorts) {
 
 	// assign constants
@@ -431,11 +458,13 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::accel_step = accel_step;
 	chassis::deccel_step = deccel_step;
 	chassis::arc_step = arc_step;
+	chassis::min_speed = min_speed;
 	chassis::linearKP = linearKP;
 	chassis::linearKD = linearKD;
 	chassis::turnKP = turnKP;
 	chassis::turnKD = turnKD;
 	chassis::arcKP = arcKP;
+	chassis::difKP = difKP;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
