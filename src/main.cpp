@@ -1,6 +1,4 @@
 #include "main.h"
-#include "greenhat/odom.h"
-#include "pros/imu.hpp"
 
 pros::Controller master(CONTROLLER_MASTER);
 
