@@ -19,7 +19,7 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-int position();
+int position(bool yDirection = false);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion

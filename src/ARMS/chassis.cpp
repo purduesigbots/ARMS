@@ -113,18 +113,33 @@ void reset() {
 	backRight->tarePosition();
 }
 
-int position() {
-	int left_pos, right_pos;
+int position(bool yDirection) {
+    if(yDirection) {
+        int top_pos, bot_pos;
 
-	if (leftEncoder) {
-		left_pos = leftEncoder->get_value();
-		right_pos = rightEncoder->get_value();
-	} else {
-		left_pos = leftMotors->getPosition();
-		right_pos = leftMotors->getPosition();
-	}
+        //TODO change when we add middle encoder
+	    if (false) {
+		    //top_pos = middleEncoder->get_value();
+    		//bot_pos = middleEncoder->get_value();
+	    } else {
+		    top_pos = frontLeft->getPosition() - frontRight->getPosition();
+		    bot_pos = backRight->getPosition() - backLeft->getPosition();
+	    }
 
-	return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+	    return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
+    } else {
+    	int left_pos, right_pos;
+
+	    if (leftEncoder) {
+		    left_pos = leftEncoder->get_value();
+    		right_pos = rightEncoder->get_value();
+	    } else {
+		    left_pos = leftMotors->getPosition();
+		    right_pos = leftMotors->getPosition();
+	    }
+
+	    return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+    }
 }
 
 /**************************************************/
@@ -440,17 +455,10 @@ int chassisTask() {
 		}
 
 		// get position in the x direction
-		int sv_x =
-		    (frontLeft->getPosition() + backLeft->getPosition() +
-				(frontRight->getPosition() + backRight->getPosition()) * mode) /
-		    4;
+		int sv_x = position();
 
 		// get position in the y direction
-		int sv_y =
-				(frontLeft->getPosition() - backLeft->getPosition() -
-				frontRight->getPosition() + backRight->getPosition()) /
-				4;
-
+		int sv_y = position(true);
 
 		// calculate total displacement using pythagorean theorem
 		int sv;
