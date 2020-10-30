@@ -214,7 +214,7 @@ void moveHoloAsync(double distance, double angle, int max){
 	maxSpeed = max;
 	linearTarget = distance;
 	vectorAngle = angle*M_PI/180;
-	chassisMode = 1;
+	mode = 1;
 }
 
 void move(double sp, int max) {
@@ -442,7 +442,7 @@ int chassisTask() {
 		// get position in the x direction
 		int sv_x =
 		    (frontLeft->getPosition() + backLeft->getPosition() +
-				(frontRight->getPosition() + backRight->getPosition()) * chassisMode) /
+				(frontRight->getPosition() + backRight->getPosition()) * mode) /
 		    4;
 
 		// get position in the y direction
@@ -498,7 +498,7 @@ int chassisTask() {
 			br(frontVector);
 
 		}else{
-			left(speed * chassisMode);
+			left(speed * mode);
 			right(speed);
 		}
 	}
@@ -584,7 +584,7 @@ void arcade(int vertical, int horizontal) {
 }
 
 void holonomic(int x, int y, int z) {
-	chassisMode = 0; // turns off autonomous task
+	mode = 0; // turns off autonomous task
 	fl(x+y+z);
 	fr(x-y-z);
 	bl(x+y-z);
