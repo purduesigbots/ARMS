@@ -20,7 +20,7 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
-		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected()) {
+		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected())
 			autonomous();
 
 		chassis::arcade(master.get_analog(ANALOG_LEFT_Y) * (double)100 / 127,
