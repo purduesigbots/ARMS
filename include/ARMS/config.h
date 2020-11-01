@@ -27,8 +27,8 @@ namespace chassis {
 #define DIF_KP .5
 
 // sensors
-#define IMU_PORT 0                       // port 0 for disabled
-#define ENCODER_PORTS '0', '0', '0', '0' // port 0 for disabled
+#define IMU_PORT 0               // port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0, 0 // port 0 for disabled
 
 } // namespace chassis
 

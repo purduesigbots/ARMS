@@ -18,6 +18,12 @@ std::shared_ptr<Imu> imu;
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
+// individual motors
+std::shared_ptr<okapi::Motor> frontLeft;
+std::shared_ptr<okapi::Motor> frontRight;
+std::shared_ptr<okapi::Motor> backLeft;
+std::shared_ptr<okapi::Motor> backRight;
+
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
@@ -45,61 +51,80 @@ double difKP;
 static int mode = DISABLE;
 static int linearTarget = 0;
 static int turnTarget = 0;
+static double vectorAngle = 0;
 static int maxSpeed = 100;
 
 /**************************************************/
 // basic control
-void left(int vel) {
-	vel *= 120;
-	leftMotors->moveVoltage(vel);
+
+// move motor group at given velocity
+void motorVoltage(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
+	motor->moveVoltage(vel * 120);
 }
 
-void right(int vel) {
-	vel *= 120;
-	rightMotors->moveVoltage(vel);
+void motorVelocity(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
+	motor->moveVelocity(vel * (double)motor->getGearing() / 200);
 }
 
-void left_vel(int vel) {
-	vel *= (double)leftMotors->getGearing() / 100;
-	leftMotors->moveVelocity(vel);
+void motorVoltage(std::shared_ptr<okapi::Motor> motor, int vel) {
+	motor->moveVoltage(vel * 120);
 }
 
-void right_vel(int vel) {
-	vel *= (double)leftMotors->getGearing() / 100;
-	rightMotors->moveVelocity(vel);
+void motorVelocity(std::shared_ptr<okapi::Motor> motor, int vel) {
+	motor->moveVelocity(vel * (double)motor->getGearing() / 200);
 }
 
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	leftMotors->setBrakeMode(b);
 	rightMotors->setBrakeMode(b);
-	left_vel(0);
-	right_vel(0);
+	motorVelocity(leftMotors, 0);
+	motorVelocity(rightMotors, 0);
 }
 
 void reset() {
-	left_vel(0);
-	right_vel(0);
+	motorVelocity(leftMotors, 0);
+	motorVelocity(rightMotors, 0);
 	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
+
+	frontLeft->tarePosition();
+	frontRight->tarePosition();
+	backLeft->tarePosition();
+	backRight->tarePosition();
 	if (leftEncoder) {
 		leftEncoder->reset();
 		rightEncoder->reset();
 	}
 }
 
-int position() {
-	int left_pos, right_pos;
+int position(bool yDirection) {
+	if (yDirection) {
+		int top_pos, bot_pos;
 
-	if (leftEncoder) {
-		left_pos = leftEncoder->get_value();
-		right_pos = rightEncoder->get_value();
+		// TODO change when we add middle encoder
+		if (false) {
+			// top_pos = middleEncoder->get_value();
+			// bot_pos = middleEncoder->get_value();
+		} else {
+			top_pos = frontLeft->getPosition() - frontRight->getPosition();
+			bot_pos = backRight->getPosition() - backLeft->getPosition();
+		}
+
+		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
 	} else {
-		left_pos = leftMotors->getPosition();
-		right_pos = leftMotors->getPosition();
-	}
+		int left_pos, right_pos;
 
-	return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+		if (leftEncoder) {
+			left_pos = leftEncoder->get_value();
+			right_pos = rightEncoder->get_value();
+		} else {
+			left_pos = leftMotors->getPosition();
+			right_pos = leftMotors->getPosition();
+		}
+
+		return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+	}
 }
 
 int difference() {
@@ -186,6 +211,7 @@ void moveAsync(double sp, int max) {
 	maxSpeed = max;
 	linearTarget = sp;
 	mode = LINEAR;
+	vectorAngle = 0;
 }
 
 void turnAsync(double sp, int max) {
@@ -194,6 +220,16 @@ void turnAsync(double sp, int max) {
 	maxSpeed = max;
 	turnTarget = sp;
 	mode = ANGULAR;
+	vectorAngle = 0;
+}
+
+void moveHoloAsync(double distance, double angle, int max) {
+	distance *= distance_constant;
+	reset();
+	maxSpeed = max;
+	linearTarget = distance;
+	vectorAngle = angle * M_PI / 180;
+	mode = 1;
 }
 
 void move(double sp, int max) {
@@ -208,14 +244,20 @@ void turn(double sp, int max) {
 	waitUntilSettled();
 }
 
+void moveHolo(double distance, double angle, int max) {
+	moveHoloAsync(distance, angle, max);
+	delay(450);
+	waitUntilSettled();
+}
+
 void fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
 	lastSpeed = max;
 	mode = DISABLE;
-	left(max);
-	right(max);
+	motorVoltage(leftMotors, max);
+	motorVoltage(rightMotors, max);
 
 	if (sp > 0)
 		while (position() < sp * distance_constant)
@@ -226,14 +268,14 @@ void fast(double sp, int max) {
 }
 
 void time(int t, int left_speed, int right_speed) {
-	left(left_speed);
-	right(right_speed == 0 ? left_speed : right_speed);
+	motorVoltage(leftMotors, left_speed);
+	motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
 	delay(t);
 }
 
 void velocity(int t, int max) {
-	left_vel(max);
-	right_vel(max);
+	motorVelocity(leftMotors, max);
+	motorVelocity(rightMotors, max);
 	delay(t);
 }
 
@@ -251,8 +293,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type < 2) {
-		left_vel(0);
-		right_vel(0);
+		motorVelocity(leftMotors, 0);
+		motorVelocity(rightMotors, 0);
 		delay(10);
 	}
 
@@ -290,8 +332,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 			scaled_speed *= (1 - (double)time_step / arc_length);
 
 		// assign chassis motor speeds
-		left_vel(mirror ? speed : scaled_speed);
-		right_vel(mirror ? scaled_speed : speed);
+		motorVelocity(leftMotors, mirror ? speed : scaled_speed);
+		motorVelocity(rightMotors, mirror ? scaled_speed : speed);
 
 		// increment time step
 		time_step += 10;
@@ -299,8 +341,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1 && type != 2) {
-		left_vel(0);
-		right_vel(0);
+		motorVelocity(leftMotors, 0);
+		motorVelocity(rightMotors, 0);
 	}
 }
 
@@ -412,8 +454,19 @@ int chassisTask() {
 			continue;
 		}
 
-		// read sensors
-		int sv = position();
+		// get position in the x direction
+		int sv_x = position();
+
+		// get position in the y direction
+		int sv_y = position(true);
+
+		// calculate total displacement using pythagorean theorem
+		int sv;
+		if (vectorAngle != 0) {
+			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
+		} else {
+			sv = sv_x; // just use the x value for non-holonomic movements
+		}
 
 		// speed
 		int error = sp - sv;
@@ -429,11 +482,34 @@ int chassisTask() {
 
 		speed = slew(speed); // slew
 
-		int dif = difference() * difKP;
-
 		// set motors
-		left_vel((speed - dif) * mode);
-		right_vel(speed + dif);
+		if (vectorAngle != 0) {
+			// calculate vectors for each wheel set
+			double frontVector = sin(M_PI / 4 - vectorAngle);
+			double backVector = sin(M_PI / 4 + vectorAngle);
+
+			// set scaling factor based on largest vector
+			double largestVector;
+			if (abs(frontVector) > abs(backVector)) {
+				largestVector = abs(frontVector);
+			} else {
+				largestVector = abs(backVector);
+			}
+
+			frontVector *= speed / largestVector;
+			backVector *= speed / largestVector;
+
+			motorVoltage(frontLeft, frontVector);
+			motorVoltage(backLeft, backVector);
+			motorVoltage(frontRight, backVector);
+			motorVoltage(backRight, frontVector);
+
+		} else {
+			int dif = difference() * difKP;
+
+			motorVoltage(leftMotors, (speed - dif) * mode);
+			motorVoltage(rightMotors, speed + dif);
+		}
 	}
 }
 
@@ -489,6 +565,18 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		                                            std::get<3>(encoderPorts));
 	}
 
+	// configure individual motors for holonomic chassis
+	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
+	chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
+	chassis::backRight = std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
+
+	// set gearing for individual motors
+	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+
 	// start task
 	startTasks();
 }
@@ -497,14 +585,22 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(int left_speed, int right_speed) {
 	mode = DISABLE; // turns off autonomous tasks
-	left(left_speed);
-	right(right_speed);
+	motorVoltage(leftMotors, left_speed);
+	motorVoltage(rightMotors, right_speed);
 }
 
 void arcade(int vertical, int horizontal) {
 	mode = DISABLE; // turns off autonomous task
-	left(vertical + horizontal);
-	right(vertical - horizontal);
+	motorVoltage(leftMotors, vertical + horizontal);
+	motorVoltage(rightMotors, vertical - horizontal);
+}
+
+void holonomic(int x, int y, int z) {
+	mode = 0; // turns off autonomous task
+	motorVoltage(frontLeft, x + y + z);
+	motorVoltage(frontRight, x - y - z);
+	motorVoltage(backLeft, x + y - z);
+	motorVoltage(backRight, x - y + z);
 }
 
 } // namespace chassis

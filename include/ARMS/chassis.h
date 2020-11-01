@@ -19,7 +19,7 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-int position();
+int position(bool yDirection = false);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion
@@ -42,6 +42,11 @@ void moveAsync(double sp, int max = 100);
 void turnAsync(double sp, int max = 100);
 
 /**
+ * Begin an asycronous holonomic chassis movement
+ */
+void moveAsync(double distance, double angle, int max = 100);
+
+/**
  * Perform a chassis movement and wait until settled
  */
 void move(double sp, int max = 100);
@@ -50,6 +55,11 @@ void move(double sp, int max = 100);
  * Perform a turn movement and wait until settled
  */
 void turn(double sp, int max = 100);
+
+/**
+ * Perform a holonomic movement and wait until settled
+ */
+void moveHolo(double distance, double angle, int max = 100);
 
 /**
  * Move a distance at a set voltage with no PID
@@ -105,6 +115,11 @@ void tank(int left, int right);
  * Assign a voltage to each motor on a scale of -100 to 100
  */
 void arcade(int vertical, int horizontal);
+
+/**
+ * Assign a voltage to each motor on a scale of -100 to 100
+ */
+void holonomic(int x, int y, int z);
 
 /**
  * initialize the chassis
