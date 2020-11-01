@@ -1,7 +1,6 @@
 #include "ARMS/chassis.h"
 #include "ARMS/config.h"
 #include "api.h"
-#include "okapi/impl/device/motor/motorGroup.hpp"
 
 using namespace pros;
 
@@ -20,10 +19,10 @@ std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
 // individual motors
-std::shared_ptr<okapi::MotorGroup> frontLeft;
-std::shared_ptr<okapi::MotorGroup> frontRight;
-std::shared_ptr<okapi::MotorGroup> backLeft;
-std::shared_ptr<okapi::MotorGroup> backRight;
+std::shared_ptr<okapi::Motor> frontLeft;
+std::shared_ptr<okapi::Motor> frontRight;
+std::shared_ptr<okapi::Motor> backLeft;
+std::shared_ptr<okapi::Motor> backRight;
 
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
@@ -62,6 +61,14 @@ void motorVoltage(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
 }
 
 void motorVelocity(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
+    motor->moveVelocity(vel * (double)motor->getGearing() / 200);
+}
+
+void motorVoltage(std::shared_ptr<okapi::Motor> motor, int vel) {
+	motor->moveVoltage(vel * 120);
+}
+
+void motorVelocity(std::shared_ptr<okapi::Motor> motor, int vel) {
     motor->moveVelocity(vel * (double)motor->getGearing() / 200);
 }
 
@@ -528,13 +535,13 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		                                           std::get<1>(encoderPorts));
 		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
 		                                            std::get<3>(encoderPorts));
-	}
+    }
 
 	// configure individual motors for holonomic chassis
-	chassis::frontLeft = std::make_shared<okapi::MotorGroup>(*leftMotors.begin());
-	chassis::backLeft = std::make_shared<okapi::MotorGroup>(*(leftMotors.end() - 1));
-	chassis::frontRight = std::make_shared<okapi::MotorGroup>(*rightMotors.begin());
-	chassis::backRight = std::make_shared<okapi::MotorGroup>(*(rightMotors.end() - 1));
+	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
+	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
+	chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
+	chassis::backRight = std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
 
 	// set gearing for individual motors
 	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
