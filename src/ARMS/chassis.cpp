@@ -120,7 +120,7 @@ int position(bool yDirection) {
 			right_pos = rightEncoder->get_value();
 		} else {
 			left_pos = leftMotors->getPosition();
-			right_pos = leftMotors->getPosition();
+			right_pos = rightMotors->getPosition();
 		}
 
 		return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
