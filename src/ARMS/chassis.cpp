@@ -135,7 +135,7 @@ int difference() {
 		right_pos = rightEncoder->get_value();
 	} else {
 		left_pos = leftMotors->getPosition();
-		right_pos = leftMotors->getPosition();
+		right_pos = rightMotors->getPosition();
 	}
 
 	return (mode == ANGULAR ? 0 : left_pos - right_pos);
