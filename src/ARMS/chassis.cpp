@@ -138,7 +138,7 @@ int difference() {
 		right_pos = rightMotors->getPosition();
 	}
 
-	return (mode == ANGULAR ? 0 : left_pos - right_pos);
+	return (mode == ANGULAR ? 0 : (left_pos - right_pos));
 }
 
 /**************************************************/
@@ -177,7 +177,7 @@ bool isDriving() {
 	int curr = position();
 
 	int target = turnTarget;
-	if (mode == ANGULAR)
+	if (mode == LINEAR)
 		target = linearTarget;
 
 	if (abs(last - curr) < 3)
@@ -507,8 +507,8 @@ int chassisTask() {
 		} else {
 			int dif = difference() * difKP;
 
-			motorVoltage(leftMotors, (speed - dif) * mode);
-			motorVoltage(rightMotors, speed + dif);
+			motorVelocity(leftMotors, (speed - dif) * mode);
+			motorVelocity(rightMotors, speed + dif);
 		}
 	}
 }
