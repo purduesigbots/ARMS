@@ -522,30 +522,20 @@ void startTasks() {
 }
 
 std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
-	std::shared_ptr<ADIEncoder> returnEncoder;
-	if (encoderPort < 0) {
-		int negativeEncoderPort = abs(encoderPort);
-		if (expanderPort != 0) {
-			std::tuple<int, int, int> pair(expanderPort, negativeEncoderPort + 1,
-			                               negativeEncoderPort);
-			returnEncoder = std::make_shared<ADIEncoder>(pair, false);
-			ADIEncoder test(
-			    {expanderPort, negativeEncoderPort + 1, negativeEncoderPort}, false);
-		} else {
-			returnEncoder = std::make_shared<ADIEncoder>(negativeEncoderPort + 1,
-			                                             negativeEncoderPort);
-		}
+	std::shared_ptr<ADIEncoder> encoder;
+
+	int encoderPort2 =
+	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
+	encoderPort = abs(encoderPort);
+
+	if (expanderPort != 0) {
+		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
+		encoder = std::make_shared<ADIEncoder>(pair, false);
 	} else {
-		if (expanderPort != 0) {
-			std::tuple<int, int, int> pair(expanderPort, encoderPort,
-			                               encoderPort + 1);
-			returnEncoder = std::make_shared<ADIEncoder>(pair, false);
-		} else {
-			returnEncoder =
-			    std::make_shared<ADIEncoder>(encoderPort, encoderPort + 1);
-		}
+		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2);
 	}
-	return returnEncoder;
+
+	return encoder;
 }
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
