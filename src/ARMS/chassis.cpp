@@ -267,7 +267,7 @@ void fast(double sp, int max) {
 			delay(20);
 }
 
-void time(int t, int left_speed, int right_speed) {
+void voltage(int t, int left_speed, int right_speed) {
 	motorVoltage(leftMotors, left_speed);
 	motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
 	delay(t);
