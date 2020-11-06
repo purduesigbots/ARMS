@@ -27,6 +27,7 @@ std::shared_ptr<okapi::Motor> backRight;
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
+std::shared_ptr<ADIEncoder> middleEncoder;
 
 // distance constants
 double distance_constant; // ticks per foot
@@ -516,12 +517,29 @@ void startTasks() {
 	}
 }
 
+std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
+	std::shared_ptr<ADIEncoder> encoder;
+
+	int encoderPort2 =
+	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
+	encoderPort = abs(encoderPort);
+
+	if (expanderPort != 0) {
+		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
+		encoder = std::make_shared<ADIEncoder>(pair, false);
+	} else {
+		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2);
+	}
+
+	return encoder;
+}
+
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double accel_step,
           double arc_step, int min_speed, double linearKP, double linearKD,
           double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
-          std::tuple<int, int, int, int> encoderPorts) {
+          std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -551,14 +569,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		}
 		printf("IMU calibrated!");
 	}
-
-	if (std::get<0>(encoderPorts) != 0) {
-		leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
-		                                           std::get<1>(encoderPorts));
-		rightEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
-		                                            std::get<3>(encoderPorts));
-	}
-
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
 	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
@@ -570,6 +580,18 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+
+	if (std::get<0>(encoderPorts) != 0) {
+		leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
+	}
+
+	if (std::get<1>(encoderPorts) != 0) {
+		rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
+	}
+
+	if (std::get<2>(encoderPorts) != 0) {
+		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
+	}
 
 	// start task
 	startTasks();
