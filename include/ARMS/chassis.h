@@ -19,7 +19,7 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-int position(bool yDirection = false);
+double position(bool yDirection = false);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion
@@ -137,14 +137,15 @@ void holonomic(int x, int y, int z);
  */
 void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
-          int gearset = GEARSET, int distance_constant = DISTANCE_CONSTANT,
-          double degree_constant = DEGREE_CONSTANT, int accel_step = ACCEL_STEP,
-          int deccel_step = DECCEL_STEP, int arc_step = ARC_STEP,
+          int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
+          double degree_constant = DEGREE_CONSTANT,
+          double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
           int min_speed = MIN_SPEED, double linearKP = LINEAR_KP,
           double linearKD = LINEAR_KD, double turnKP = TURN_KP,
           double turnKD = TURN_KD, double arcKP = ARC_KP, double difKP = DIF_KP,
           int imuPort = IMU_PORT,
-          std::tuple<int, int, int, int> encoderPorts = {ENCODER_PORTS});
+          std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
+          int expanderPort = EXPANDER_PORT);
 
 } // namespace chassis
 
