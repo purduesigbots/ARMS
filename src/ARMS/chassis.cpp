@@ -13,6 +13,7 @@ namespace chassis {
 
 // imu
 std::shared_ptr<Imu> imu;
+int imuPort;
 
 // chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -112,6 +113,13 @@ int position(bool yDirection) {
 		}
 
 		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
+
+	} else if (imuPort != 0 && mode == ANGULAR) {
+		// read sensors using IMU if turning and one exists
+		return imu->get_rotation() *
+		       degree_constant; // scaling by degree constant ensures that PID
+		                        // constants carry over between IMU and motor
+		                        // encoder turning
 	} else {
 		int left_pos, right_pos;
 
@@ -215,12 +223,20 @@ void moveAsync(double sp, int max) {
 }
 
 void turnAsync(double sp, int max) {
+	if (imuPort != 0)
+		sp += imu->get_rotation();
+
 	sp *= degree_constant;
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
 	mode = ANGULAR;
 	vectorAngle = 0;
+}
+
+void turnAbsoluteAsync(double sp, int max) {
+	double currentPos = imu->get_rotation();
+	turnAsync(sp - currentPos, max);
 }
 
 void moveHoloAsync(double distance, double angle, int max) {
@@ -462,11 +478,10 @@ int chassisTask() {
 
 		// calculate total displacement using pythagorean theorem
 		int sv;
-		if (vectorAngle != 0) {
+		if (vectorAngle != 0)
 			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-		} else {
+		else
 			sv = sv_x; // just use the x value for non-holonomic movements
-		}
 
 		// speed
 		int error = sp - sv;
@@ -541,6 +556,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::turnKD = turnKD;
 	chassis::arcKP = arcKP;
 	chassis::difKP = difKP;
+	chassis::imuPort = imuPort;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
