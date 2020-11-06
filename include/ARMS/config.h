@@ -13,9 +13,8 @@ namespace chassis {
 #define DEGREE_CONSTANT 2.3   // ticks per degree
 
 // slew control (autonomous only)
-#define ACCEL_STEP 8    // smaller number = more slew
-#define DECCEL_STEP 200 // 200 = no slew
-#define ARC_STEP 2      // acceleration for arcs
+#define ACCEL_STEP 8 // smaller number = more slew
+#define ARC_STEP 2   // acceleration for arcs
 #define MIN_SPEED 15
 
 // pid constants
