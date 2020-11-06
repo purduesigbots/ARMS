@@ -69,7 +69,7 @@ void fast(double sp, int max = 100);
 /**
  * Move for a duration at a set voltage with no PID
  */
-void time(int t, int left_speed = 100, int right_speed = 0);
+void voltage(int t, int left_speed = 100, int right_speed = 0);
 
 /**
  * Move for a duration at a set velocity using internal PID
