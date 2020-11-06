@@ -36,7 +36,6 @@ double degree_constant;   // ticks per degree
 // slew control (autonomous only)
 double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
-double min_speed;
 double lastSpeed = 0;
 
 // pid constants
@@ -83,6 +82,8 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void reset() {
+	lastSpeed = 0;
+
 	motorVelocity(leftMotors, 0);
 	motorVelocity(rightMotors, 0);
 	delay(10);
@@ -99,7 +100,7 @@ void reset() {
 	}
 }
 
-double position(bool yDirection) {
+double position(bool yDirection, bool forceEncoder) {
 	if (yDirection) {
 		double top_pos, bot_pos;
 
@@ -113,6 +114,11 @@ double position(bool yDirection) {
 		}
 
 		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
+
+	} else if (imu && mode == ANGULAR && !forceEncoder) {
+		// read sensors using IMU if turning and one exists
+		return -imu->get_rotation();
+
 	} else {
 		double left_pos, right_pos;
 
@@ -128,8 +134,8 @@ double position(bool yDirection) {
 	}
 }
 
-int difference() {
-	int left_pos, right_pos;
+double difference() {
+	double left_pos, right_pos;
 
 	if (leftEncoder) {
 		left_pos = leftEncoder->get_value();
@@ -162,7 +168,7 @@ double slew(double speed) {
 	else
 		lastSpeed = speed;
 
-	return abs(lastSpeed) < min_speed ? min_speed : lastSpeed;
+	return lastSpeed;
 }
 
 /**************************************************/
@@ -172,7 +178,7 @@ bool isDriving() {
 	static double last = 0;
 	static double lastTarget = 0;
 
-	double curr = position();
+	double curr = position(false, true);
 
 	double target = turnTarget;
 	if (mode == LINEAR)
@@ -213,12 +219,32 @@ void moveAsync(double sp, int max) {
 }
 
 void turnAsync(double sp, int max) {
-	sp *= degree_constant;
+	mode = ANGULAR;
+
+	if (imu)
+		sp += position();
+	else
+		sp *= degree_constant;
+
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
-	mode = ANGULAR;
 	vectorAngle = 0;
+}
+
+void turnAbsoluteAsync(double sp, int max) {
+	mode = ANGULAR;
+
+	// convert from absolute to relative set point
+	sp = sp - (int)position() % 360;
+
+	// make sure all turns take most efficient route
+	if (sp > 180)
+		sp -= 360;
+	else if (sp < -180)
+		sp += 360;
+
+	turnAsync(sp, max);
 }
 
 void moveHoloAsync(double distance, double angle, int max) {
@@ -238,6 +264,12 @@ void move(double sp, int max) {
 
 void turn(double sp, int max) {
 	turnAsync(sp, max);
+	delay(450);
+	waitUntilSettled();
+}
+
+void turnAbsolute(double sp, int max) {
+	turnAbsoluteAsync(sp, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -426,7 +458,7 @@ int odomTask() {
 		global_x += delta_x;
 		global_y += delta_y;
 
-		printf("%f, %f, %f \n", global_x, global_y, heading);
+		// printf("%f, %f, %f \n", global_x, global_y, heading);
 
 		delay(10);
 	}
@@ -504,6 +536,9 @@ int chassisTask() {
 		} else {
 			double dif = difference() * difKP;
 
+			printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
+			       error * kp, derivative * kd, speed, dif);
+
 			motorVelocity(leftMotors, (speed - dif) * mode);
 			motorVelocity(rightMotors, speed + dif);
 		}
@@ -537,8 +572,8 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double accel_step,
-          double arc_step, int min_speed, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
+          double arc_step, double linearKP, double linearKD, double turnKP,
+          double turnKD, double arcKP, double difKP, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
@@ -546,7 +581,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::degree_constant = degree_constant;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
-	chassis::min_speed = min_speed;
 	chassis::linearKP = linearKP;
 	chassis::linearKD = linearKD;
 	chassis::turnKP = turnKP;
@@ -567,6 +601,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		while (imu->is_calibrating()) {
 			delay(10);
 		}
+		delay(1000);
 		printf("IMU calibrated!");
 	}
 	// configure individual motors for holonomic chassis

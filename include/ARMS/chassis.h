@@ -19,7 +19,7 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-double position(bool yDirection = false);
+double position(bool yDirection = false, bool forceEncoder = false);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion
@@ -42,6 +42,11 @@ void moveAsync(double sp, int max = 100);
 void turnAsync(double sp, int max = 100);
 
 /**
+ * Begin an asycronous absolute turn movement (only works with IMU)
+ */
+void turnAbsoluteAsync(double sp, int max = 100);
+
+/**
  * Begin an asycronous holonomic chassis movement
  */
 void moveAsync(double distance, double angle, int max = 100);
@@ -55,6 +60,12 @@ void move(double sp, int max = 100);
  * Perform a turn movement and wait until settled
  */
 void turn(double sp, int max = 100);
+
+/**
+ * Perform an absolute turn movement and wait until settled (only works with
+ * IMU)
+ */
+void turnAbsolute(double sp, int max = 100);
 
 /**
  * Perform a holonomic movement and wait until settled
@@ -129,10 +140,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
           double degree_constant = DEGREE_CONSTANT,
           double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-          int min_speed = MIN_SPEED, double linearKP = LINEAR_KP,
-          double linearKD = LINEAR_KD, double turnKP = TURN_KP,
-          double turnKD = TURN_KD, double arcKP = ARC_KP, double difKP = DIF_KP,
-          int imuPort = IMU_PORT,
+          double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
+          double turnKP = TURN_KP, double turnKD = TURN_KD,
+          double arcKP = ARC_KP, double difKP = DIF_KP, int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
           int expanderPort = EXPANDER_PORT);
 
