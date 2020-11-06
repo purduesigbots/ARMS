@@ -260,6 +260,12 @@ void turn(double sp, int max) {
 	waitUntilSettled();
 }
 
+void turnAbsolute(double sp, int max) {
+	turnAbsoluteAsync(sp, max);
+	delay(450);
+	waitUntilSettled();
+}
+
 void moveHolo(double distance, double angle, int max) {
 	moveHoloAsync(distance, angle, max);
 	delay(450);
