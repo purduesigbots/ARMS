@@ -15,7 +15,6 @@ namespace chassis {
 // slew control (autonomous only)
 #define ACCEL_STEP 8 // smaller number = more slew
 #define ARC_STEP 2   // acceleration for arcs
-#define MIN_SPEED 15
 
 // pid constants
 #define LINEAR_KP .3

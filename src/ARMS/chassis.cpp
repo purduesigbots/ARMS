@@ -37,7 +37,6 @@ double degree_constant;   // ticks per degree
 // slew control (autonomous only)
 double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
-double min_speed;
 double lastSpeed = 0;
 
 // pid constants
@@ -102,7 +101,7 @@ void reset() {
 	}
 }
 
-double position(bool yDirection) {
+double position(bool yDirection, bool forceEncoder) {
 	if (yDirection) {
 		double top_pos, bot_pos;
 
@@ -117,7 +116,7 @@ double position(bool yDirection) {
 
 		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
 
-	} else if (imuPort != 0 && mode == ANGULAR) {
+	} else if (imu && mode == ANGULAR && !forceEncoder) {
 		// read sensors using IMU if turning and one exists
 		return -imu->get_rotation();
 
@@ -136,8 +135,8 @@ double position(bool yDirection) {
 	}
 }
 
-int difference() {
-	int left_pos, right_pos;
+double difference() {
+	double left_pos, right_pos;
 
 	if (leftEncoder) {
 		left_pos = leftEncoder->get_value();
@@ -170,7 +169,7 @@ double slew(double speed) {
 	else
 		lastSpeed = speed;
 
-	return abs(lastSpeed) < min_speed ? min_speed : lastSpeed;
+	return lastSpeed;
 }
 
 /**************************************************/
@@ -180,7 +179,7 @@ bool isDriving() {
 	static double last = 0;
 	static double lastTarget = 0;
 
-	double curr = position();
+	double curr = position(false, true);
 
 	double target = turnTarget;
 	if (mode == LINEAR)
@@ -538,6 +537,9 @@ int chassisTask() {
 		} else {
 			double dif = difference() * difKP;
 
+			printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
+			       error * kp, derivative * kd, speed, dif);
+
 			motorVelocity(leftMotors, (speed - dif) * mode);
 			motorVelocity(rightMotors, speed + dif);
 		}
@@ -571,8 +573,8 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double accel_step,
-          double arc_step, int min_speed, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
+          double arc_step, double linearKP, double linearKD, double turnKP,
+          double turnKD, double arcKP, double difKP, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
@@ -580,7 +582,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::degree_constant = degree_constant;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
-	chassis::min_speed = min_speed;
 	chassis::linearKP = linearKP;
 	chassis::linearKD = linearKD;
 	chassis::turnKP = turnKP;
@@ -602,6 +603,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		while (imu->is_calibrating()) {
 			delay(10);
 		}
+		delay(1000);
 		printf("IMU calibrated!");
 	}
 	// configure individual motors for holonomic chassis
