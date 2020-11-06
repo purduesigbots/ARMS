@@ -1,6 +1,4 @@
 /*
- * @author Ryan Benasutti, WPI
- *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -310,7 +308,7 @@ class ChassisControllerBuilder {
   ChassisControllerBuilder &withMaxVelocity(double imaxVelocity);
 
   /**
-   * Sets the max voltage.
+   * Sets the max voltage. The default is `12000`.
    *
    * @param imaxVoltage The max voltage.
    * @return An ongoing builder.

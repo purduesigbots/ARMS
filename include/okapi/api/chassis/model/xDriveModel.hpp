@@ -1,6 +1,4 @@
 /*
- * @author Ryan Benasutti, WPI
- *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -69,6 +67,28 @@ class XDriveModel : public ChassisModel {
    * @param ipower motor power
    */
   void rotate(double ipower) override;
+
+  /**
+   * Drive the robot side-ways (using open-loop control) where positive ipower is
+   * to the right and negative ipower is to the left. Uses velocity mode.
+   *
+   * @param ispeed motor power
+   */
+  void strafe(double ipower);
+
+  /**
+   * Strafe the robot in an arc (using open-loop control) where positive istrafeSpeed is
+   * to the right and negative istrafeSpeed is to the left. Uses velocity mode.
+   * The algorithm is (approximately):
+   *   topLeftPower = -1 * istrafeSpeed + yaw
+   *   topRightPower = istrafeSpeed - yaw
+   *   bottomRightPower = -1 * istrafeSpeed - yaw
+   *   bottomLeftPower = istrafeSpeed + yaw
+   *
+   * @param istrafeSpeed speed to the right
+   * @param iyaw speed around the vertical axis
+   */
+  void strafeVector(double istrafeSpeed, double iyaw);
 
   /**
    * Stop the robot (set all the motors to 0). Uses velocity mode.
