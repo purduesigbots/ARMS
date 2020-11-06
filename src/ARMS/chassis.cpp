@@ -38,6 +38,7 @@ int accel_step;  // smaller number = more slew
 int deccel_step; // 200 = no slew
 int arc_step;    // acceleration for arcs
 int min_speed;
+int lastSpeed = 0;
 
 // pid constants
 double linearKP;
@@ -83,6 +84,8 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void reset() {
+	lastSpeed = 0;
+
 	motorVelocity(leftMotors, 0);
 	motorVelocity(rightMotors, 0);
 	delay(10);
@@ -116,10 +119,8 @@ int position(bool yDirection) {
 
 	} else if (imuPort != 0 && mode == ANGULAR) {
 		// read sensors using IMU if turning and one exists
-		return imu->get_rotation() *
-		       degree_constant; // scaling by degree constant ensures that PID
-		                        // constants carry over between IMU and motor
-		                        // encoder turning
+		return -imu->get_rotation();
+
 	} else {
 		int left_pos, right_pos;
 
@@ -151,7 +152,6 @@ int difference() {
 
 /**************************************************/
 // slew control
-static int lastSpeed = 0;
 int slew(int speed) {
 	int step;
 
@@ -223,20 +223,32 @@ void moveAsync(double sp, int max) {
 }
 
 void turnAsync(double sp, int max) {
-	if (imuPort != 0)
-		sp += imu->get_rotation();
+	mode = ANGULAR;
 
-	sp *= degree_constant;
+	if (imuPort != 0)
+		sp += position();
+	else
+		sp *= degree_constant;
+
 	reset();
 	maxSpeed = max;
 	turnTarget = sp;
-	mode = ANGULAR;
 	vectorAngle = 0;
 }
 
 void turnAbsoluteAsync(double sp, int max) {
-	double currentPos = imu->get_rotation();
-	turnAsync(sp - currentPos, max);
+	mode = ANGULAR;
+
+	// convert from absolute to relative set point
+	sp = sp - position() % 360;
+
+	// make sure all turns take most efficient route
+	if (sp > 180)
+		sp -= 360;
+	else if (sp < -180)
+		sp += 360;
+
+	turnAsync(sp, max);
 }
 
 void moveHoloAsync(double distance, double angle, int max) {
@@ -450,7 +462,7 @@ int odomTask() {
 		global_x += delta_x;
 		global_y += delta_y;
 
-		printf("%f, %f, %f \n", global_x, global_y, heading);
+		// printf("%f, %f, %f \n", global_x, global_y, heading);
 
 		delay(10);
 	}
