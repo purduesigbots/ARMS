@@ -30,14 +30,14 @@ std::shared_ptr<ADIEncoder> rightEncoder;
 std::shared_ptr<ADIEncoder> middleEncoder;
 
 // distance constants
-int distance_constant;  // ticks per foot
-double degree_constant; // ticks per degree
+double distance_constant; // ticks per foot
+double degree_constant;   // ticks per degree
 
 // slew control (autonomous only)
-int accel_step;  // smaller number = more slew
-int deccel_step; // 200 = no slew
-int arc_step;    // acceleration for arcs
-int min_speed;
+double accel_step; // smaller number = more slew
+double arc_step;   // acceleration for arcs
+double min_speed;
+double lastSpeed = 0;
 
 // pid constants
 double linearKP;
@@ -50,8 +50,8 @@ double difKP;
 /**************************************************/
 // edit below with caution!!!
 static int mode = DISABLE;
-static int linearTarget = 0;
-static int turnTarget = 0;
+static double linearTarget = 0;
+static double turnTarget = 0;
 static double vectorAngle = 0;
 static int maxSpeed = 100;
 
@@ -99,9 +99,9 @@ void reset() {
 	}
 }
 
-int position(bool yDirection) {
+double position(bool yDirection) {
 	if (yDirection) {
-		int top_pos, bot_pos;
+		double top_pos, bot_pos;
 
 		// TODO change when we add middle encoder
 		if (false) {
@@ -114,7 +114,7 @@ int position(bool yDirection) {
 
 		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
 	} else {
-		int left_pos, right_pos;
+		double left_pos, right_pos;
 
 		if (leftEncoder) {
 			left_pos = leftEncoder->get_value();
@@ -144,9 +144,8 @@ int difference() {
 
 /**************************************************/
 // slew control
-static int lastSpeed = 0;
-int slew(int speed) {
-	int step;
+double slew(double speed) {
+	double step;
 
 	if (abs(lastSpeed) < abs(speed))
 		if (mode == DISABLE)
@@ -154,30 +153,28 @@ int slew(int speed) {
 		else
 			step = accel_step;
 	else
-		step = deccel_step;
+		step = 200;
 
 	if (speed > lastSpeed + step)
 		lastSpeed += step;
 	else if (speed < lastSpeed - step)
 		lastSpeed -= step;
-	else {
+	else
 		lastSpeed = speed;
-	}
 
-	return abs(lastSpeed) < min_speed && step == accel_step ? min_speed
-	                                                        : lastSpeed;
+	return abs(lastSpeed) < min_speed ? min_speed : lastSpeed;
 }
 
 /**************************************************/
 // chassis settling
 bool isDriving() {
 	static int count = 0;
-	static int last = 0;
-	static int lastTarget = 0;
+	static double last = 0;
+	static double lastTarget = 0;
 
-	int curr = position();
+	double curr = position();
 
-	int target = turnTarget;
+	double target = turnTarget;
 	if (mode == LINEAR)
 		target = linearTarget;
 
@@ -268,7 +265,7 @@ void fast(double sp, int max) {
 			delay(20);
 }
 
-void time(int t, int left_speed, int right_speed) {
+void voltage(int t, int left_speed, int right_speed) {
 	motorVoltage(leftMotors, left_speed);
 	motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
 	delay(t);
@@ -303,7 +300,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 		// speed
 		int error = arc_length - time_step;
-		int speed = error * arcKP;
+		double speed = error * arcKP;
 
 		if (type == 1 || type == 2)
 			speed = max;
@@ -435,10 +432,10 @@ int odomTask() {
 	}
 }
 int chassisTask() {
-	int prevError = 0;
+	double prevError = 0;
 	double kp;
 	double kd;
-	int sp;
+	double sp;
 
 	while (1) {
 		delay(20);
@@ -456,24 +453,23 @@ int chassisTask() {
 		}
 
 		// get position in the x direction
-		int sv_x = position();
+		double sv_x = position();
 
 		// get position in the y direction
-		int sv_y = position(true);
+		double sv_y = position(true);
 
 		// calculate total displacement using pythagorean theorem
-		int sv;
-		if (vectorAngle != 0) {
+		double sv;
+		if (vectorAngle != 0)
 			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-		} else {
+		else
 			sv = sv_x; // just use the x value for non-holonomic movements
-		}
 
 		// speed
-		int error = sp - sv;
-		int derivative = error - prevError;
+		double error = sp - sv;
+		double derivative = error - prevError;
 		prevError = error;
-		int speed = error * kp + derivative * kd;
+		double speed = error * kp + derivative * kd;
 
 		// speed limiting
 		if (speed > maxSpeed)
@@ -506,7 +502,7 @@ int chassisTask() {
 			motorVoltage(backRight, frontVector);
 
 		} else {
-			int dif = difference() * difKP;
+			double dif = difference() * difKP;
 
 			motorVelocity(leftMotors, (speed - dif) * mode);
 			motorVelocity(rightMotors, speed + dif);
@@ -540,17 +536,15 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          int distance_constant, double degree_constant, int accel_step,
-          int deccel_step, int arc_step, int min_speed, double linearKP,
-          double linearKD, double turnKP, double turnKD, double arcKP,
-          double difKP, int imuPort, std::tuple<int, int, int> encoderPorts,
-          int expanderPort) {
+          double distance_constant, double degree_constant, double accel_step,
+          double arc_step, int min_speed, double linearKP, double linearKD,
+          double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
+          std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
 	chassis::accel_step = accel_step;
-	chassis::deccel_step = deccel_step;
 	chassis::arc_step = arc_step;
 	chassis::min_speed = min_speed;
 	chassis::linearKP = linearKP;
