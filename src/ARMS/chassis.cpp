@@ -13,7 +13,6 @@ namespace chassis {
 
 // imu
 std::shared_ptr<Imu> imu;
-int imuPort;
 
 // chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -222,7 +221,7 @@ void moveAsync(double sp, int max) {
 void turnAsync(double sp, int max) {
 	mode = ANGULAR;
 
-	if (imuPort != 0)
+	if (imu)
 		sp += position();
 	else
 		sp *= degree_constant;
@@ -588,7 +587,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::turnKD = turnKD;
 	chassis::arcKP = arcKP;
 	chassis::difKP = difKP;
-	chassis::imuPort = imuPort;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
