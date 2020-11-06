@@ -42,6 +42,11 @@ void moveAsync(double sp, int max = 100);
 void turnAsync(double sp, int max = 100);
 
 /**
+ * Begin an asycronous absolute turn movement (only works with IMU)
+ */
+void turnAbsoluteAsync(double sp, int max = 100);
+
+/**
  * Begin an asycronous holonomic chassis movement
  */
 void moveAsync(double distance, double angle, int max = 100);
@@ -55,6 +60,12 @@ void move(double sp, int max = 100);
  * Perform a turn movement and wait until settled
  */
 void turn(double sp, int max = 100);
+
+/**
+ * Perform an absolute turn movement and wait until settled (only works with
+ * IMU)
+ */
+void turnAbsolute(double sp, int max = 100);
 
 /**
  * Perform a holonomic movement and wait until settled
