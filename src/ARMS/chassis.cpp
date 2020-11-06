@@ -521,22 +521,28 @@ void startTasks() {
 	}
 }
 
-ADIEncoder initEncoder(int encoderPort, int expanderPort) {
-	ADIEncoder returnEncoder;
+std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
+	std::shared_ptr<ADIEncoder> returnEncoder;
 	if (encoderPort < 0) {
 		int negativeEncoderPort = abs(encoderPort);
 		if (expanderPort != 0) {
-			returnEncoder = ADIEncoder({expanderPort, negativeEncoderPort + 1,
-																							negativeEncoderPort}, false);
+			std::tuple<int, int, int> pair(expanderPort, negativeEncoderPort + 1,
+			                               negativeEncoderPort);
+			returnEncoder = std::make_shared<ADIEncoder>(pair, false);
+			ADIEncoder test(
+			    {expanderPort, negativeEncoderPort + 1, negativeEncoderPort}, false);
 		} else {
-			returnEncoder = ADIEncoder(negativeEncoderPort + 1, negativeEncoderPort);
+			returnEncoder = std::make_shared<ADIEncoder>(negativeEncoderPort + 1,
+			                                             negativeEncoderPort);
 		}
 	} else {
 		if (expanderPort != 0) {
-			returnEncoder = ADIEncoder({expanderPort, encoderPort,
-																							encoderPort + 1}, false);
+			std::tuple<int, int, int> pair(expanderPort, encoderPort,
+			                               encoderPort + 1);
+			returnEncoder = std::make_shared<ADIEncoder>(pair, false);
 		} else {
-		returnEncoder = ADIEncoder(encoderPort,encoderPort + 1);
+			returnEncoder =
+			    std::make_shared<ADIEncoder>(encoderPort, encoderPort + 1);
 		}
 	}
 	return returnEncoder;
@@ -547,8 +553,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           int distance_constant, double degree_constant, int accel_step,
           int deccel_step, int arc_step, int min_speed, double linearKP,
           double linearKD, double turnKP, double turnKD, double arcKP,
-          double difKP, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+          double difKP, int imuPort, std::tuple<int, int, int> encoderPorts,
+          int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -579,17 +585,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		}
 		printf("IMU calibrated!");
 	}
-
-	if (std::get<0>(encoderPorts) != 0) {
-		if (std::get<0>(encoderPorts) < 0) {
-			leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts) + 1,
-			                                           std::get<0>(encoderPorts));
-		} else {
-			leftEncoder = std::make_shared<ADIEncoder>(std::get<0>(encoderPorts),
-																								 std::get<0>(encoderPorts) + 1);
-		}
-	}
-
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
 	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
@@ -602,24 +597,16 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 
+	if (std::get<0>(encoderPorts) != 0) {
+		leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
+	}
+
 	if (std::get<1>(encoderPorts) != 0) {
-		if (std::get<1>(encoderPorts) < 0) {
-			rightEncoder = std::make_shared<ADIEncoder>(std::get<1>(encoderPorts) + 1,
-																									std::get<1>(encoderPorts));
-		} else {
-			rightEncoder = std::make_shared<ADIEncoder>(std::get<1>(encoderPorts),
-																									std::get<1>(encoderPorts) + 1);
-		}
+		rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
 	}
 
 	if (std::get<2>(encoderPorts) != 0) {
-		if (std::get<2>(encoderPorts) < 0) {
-			middleEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts) + 1,
-																									std::get<2>(encoderPorts));
-		} else {
-			middleEncoder = std::make_shared<ADIEncoder>(std::get<2>(encoderPorts),
-																									std::get<2>(encoderPorts) + 1);
-		}
+		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
 	}
 
 	// start task
