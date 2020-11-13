@@ -286,372 +286,371 @@ void fast(double sp, int max) {
 	reset();
 	lastSpeed = max;
 	mode = DISABLE;
-	motorVoltage(leftMotors, max);
-	motorVoltage(rightMotors, max);
 
-	if (sp > 0)
-		while (position() < sp * distance_constant)
-			delay(20);
-	else
-		while (position() > sp * distance_constant)
-			delay(20);
-}
-
-void voltage(int t, int left_speed, int right_speed) {
-	motorVoltage(leftMotors, left_speed);
-	motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
-	delay(t);
-}
-
-void velocity(int t, int max) {
-	motorVelocity(leftMotors, max);
-	motorVelocity(rightMotors, max);
-	delay(t);
-}
-
-void arc(bool mirror, int arc_length, double rad, int max, int type) {
-	reset();
-	int time_step = 0;
-	mode = DISABLE;
-	bool reversed = false;
-
-	// reverse the movement if the length is negative
-	if (arc_length < 0) {
-		reversed = true;
-		arc_length = -arc_length;
-	}
-
-	// fix jerk bug between velocity movements
-	if (type < 2) {
-		motorVelocity(leftMotors, 0);
-		motorVelocity(rightMotors, 0);
-		delay(10);
-	}
-
-	while (time_step < arc_length) {
-
-		// speed
-		int error = arc_length - time_step;
-		double speed = error * arcKP;
-
-		if (type == 1 || type == 2)
-			speed = max;
-
-		// speed limiting
-		if (speed > max)
-			speed = max;
-		if (speed < -max)
-			speed = -max;
-
-		// prevent backtracking
-		if (speed < 0)
-			speed = 0;
-
-		speed = slew(speed); // slew
-
-		if (reversed)
-			speed = -speed;
-
-		double scaled_speed = speed * rad;
-
-		if (type == 1)
-			scaled_speed *= (double)time_step / arc_length;
-		else if (type == 2)
-			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
-		else if (type == 3)
-			scaled_speed *= (1 - (double)time_step / arc_length);
-
-		// assign chassis motor speeds
-		motorVelocity(leftMotors, mirror ? speed : scaled_speed);
-		motorVelocity(rightMotors, mirror ? scaled_speed : speed);
-
-		// increment time step
-		time_step += 10;
-		delay(10);
-	}
-
-	if (type != 1 && type != 2) {
-		motorVelocity(leftMotors, 0);
-		motorVelocity(rightMotors, 0);
-	}
-}
-
-void arcLeft(int arc_length, double rad, int max, int type) {
-	arc(false, arc_length, rad, max, type);
-}
-
-void arcRight(int arc_length, double rad, int max, int type) {
-	arc(true, arc_length, rad, max, type);
-}
-
-void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
-
-	// first arc
-	arc(mirror, arc1, 1, max, 1);
-
-	// middle movement
-	velocity(mid, max);
-
-	// final arc
-	arc(!mirror, arc2, 1, max, 2);
-}
-
-void sLeft(int arc1, int mid, int arc2, int max) {
-	scurve(false, arc1, mid, arc2, max);
-}
-
-void sRight(int arc1, int mid, int arc2, int max) {
-	scurve(true, arc1, mid, arc2, max);
-}
-
-void _sLeft(int arc1, int mid, int arc2, int max) {
-	scurve(true, -arc1, mid, -arc2, -max);
-}
-
-void _sRight(int arc1, int mid, int arc2, int max) {
-	scurve(false, -arc1, -mid, -arc2, max);
-}
-
-/**************************************************/
-// task control
-int odomTask() {
-	double global_x = 0;
-	double global_y = 0;
-	double heading = M_PI / 2;
-	double heading_degrees;
-	double prev_heading = heading;
-
-	double prev_left_pos = 0;
-	double prev_right_pos = 0;
-
-	double right_arc = 0;
-	double left_arc = 0;
-	double center_arc = 0;
-	double delta_angle = 0;
-	double radius = 0;
-	double center_displacement = 0;
-	double delta_x = 0;
-	double delta_y = 0;
-
-	while (true) {
-		right_arc = rightMotors->getPosition() - prev_right_pos;
-		left_arc = leftMotors->getPosition() - prev_left_pos;
-		prev_right_pos = rightMotors->getPosition();
-		prev_left_pos = leftMotors->getPosition();
-		center_arc = (right_arc + left_arc) / 2.0;
-
-		heading_degrees = imu->get_rotation();
-		heading = heading_degrees * M_PI / 180;
-		delta_angle = heading - prev_heading;
-		prev_heading = heading;
-
-		if (delta_angle != 0) {
-			radius = center_arc / delta_angle;
-			center_displacement = 2 * sin(delta_angle / 2) * radius;
-		} else {
-			center_displacement = center_arc;
-		}
-
-		delta_x = cos(heading) * center_displacement;
-		delta_y = sin(heading) * center_displacement;
-
-		global_x += delta_x;
-		global_y += delta_y;
-
-		// printf("%f, %f, %f \n", global_x, global_y, heading);
-
-		delay(10);
-	}
-}
-int chassisTask() {
-	double prevError = 0;
-	double kp;
-	double kd;
-	double sp;
-
-	while (1) {
+	while (abs(position()) < abs(sp * distance_constant)) {
+		// differential PID
+		double dif = difference() * difKP;
+		motorVelocity(leftMotors, max - dif);
+		motorVelocity(rightMotors, max + dif);
 		delay(20);
+	}
 
-		if (mode == LINEAR) {
-			sp = linearTarget;
-			kp = linearKP;
-			kd = linearKD;
-		} else if (mode == ANGULAR) {
-			sp = turnTarget;
-			kp = turnKP;
-			kd = turnKD;
-		} else {
-			continue;
+	void voltage(int t, int left_speed, int right_speed) {
+		motorVoltage(leftMotors, left_speed);
+		motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
+		delay(t);
+	}
+
+	void velocity(int t, int max) {
+		motorVelocity(leftMotors, max);
+		motorVelocity(rightMotors, max);
+		delay(t);
+	}
+
+	void arc(bool mirror, int arc_length, double rad, int max, int type) {
+		reset();
+		int time_step = 0;
+		mode = DISABLE;
+		bool reversed = false;
+
+		// reverse the movement if the length is negative
+		if (arc_length < 0) {
+			reversed = true;
+			arc_length = -arc_length;
 		}
 
-		// get position in the x direction
-		double sv_x = position();
-
-		// get position in the y direction
-		double sv_y = position(true);
-
-		// calculate total displacement using pythagorean theorem
-		double sv;
-		if (vectorAngle != 0)
-			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-		else
-			sv = sv_x; // just use the x value for non-holonomic movements
-
-		// speed
-		double error = sp - sv;
-		double derivative = error - prevError;
-		prevError = error;
-		double speed = error * kp + derivative * kd;
-
-		// speed limiting
-		if (speed > maxSpeed)
-			speed = maxSpeed;
-		if (speed < -maxSpeed)
-			speed = -maxSpeed;
-
-		speed = slew(speed); // slew
-
-		// set motors
-		if (vectorAngle != 0) {
-			// calculate vectors for each wheel set
-			double frontVector = sin(M_PI / 4 - vectorAngle);
-			double backVector = sin(M_PI / 4 + vectorAngle);
-
-			// set scaling factor based on largest vector
-			double largestVector;
-			if (abs(frontVector) > abs(backVector)) {
-				largestVector = abs(frontVector);
-			} else {
-				largestVector = abs(backVector);
-			}
-
-			frontVector *= speed / largestVector;
-			backVector *= speed / largestVector;
-
-			motorVoltage(frontLeft, frontVector);
-			motorVoltage(backLeft, backVector);
-			motorVoltage(frontRight, backVector);
-			motorVoltage(backRight, frontVector);
-
-		} else {
-			double dif = difference() * difKP;
-
-			printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
-			       error * kp, derivative * kd, speed, dif);
-
-			motorVelocity(leftMotors, (speed - dif) * mode);
-			motorVelocity(rightMotors, speed + dif);
-		}
-	}
-}
-
-void startTasks() {
-	Task chassis_task(chassisTask);
-	if (imu) {
-		Task odom_task(odomTask);
-	}
-}
-
-std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
-	std::shared_ptr<ADIEncoder> encoder;
-
-	int encoderPort2 =
-	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
-	encoderPort = abs(encoderPort);
-
-	if (expanderPort != 0) {
-		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
-		encoder = std::make_shared<ADIEncoder>(pair, false);
-	} else {
-		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2);
-	}
-
-	return encoder;
-}
-
-void init(std::initializer_list<okapi::Motor> leftMotors,
-          std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double accel_step,
-          double arc_step, double linearKP, double linearKD, double turnKP,
-          double turnKD, double arcKP, double difKP, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
-
-	// assign constants
-	chassis::distance_constant = distance_constant;
-	chassis::degree_constant = degree_constant;
-	chassis::accel_step = accel_step;
-	chassis::arc_step = arc_step;
-	chassis::linearKP = linearKP;
-	chassis::linearKD = linearKD;
-	chassis::turnKP = turnKP;
-	chassis::turnKD = turnKD;
-	chassis::arcKP = arcKP;
-	chassis::difKP = difKP;
-
-	// configure chassis motors
-	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
-	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
-	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-
-	// initialize imu
-	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
-		imu->reset();
-		while (imu->is_calibrating()) {
+		// fix jerk bug between velocity movements
+		if (type < 2) {
+			motorVelocity(leftMotors, 0);
+			motorVelocity(rightMotors, 0);
 			delay(10);
 		}
-		delay(1000);
-		printf("IMU calibrated!");
+
+		while (time_step < arc_length) {
+
+			// speed
+			int error = arc_length - time_step;
+			double speed = error * arcKP;
+
+			if (type == 1 || type == 2)
+				speed = max;
+
+			// speed limiting
+			if (speed > max)
+				speed = max;
+			if (speed < -max)
+				speed = -max;
+
+			// prevent backtracking
+			if (speed < 0)
+				speed = 0;
+
+			speed = slew(speed); // slew
+
+			if (reversed)
+				speed = -speed;
+
+			double scaled_speed = speed * rad;
+
+			if (type == 1)
+				scaled_speed *= (double)time_step / arc_length;
+			else if (type == 2)
+				scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
+			else if (type == 3)
+				scaled_speed *= (1 - (double)time_step / arc_length);
+
+			// assign chassis motor speeds
+			motorVelocity(leftMotors, mirror ? speed : scaled_speed);
+			motorVelocity(rightMotors, mirror ? scaled_speed : speed);
+
+			// increment time step
+			time_step += 10;
+			delay(10);
+		}
+
+		if (type != 1 && type != 2) {
+			motorVelocity(leftMotors, 0);
+			motorVelocity(rightMotors, 0);
+		}
 	}
-	// configure individual motors for holonomic chassis
-	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
-	chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
-	chassis::backRight = std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
 
-	// set gearing for individual motors
-	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
-
-	if (std::get<0>(encoderPorts) != 0) {
-		leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
+	void arcLeft(int arc_length, double rad, int max, int type) {
+		arc(false, arc_length, rad, max, type);
 	}
 
-	if (std::get<1>(encoderPorts) != 0) {
-		rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
+	void arcRight(int arc_length, double rad, int max, int type) {
+		arc(true, arc_length, rad, max, type);
 	}
 
-	if (std::get<2>(encoderPorts) != 0) {
-		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
+	void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
+
+		// first arc
+		arc(mirror, arc1, 1, max, 1);
+
+		// middle movement
+		velocity(mid, max);
+
+		// final arc
+		arc(!mirror, arc2, 1, max, 2);
 	}
 
-	// start task
-	startTasks();
-}
+	void sLeft(int arc1, int mid, int arc2, int max) {
+		scurve(false, arc1, mid, arc2, max);
+	}
 
-/**************************************************/
-// operator control
-void tank(int left_speed, int right_speed) {
-	mode = DISABLE; // turns off autonomous tasks
-	motorVoltage(leftMotors, left_speed);
-	motorVoltage(rightMotors, right_speed);
-}
+	void sRight(int arc1, int mid, int arc2, int max) {
+		scurve(true, arc1, mid, arc2, max);
+	}
 
-void arcade(int vertical, int horizontal) {
-	mode = DISABLE; // turns off autonomous task
-	motorVoltage(leftMotors, vertical + horizontal);
-	motorVoltage(rightMotors, vertical - horizontal);
-}
+	void _sLeft(int arc1, int mid, int arc2, int max) {
+		scurve(true, -arc1, mid, -arc2, -max);
+	}
 
-void holonomic(int x, int y, int z) {
-	mode = 0; // turns off autonomous task
-	motorVoltage(frontLeft, x + y + z);
-	motorVoltage(frontRight, x - y - z);
-	motorVoltage(backLeft, x + y - z);
-	motorVoltage(backRight, x - y + z);
-}
+	void _sRight(int arc1, int mid, int arc2, int max) {
+		scurve(false, -arc1, -mid, -arc2, max);
+	}
+
+	/**************************************************/
+	// task control
+	int odomTask() {
+		double global_x = 0;
+		double global_y = 0;
+		double heading = M_PI / 2;
+		double heading_degrees;
+		double prev_heading = heading;
+
+		double prev_left_pos = 0;
+		double prev_right_pos = 0;
+
+		double right_arc = 0;
+		double left_arc = 0;
+		double center_arc = 0;
+		double delta_angle = 0;
+		double radius = 0;
+		double center_displacement = 0;
+		double delta_x = 0;
+		double delta_y = 0;
+
+		while (true) {
+			right_arc = rightMotors->getPosition() - prev_right_pos;
+			left_arc = leftMotors->getPosition() - prev_left_pos;
+			prev_right_pos = rightMotors->getPosition();
+			prev_left_pos = leftMotors->getPosition();
+			center_arc = (right_arc + left_arc) / 2.0;
+
+			heading_degrees = imu->get_rotation();
+			heading = heading_degrees * M_PI / 180;
+			delta_angle = heading - prev_heading;
+			prev_heading = heading;
+
+			if (delta_angle != 0) {
+				radius = center_arc / delta_angle;
+				center_displacement = 2 * sin(delta_angle / 2) * radius;
+			} else {
+				center_displacement = center_arc;
+			}
+
+			delta_x = cos(heading) * center_displacement;
+			delta_y = sin(heading) * center_displacement;
+
+			global_x += delta_x;
+			global_y += delta_y;
+
+			// printf("%f, %f, %f \n", global_x, global_y, heading);
+
+			delay(10);
+		}
+	}
+	int chassisTask() {
+		double prevError = 0;
+		double kp;
+		double kd;
+		double sp;
+
+		while (1) {
+			delay(20);
+
+			if (mode == LINEAR) {
+				sp = linearTarget;
+				kp = linearKP;
+				kd = linearKD;
+			} else if (mode == ANGULAR) {
+				sp = turnTarget;
+				kp = turnKP;
+				kd = turnKD;
+			} else {
+				continue;
+			}
+
+			// get position in the x direction
+			double sv_x = position();
+
+			// get position in the y direction
+			double sv_y = position(true);
+
+			// calculate total displacement using pythagorean theorem
+			double sv;
+			if (vectorAngle != 0)
+				sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
+			else
+				sv = sv_x; // just use the x value for non-holonomic movements
+
+			// speed
+			double error = sp - sv;
+			double derivative = error - prevError;
+			prevError = error;
+			double speed = error * kp + derivative * kd;
+
+			// speed limiting
+			if (speed > maxSpeed)
+				speed = maxSpeed;
+			if (speed < -maxSpeed)
+				speed = -maxSpeed;
+
+			speed = slew(speed); // slew
+
+			// set motors
+			if (vectorAngle != 0) {
+				// calculate vectors for each wheel set
+				double frontVector = sin(M_PI / 4 - vectorAngle);
+				double backVector = sin(M_PI / 4 + vectorAngle);
+
+				// set scaling factor based on largest vector
+				double largestVector;
+				if (abs(frontVector) > abs(backVector)) {
+					largestVector = abs(frontVector);
+				} else {
+					largestVector = abs(backVector);
+				}
+
+				frontVector *= speed / largestVector;
+				backVector *= speed / largestVector;
+
+				motorVoltage(frontLeft, frontVector);
+				motorVoltage(backLeft, backVector);
+				motorVoltage(frontRight, backVector);
+				motorVoltage(backRight, frontVector);
+
+			} else {
+				double dif = difference() * difKP;
+
+				printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
+				       error * kp, derivative * kd, speed, dif);
+
+				motorVelocity(leftMotors, (speed - dif) * mode);
+				motorVelocity(rightMotors, speed + dif);
+			}
+		}
+	}
+
+	void startTasks() {
+		Task chassis_task(chassisTask);
+		if (imu) {
+			Task odom_task(odomTask);
+		}
+	}
+
+	std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
+		std::shared_ptr<ADIEncoder> encoder;
+
+		int encoderPort2 =
+		    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
+		encoderPort = abs(encoderPort);
+
+		if (expanderPort != 0) {
+			std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
+			encoder = std::make_shared<ADIEncoder>(pair, false);
+		} else {
+			encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2);
+		}
+
+		return encoder;
+	}
+
+	void init(std::initializer_list<okapi::Motor> leftMotors,
+	          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+	          double distance_constant, double degree_constant, double accel_step,
+	          double arc_step, double linearKP, double linearKD, double turnKP,
+	          double turnKD, double arcKP, double difKP, int imuPort,
+	          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+
+		// assign constants
+		chassis::distance_constant = distance_constant;
+		chassis::degree_constant = degree_constant;
+		chassis::accel_step = accel_step;
+		chassis::arc_step = arc_step;
+		chassis::linearKP = linearKP;
+		chassis::linearKD = linearKD;
+		chassis::turnKP = turnKP;
+		chassis::turnKD = turnKD;
+		chassis::arcKP = arcKP;
+		chassis::difKP = difKP;
+
+		// configure chassis motors
+		chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
+		chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
+		chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+		chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+
+		// initialize imu
+		if (imuPort != 0) {
+			imu = std::make_shared<Imu>(imuPort);
+			imu->reset();
+			while (imu->is_calibrating()) {
+				delay(10);
+			}
+			delay(1000);
+			printf("IMU calibrated!");
+		}
+		// configure individual motors for holonomic chassis
+		chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
+		chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
+		chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
+		chassis::backRight =
+		    std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
+
+		// set gearing for individual motors
+		chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+		chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
+		chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+		chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
+
+		if (std::get<0>(encoderPorts) != 0) {
+			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
+		}
+
+		if (std::get<1>(encoderPorts) != 0) {
+			rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
+		}
+
+		if (std::get<2>(encoderPorts) != 0) {
+			middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
+		}
+
+		// start task
+		startTasks();
+	}
+
+	/**************************************************/
+	// operator control
+	void tank(int left_speed, int right_speed) {
+		mode = DISABLE; // turns off autonomous tasks
+		motorVoltage(leftMotors, left_speed);
+		motorVoltage(rightMotors, right_speed);
+	}
+
+	void arcade(int vertical, int horizontal) {
+		mode = DISABLE; // turns off autonomous task
+		motorVoltage(leftMotors, vertical + horizontal);
+		motorVoltage(rightMotors, vertical - horizontal);
+	}
+
+	void holonomic(int x, int y, int z) {
+		mode = 0; // turns off autonomous task
+		motorVoltage(frontLeft, x + y + z);
+		motorVoltage(frontRight, x - y - z);
+		motorVoltage(backLeft, x + y - z);
+		motorVoltage(backRight, x - y + z);
+	}
 
 } // namespace chassis
