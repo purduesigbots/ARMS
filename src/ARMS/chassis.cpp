@@ -281,10 +281,11 @@ void moveHolo(double distance, double angle, int max) {
 }
 
 void fast(double sp, int max) {
+	double speed; // speed before PID
+
 	if (sp < 0)
 		max = -max;
 	reset();
-	lastSpeed = 0;
 	mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
