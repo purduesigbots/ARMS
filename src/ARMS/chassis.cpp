@@ -284,14 +284,15 @@ void fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
-	lastSpeed = max;
+	lastSpeed = 0;
 	mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
+		speed = slew(max);
 		// differential PID
 		double dif = difference() * difKP;
-		motorVelocity(leftMotors, max - dif);
-		motorVelocity(rightMotors, max + dif);
+		motorVelocity(leftMotors, speed - dif);
+		motorVelocity(rightMotors, speed + dif);
 		delay(20);
 	}
 }
