@@ -1,10 +1,4 @@
 # ARMS API
-TO DO:  
-
-- clarify meaning of slew and PID constants
-- better differentiate use cases of asynchronous vs regular drive and turn functions
-- clarify meaning of arc types 0, 1, 2, 3
-- confirm that arc left means CCW
 
 ## Constants
 
@@ -19,11 +13,11 @@ TO DO:
 | ACCEL_STEP | 8 | Used in slew control; a smaller number refers to more slew |
 | DECEL_STEP | 200 | Used in slew control; default value of 200 means no slew |
 | ARC_STEP | 2 | Used in slew control |
-| DRIVE_KP | 0.3 | Used in PID control |
-| DRIVE_KD | 0.5 | Used in PID control |
-| TURN_KP | 0.8 | Used in PID control |
-| TURN_KD | 3 | Used in PID control |
-| ARC_KP | 0.05 | Used in PID control |
+| DRIVE_KP | 0.3 | Used in PID control, scales linearly with distance between current position and target (helps when starting moves) |
+| DRIVE_KD | 0.5 | Used in PID control, scales based on the change in distance between two calculation steps (helps to smooth motion and avoid overshoot, but dampens acceleration) |
+| TURN_KP | 0.8 | Used in PID control for turns |
+| TURN_KD | 3 | Used in PID control for turns |
+| ARC_KP | 0.05 | Used in PID control for arc moves |
 | IMU_PORT | 0 | The port number (1-21) of the Internal Measurement Unit (IMU). Value of 0 means no IMU. |
 
 ### Selection
@@ -52,11 +46,11 @@ void reset();
 ```
 Resets the motor encoders of the drive motors, so that their current position is considered zero.  
 ___
-##**drivePos**
+##**position**
 ```cpp
-int drivePos();
+double position(bool yDirection = false, bool forceEncoder = false);
 ```
-Returns the average position between the left and right drive motors.
+Returns the position, as averaged between the left and right drive motors.
 ___
 ##**isDriving**
 ```cpp
@@ -70,11 +64,11 @@ void waitUntilSettled();
 ```
 Delays the program until the robot is no longer driving (see isDriving).
 ___
-##**driveAsync**
+##**moveAsync**
 ```cpp
-void driveAsync(double sp, int max = 100)
+void moveAsync(double sp, int max = 100)
 ```
-`sp` - The target driving distance (default units of feet)  
+`sp` - The target driving distance (default units of feet, must be manually calibrated, see [DISTANCE_CONSTANT](#constants))  
 `max` - The maximum motor speed during the driving action (scaled from 0-100, default 100)
 
 Performs a driving action asynchronously, meaning that the robot does not wait until settled upon reaching the destination.
@@ -96,9 +90,9 @@ turnAsync(90); // turn 90 degrees CCW
 turnAsync(-90, 50); // turn 90 degrees CW, topping out at half motor speed
 ```
 ___
-##**drive**
+##**move**
 ```cpp
-void drive(double sp, int max = 100)
+void move(double sp, int max = 100)
 ```
 `sp` - The target driving distance (default units of feet)  
 `max` - The maximum motor speed during the driving action (scaled from 0-100, default 100)
@@ -122,22 +116,23 @@ turn(90); // turn 90 degrees CCW
 turn(-90, 50); // turn 90 degrees CW, topping out at half motor speed
 ```
 ___
-##**fastDrive**
+##**fast**
 ```cpp
-void fastDrive(double sp, int max = 100)
+void fast(double sp, int max = 100)
 ```
 `sp` - The target driving distance (default units of feet)  
 `max` - The maximum motor speed during the driving action (scaled from 0-100, default 100)
 
-Performs a driving action with no PID or waiting until settled. That is, the drive motors are immediately set to max in the designated direction.
+Performs a driving action with no PID or waiting until settled. That is, the drive motors are immediately set to max in the designated direction.  
+Useful for wall alignment or other forced moves.
 ___
-##**timeDrive**
+##**voltage**
 ```cpp
-void timeDrive(int t, int left = 100, int right = 0);
+void voltage(int t, int left_speed = 100, int right_speed = 0);
 ```
 `t` - The duration of the drive action (ms)  
-`left` - The left motor speed during the driving action (scaled from 0-100, default 100)  
-`right` - The right motor speed during the driving action (scaled from 0-100): if equal to zero, use left motor speed
+`left_speed` - The left motor speed during the driving action (scaled from 0-100, default 100)  
+`right_speed` - The right motor speed during the driving action (scaled from 0-100): if equal to zero, use left motor speed
 
 Drives with no PID (drive motors are immediately set to given values) for a specified duration. Specific motor speeds scaled from 0-100 can also be provided.
 ```cpp
@@ -146,59 +141,47 @@ timeDrive(2000, 50); // drive forward for 2 seconds at half speed
 timeDrive(500, 100, 50); // drive and turn slightly right for 0.5 seconds
 ```
 ___
-##**velocityDrive**
+##**velocity**
 ```cpp
-void velocityDrive(int t, int max = 100);
+void velocity(int t, int max = 100);
 ```
 `t` - The duration of the drive action (ms)  
 `max` - The maximum motor speed during the driving action (scaled from 0-100, default 100)
 
-Drives with internal PID (see left_drive_vel) in a straight line for a specified duration.  
+Drives with the motors' **BUILT-IN** PID Control (see left_drive_vel) in a straight line for a specified duration.  
 ```cpp
-velocityDrive(1000); // drive forward for 1 second at max speed
-velocityDrive(2000, 50); // drive forward for 2 seconds at half speed
+velocity(1000); // drive forward for 1 second at max speed
+velocity(2000, 50); // drive forward for 2 seconds at half speed
 ```
 ___
-##**arcLeft**
+##**arcLeft/arcRight**
 ```cpp
 void arcLeft(int length, double rad, int max = 100, int type = 0);
+void arcRight(int length, double rad, int max = 100, int type = 0);
 ```
 `length` - The desired arc length (degrees)  
 `rad` - The radius of the arc (default units of feet)  
 `max` - The maximum motor speed during the arc action (scaled from 0-100, default 100)  
 `type` - The type of arc (default 0)
 
-Drives in a counterclockwise arc with specified length, radius, and type.
+Drives in a counterclockwise arc with specified length, radius, and type.  
+The motivation behind arcMove types is to enable custom curved movement, such that doing arc moves with subsequent types would produce one continuous move:
 ```cpp
-arcLeft(180, 1); // traces semicircle with radius 1 ft in the CCW direction
-arcLeft(90, 2, 50); // traces quarter circle with radius 2 ft in CCW direction at half speed
+arcLeft(90, 1, 100, 1) // traces a quarter circle with 1ft radius counterclockwise, STARTING WHILE STATAIONARY AND ENDING AT MAX SPEED
+arcRight(45, 1, 100, 2) // traces a 45 degree arc with 1ft radius clockwise, MAINTAINING SPEED AT THE BEGINNING AND END OF THE MOVE
+arcLeft(135, 1, 100, 3) //traces a 135 degree arc with 1ft radius counterclockwise, COASTING TO A STOP AT THE END
 ```
+In total, the 4 types of arc turn are:  
+0 - Start and end stationary  
+1 - Start stationary, end in motion  
+2 - Start and end in motion  
+3 - Start in motion, end stationary
 ___
-##**arcRight**
+##**sLeft/sRight**
 ```cpp
-void arcRight(int length, double rad, int max = 100, int type = 0);
+void sLeft(int arc1, int mid, int arc2, int max = 100);
+void sRight(int arc1, int mid, int arc2, int max = 100);
 ```
-`length` - The desired arc length (degrees)  
-`rad` - The radius of the arc (default units of feet)  
-`max` - The maximum motor speed during the arc action (scaled from 0-100, default 100)  
-`type` - The type of arc (default 0)  
-
-Drives in a clockwise arc with specified length, radius, and type.
-```cpp
-arcRight(180, 1); // traces semicircle with radius 1 ft in the CW direction
-arcRight(90, 2, 50); // traces quarter circle with radius 2 ft in CW direction at half speed
-```
+Perform a forward S-shaped movement with a set length and speed.  
+`_sLeft()` and `_sRight()` take the same arguments and perform the same move backwards.
 ___
-##**function_name**
-```cpp
-void function_name(var1, var2);
-```
-`var1` - The first variable.  
-`var2` - The second variable.  
-
-A description of what the function does, including an example if necessary.  
-```cpp
-example code
-```
-
-### Selection
