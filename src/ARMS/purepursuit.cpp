@@ -120,16 +120,16 @@ std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> pa
 
 
 void followPath(std::vector<std::array<double, 2>> path) {
-  double max_speed = 100; // 100 max
+  double max_speed = 80; // 100 max
 
-  double inner_radius = 10.0;
-  double outer_radius = 15.0;
+  double inner_radius = 12.0;
+  double outer_radius = 18.0;
 
-  double kP_ang = 0.0;
+  double kP_ang = 10.0;
   double kI_ang = 0.0;
   double kD_ang = 0.0;
 
-  double kP_vel = 0.0;
+  double kP_vel = 10.0;
   double kI_vel = 0.0;
   double kD_vel = 0.0;
 

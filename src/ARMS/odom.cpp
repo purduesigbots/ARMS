@@ -68,14 +68,14 @@ double getAngle(std::array<double, 2> point) {
 
   x -= global_x;
   y -= global_y;
-  double theta = atan2(y,x);
 
-  double delta_angle = theta - heading;
-  while(fabs(delta_angle) > M_PI) {
-      theta -= (delta_angle / fabs(delta_angle)) * 2 * M_PI;
-      delta_angle = theta - heading;
-  }
-  return theta;
+	double delta_theta = heading - atan2(y,x);
+
+	while(fabs(delta_theta) > M_PI) {
+		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
+	}
+
+  return delta_theta;
 }
 
 
@@ -112,14 +112,14 @@ double slew(double speed, double last_speed) {
 
 
 void goToPoint(std::array<double, 2> point) {
-	double max_speed = 100; // 100 max
-	double exit_error = 1; // radius around point in inches
+	double max_speed = 80; // 100 max
+	double exit_error = 5; // radius around point in inches
 
-  double kP_vel = 0.0;
+  double kP_vel = 8.0;
   double kI_vel = 0.0;
   double kD_vel = 0.0;
 
-  double kP_ang = 0.0;
+  double kP_ang = 50.0;
   double kI_ang = 0.0;
   double kD_ang = 0.0;
 
@@ -129,9 +129,18 @@ void goToPoint(std::array<double, 2> point) {
   double vel_prev_error = getDistance(point);
   double ang_prev_error = getAngle(point);
 
-  while(1) {
+	bool driving = true;
+
+  while(driving) {
+		int reverse = 1;
+
     double vel_error = getDistance(point);
     double ang_error = getAngle(point);
+
+		if (fabs(ang_error) > M_PI_2) {
+				ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+				reverse = -1;
+		}
 
     double vel_derivative = vel_error - vel_prev_error;
     double ang_derivative = ang_error - ang_prev_error;
@@ -142,8 +151,10 @@ void goToPoint(std::array<double, 2> point) {
     double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
     double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
 
-    double left_speed = forward_speed + turn_modifier;
-    double right_speed = forward_speed - turn_modifier;
+		forward_speed *= reverse;
+
+    double left_speed = forward_speed - turn_modifier;
+    double right_speed = forward_speed + turn_modifier;
 
     if (left_speed > max_speed) {
       double diff = left_speed - max_speed;
@@ -165,8 +176,8 @@ void goToPoint(std::array<double, 2> point) {
       right_speed -= diff;
     }
 
-    left_speed = slew(left_speed, left_prev);
-    right_speed = slew(right_speed, right_prev);
+    //left_speed = slew(left_speed, left_prev);
+    //right_speed = slew(right_speed, right_prev);
 
 		left_prev = left_speed;
 		right_prev = right_speed;
@@ -175,7 +186,7 @@ void goToPoint(std::array<double, 2> point) {
     chassis::rightMotors->moveVoltage(right_speed * 120);
 
     if (vel_error < exit_error)
-      break;
+      driving = false;
 		delay(20);
   }
   chassis::leftMotors->moveVoltage(0);
