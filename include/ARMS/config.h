@@ -12,6 +12,11 @@ namespace chassis {
 #define DISTANCE_CONSTANT 273 // ticks per distance unit, the default is a foot
 #define DEGREE_CONSTANT 2.3   // ticks per degree
 
+// chassis settling constants
+#define SETTLE_COUNT 8
+#define SETTLE_THRESHOLD_LINEAR 3
+#define SETTLE_THRESHOLD_ANGULAR 1
+
 // slew control (autonomous only)
 #define ACCEL_STEP 8 // smaller number = more slew
 #define ARC_STEP 2   // acceleration for arcs
