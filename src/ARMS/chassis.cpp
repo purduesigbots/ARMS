@@ -281,20 +281,21 @@ void moveHolo(double distance, double angle, int max) {
 }
 
 void fast(double sp, int max) {
+	double speed; // speed before PID
+
 	if (sp < 0)
 		max = -max;
 	reset();
-	lastSpeed = max;
 	mode = DISABLE;
-	motorVoltage(leftMotors, max);
-	motorVoltage(rightMotors, max);
 
-	if (sp > 0)
-		while (position() < sp * distance_constant)
-			delay(20);
-	else
-		while (position() > sp * distance_constant)
-			delay(20);
+	while (abs(position()) < abs(sp * distance_constant)) {
+		speed = slew(max);
+		// differential PID
+		double dif = difference() * difKP;
+		motorVelocity(leftMotors, speed - dif);
+		motorVelocity(rightMotors, speed + dif);
+		delay(20);
+	}
 }
 
 void voltage(int t, int left_speed, int right_speed) {
