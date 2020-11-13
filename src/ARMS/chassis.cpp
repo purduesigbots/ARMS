@@ -173,7 +173,7 @@ double slew(double speed) {
 
 /**************************************************/
 // chassis settling
-bool isDriving() {
+bool settled() {
 	static int count = 0;
 	static double last = 0;
 	static double lastTarget = 0;
@@ -184,7 +184,8 @@ bool isDriving() {
 	if (mode == LINEAR)
 		target = linearTarget;
 
-	if (abs(last - curr) < 3)
+	if (abs(last - curr) <
+	    (mode == LINEAR ? SETTLE_THRESHOLD_LINEAR : SETTLE_THRESHOLD_ANGULAR))
 		count++;
 	else
 		count = 0;
@@ -196,14 +197,14 @@ bool isDriving() {
 	last = curr;
 
 	// not driving if we haven't moved
-	if (count > 4)
-		return false;
-	else
+	if (count > SETTLE_COUNT)
 		return true;
+	else
+		return false;
 }
 
 void waitUntilSettled() {
-	while (isDriving())
+	while (!settled())
 		delay(10);
 }
 
