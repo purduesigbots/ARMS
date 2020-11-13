@@ -24,7 +24,7 @@ double position(bool yDirection = false, bool forceEncoder = false);
 /**
  * Get a boolean that is true if the chassis motors are in motion
  */
-bool isDriving();
+bool settled();
 
 /**
  * Delay the program until the chassis motors come to rest
