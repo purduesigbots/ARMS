@@ -33,10 +33,9 @@ TO DO:
 | HUE | 360 | The base color of the selection screen as a hue (0-360). Default 360 is pure red. |
 | AUTONS | "Front", "Back", "Do Nothing" | The auton names to be displayed on the selection screen. Up to 10 autons are accepted. |
 
-## Functions
+# Chassis Functions
 
-### Chassis
-**setBrakeMode**
+##**setBrakeMode**
 ```cpp
 void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 ```
@@ -46,32 +45,32 @@ Sets the brake mode of the drive motors.
 ```cpp
 setBrakeMode(0); // set drive motors to coast mode
 ```
-
-**reset**
+___
+##**reset**
 ```cpp
 void reset();
 ```
 Resets the motor encoders of the drive motors, so that their current position is considered zero.  
-
-**drivePos**
+___
+##**drivePos**
 ```cpp
 int drivePos();
 ```
 Returns the average position between the left and right drive motors.
-
-**isDriving**
+___
+##**isDriving**
 ```cpp
-bool isDriving());
+bool isDriving();
 ```
 Returns True if the robot is driving (i.e. the drive motors are in motion), or false if they are not.
-
-**waitUntilSettled**
+___
+##**waitUntilSettled**
 ```cpp
 void waitUntilSettled();
 ```
 Delays the program until the robot is no longer driving (see isDriving).
-
-**driveAsync**
+___
+##**driveAsync**
 ```cpp
 void driveAsync(double sp, int max = 100)
 ```
@@ -83,8 +82,8 @@ Performs a driving action asynchronously, meaning that the robot does not wait u
 driveAsync(2); // drive 2 feet forward
 driveAsync(-2, 50); // drive 2 feet backward, topping out at half motor speed
 ```
-
-**turnAsync**
+___
+##**turnAsync**
 ```cpp
 void turnAsync(double sp, int max = 100)
 ```
@@ -96,8 +95,8 @@ Performs a turning action asynchronously, meaning that the robot does not wait u
 turnAsync(90); // turn 90 degrees CCW
 turnAsync(-90, 50); // turn 90 degrees CW, topping out at half motor speed
 ```
-
-**drive**
+___
+##**drive**
 ```cpp
 void drive(double sp, int max = 100)
 ```
@@ -109,8 +108,8 @@ Performs a driving action and waits until the robot is settled (see waitUntilSet
 drive(2); // drive 2 feet forward
 drive(-2, 50); // drive 2 feet backward, topping out at half motor speed
 ```
-
-**turn**
+___
+##**turn**
 ```cpp
 void turn(double sp, int max = 100)
 ```
@@ -122,8 +121,8 @@ Performs a turning action and waits until the robot is settled (see waitUntilSet
 turn(90); // turn 90 degrees CCW
 turn(-90, 50); // turn 90 degrees CW, topping out at half motor speed
 ```
-
-**fastDrive**
+___
+##**fastDrive**
 ```cpp
 void fastDrive(double sp, int max = 100)
 ```
@@ -131,8 +130,8 @@ void fastDrive(double sp, int max = 100)
 `max` - The maximum motor speed during the driving action (scaled from 0-100, default 100)
 
 Performs a driving action with no PID or waiting until settled. That is, the drive motors are immediately set to max in the designated direction.
-
-**timeDrive**
+___
+##**timeDrive**
 ```cpp
 void timeDrive(int t, int left = 100, int right = 0);
 ```
@@ -146,8 +145,8 @@ timeDrive(1000); // drive forward for 1 second at max speed
 timeDrive(2000, 50); // drive forward for 2 seconds at half speed
 timeDrive(500, 100, 50); // drive and turn slightly right for 0.5 seconds
 ```
-
-**velocityDrive**
+___
+##**velocityDrive**
 ```cpp
 void velocityDrive(int t, int max = 100);
 ```
@@ -159,8 +158,8 @@ Drives with internal PID (see left_drive_vel) in a straight line for a specified
 velocityDrive(1000); // drive forward for 1 second at max speed
 velocityDrive(2000, 50); // drive forward for 2 seconds at half speed
 ```
-
-**arcLeft**
+___
+##**arcLeft**
 ```cpp
 void arcLeft(int length, double rad, int max = 100, int type = 0);
 ```
@@ -174,8 +173,8 @@ Drives in a counterclockwise arc with specified length, radius, and type.
 arcLeft(180, 1); // traces semicircle with radius 1 ft in the CCW direction
 arcLeft(90, 2, 50); // traces quarter circle with radius 2 ft in CCW direction at half speed
 ```
-
-**arcRight**
+___
+##**arcRight**
 ```cpp
 void arcRight(int length, double rad, int max = 100, int type = 0);
 ```
@@ -189,8 +188,8 @@ Drives in a clockwise arc with specified length, radius, and type.
 arcRight(180, 1); // traces semicircle with radius 1 ft in the CW direction
 arcRight(90, 2, 50); // traces quarter circle with radius 2 ft in CW direction at half speed
 ```
-
-**function_name**
+___
+##**function_name**
 ```cpp
 void function_name(var1, var2);
 ```
