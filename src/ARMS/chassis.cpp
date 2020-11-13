@@ -106,8 +106,8 @@ double position(bool yDirection, bool forceEncoder) {
 
 		// TODO change when we add middle encoder
 		if (false) {
-			// top_pos = middleEncoder->get_value();
-			// bot_pos = middleEncoder->get_value();
+			top_pos = middleEncoder->get_value();
+			bot_pos = middleEncoder->get_value();
 		} else {
 			top_pos = frontLeft->getPosition() - frontRight->getPosition();
 			bot_pos = backRight->getPosition() - backLeft->getPosition();
