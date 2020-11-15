@@ -53,6 +53,7 @@ static double linearTarget = 0;
 static double turnTarget = 0;
 static double vectorAngle = 0;
 static int maxSpeed = 100;
+bool useVelocity = false;
 
 /**************************************************/
 // basic control
@@ -293,8 +294,13 @@ void fast(double sp, int max) {
 		speed = slew(max);
 		// differential PID
 		double dif = difference() * difKP;
-		motorVelocity(leftMotors, speed - dif);
-		motorVelocity(rightMotors, speed + dif);
+		if (useVelocity) {
+			motorVelocity(leftMotors, speed - dif);
+			motorVelocity(rightMotors, speed + dif);
+		} else {
+			motorVoltage(leftMotors, speed - dif);
+			motorVoltage(rightMotors, speed + dif);
+		}
 		delay(20);
 	}
 }
@@ -541,8 +547,13 @@ int chassisTask() {
 			printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
 			       error * kp, derivative * kd, speed, dif);
 
-			motorVelocity(leftMotors, (speed - dif) * mode);
-			motorVelocity(rightMotors, speed + dif);
+			if (useVelocity) {
+				motorVelocity(leftMotors, (speed - dif) * mode);
+				motorVelocity(rightMotors, speed + dif);
+			} else {
+				motorVoltage(leftMotors, (speed - dif) * mode);
+				motorVoltage(rightMotors, speed + dif);
+			}
 		}
 	}
 }

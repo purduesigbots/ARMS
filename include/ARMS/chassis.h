@@ -6,6 +6,8 @@
 
 namespace chassis {
 
+extern bool useVelocity;
+
 /**
  * Set the brake mode for all chassis motors
  */
