@@ -36,7 +36,6 @@ double degree_constant;   // ticks per degree
 // slew control (autonomous only)
 double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
-double lastSpeed = 0;
 
 // pid constants
 double linearKP;
@@ -46,14 +45,15 @@ double turnKD;
 double arcKP;
 double difKP;
 
-/**************************************************/
-// edit below with caution!!!
-static int mode = DISABLE;
-static double linearTarget = 0;
-static double turnTarget = 0;
-static double vectorAngle = 0;
-static int maxSpeed = 100;
+// chassis variables
+int mode = DISABLE;
+int maxSpeed = 100;
+double linearTarget = 0;
+double turnTarget = 0;
+double vectorAngle = 0;
+double lastSpeed = 0;
 bool useVelocity = false;
+
 
 /**************************************************/
 // basic control
@@ -151,15 +151,9 @@ double difference() {
 
 /**************************************************/
 // slew control
-double slew(double speed) {
-	double step;
+double slew(double speed, double step) {
 
-	if (abs(lastSpeed) < abs(speed))
-		if (mode == DISABLE)
-			step = arc_step;
-		else
-			step = accel_step;
-	else
+	if (abs(lastSpeed) > abs(speed))
 		step = 200;
 
 	if (speed > lastSpeed + step)
@@ -291,7 +285,7 @@ void fast(double sp, int max) {
 	mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
-		speed = slew(max);
+		speed = slew(max, accel_step);
 		// differential PID
 		double dif = difference() * difKP;
 		if (useVelocity) {
@@ -355,7 +349,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = slew(speed); // slew
+		speed = slew(speed, accel_step); // slew
 
 		if (reversed)
 			speed = -speed;
@@ -471,6 +465,7 @@ int odomTask() {
 		delay(10);
 	}
 }
+
 int chassisTask() {
 	double prevError = 0;
 	double kp;
@@ -517,7 +512,7 @@ int chassisTask() {
 		if (speed < -maxSpeed)
 			speed = -maxSpeed;
 
-		speed = slew(speed); // slew
+		speed = slew(speed, accel_step); // slew
 
 		// set motors
 		if (vectorAngle != 0) {
@@ -543,9 +538,6 @@ int chassisTask() {
 
 		} else {
 			double dif = difference() * difKP;
-
-			printf("proportional %.2f, derivative %.2f, speed %.2f, dif %.2f\n",
-			       error * kp, derivative * kd, speed, dif);
 
 			if (useVelocity) {
 				motorVelocity(leftMotors, (speed - dif) * mode);
