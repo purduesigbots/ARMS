@@ -16,3 +16,5 @@ temp.errors
 .d/
 .clangd/
 .DS_Store
+.zip
+*.zip
