@@ -17,7 +17,7 @@ jobs:
       with:
         release: '9-2019-q4'
     - name: Setup Python
-      uses: actions/setup-python@v1.2.0
+      uses: actions/setup-python@v2
       with:
         python-version: 3.6
     - name: Pip Installer
@@ -28,9 +28,5 @@ jobs:
       run: prosv5 --version
     - name: Checkout
       uses: actions/checkout@v2.0.0
-    - name: Submodule Checkout
-      uses: jwsi/submodule-checkout@v1
-      with:
-        ssh-key: '${{ secrets.DEPLOY_KEY }}'
     - name: make  
       run: prosv5 make clean all
