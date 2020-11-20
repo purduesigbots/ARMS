@@ -33,6 +33,11 @@ std::shared_ptr<ADIEncoder> middleEncoder;
 double distance_constant; // ticks per foot
 double degree_constant;   // ticks per degree
 
+// settle constants
+double settle_count;
+double settle_threshold_linear;
+double settle_threshold_angular;
+
 // slew control (autonomous only)
 double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
@@ -53,7 +58,6 @@ double turnTarget = 0;
 double vectorAngle = 0;
 double lastSpeed = 0;
 bool useVelocity = false;
-
 
 /**************************************************/
 // basic control
@@ -180,7 +184,7 @@ bool settled() {
 		target = linearTarget;
 
 	if (abs(last - curr) <
-	    (mode == LINEAR ? SETTLE_THRESHOLD_LINEAR : SETTLE_THRESHOLD_ANGULAR))
+	    (mode == LINEAR ? settle_threshold_linear : settle_threshold_angular))
 		count++;
 	else
 		count = 0;
@@ -192,7 +196,7 @@ bool settled() {
 	last = curr;
 
 	// not driving if we haven't moved
-	if (count > SETTLE_COUNT)
+	if (count > settle_count)
 		return true;
 	else
 		return false;
@@ -576,14 +580,18 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double accel_step,
-          double arc_step, double linearKP, double linearKD, double turnKP,
-          double turnKD, double arcKP, double difKP, int imuPort,
+          double distance_constant, double degree_constant, double settle_count,
+          double settle_threshold_linear, double settle_threshold_angular,
+          double accel_step, double arc_step, double linearKP, double linearKD,
+          double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
+	chassis::settle_count = settle_count;
+	chassis::settle_threshold_linear = settle_threshold_linear;
+	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
 	chassis::linearKP = linearKP;
