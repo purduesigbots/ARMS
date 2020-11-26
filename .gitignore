@@ -14,4 +14,7 @@ temp.log
 temp.errors
 *.ini
 .d/
-.clangd
+.clangd/
+.DS_Store
+.zip
+*.zip

@@ -1,6 +1,4 @@
 /*
- * @author Ryan Benasutti, WPI
- *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -63,7 +61,8 @@ class Controller {
   virtual std::int32_t setText(std::uint8_t iline, std::uint8_t icol, std::string itext);
 
   /**
-   * Clears all of the lines of the controller screen.
+   * Clears all of the lines of the controller screen. On vexOS version 1.0.0 this function will
+   * block for 110ms.
    *
    * @return 1 if the operation was successful, PROS_ERR otherwise
    */

@@ -1,6 +1,4 @@
 /*
- * @author Ryan Benasutti, WPI
- *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -17,7 +15,7 @@ class Motor : public AbstractMotor {
   /**
    * A V5 motor.
    *
-   * @param iport The port number in the range [1, 21]. A negative port number is shorthand for
+   * @param iport The port number in the range ``[1, 21]``. A negative port number is shorthand for
    * reversing the motor.
    */
   Motor(std::int8_t iport);
