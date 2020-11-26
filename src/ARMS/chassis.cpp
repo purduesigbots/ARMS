@@ -156,19 +156,19 @@ double difference() {
 
 /**************************************************/
 // slew control
-double slew(double speed, double step) {
+double slew(double target_speed, double step, double* current_speed) {
 
-	if (abs(lastSpeed) > abs(speed))
+	if (abs(*current_speed) > abs(target_speed))
 		step = 200;
 
-	if (speed > lastSpeed + step)
-		lastSpeed += step;
-	else if (speed < lastSpeed - step)
-		lastSpeed -= step;
+	if (target_speed > *current_speed + step)
+		*current_speed += step;
+	else if (target_speed < *current_speed - step)
+		*current_speed -= step;
 	else
-		lastSpeed = speed;
+		*current_speed = target_speed;
 
-	return lastSpeed;
+	return *current_speed;
 }
 
 /**************************************************/
@@ -290,7 +290,7 @@ void fast(double sp, int max) {
 	mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
-		speed = slew(max, accel_step);
+		speed = slew(max, accel_step, &lastSpeed);
 		// differential PID
 		double dif = difference() * difKP;
 		if (useVelocity) {
@@ -354,7 +354,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = slew(speed, accel_step); // slew
+		speed = slew(speed, accel_step, &lastSpeed); // slew
 
 		if (reversed)
 			speed = -speed;
@@ -467,7 +467,7 @@ int chassisTask() {
 		if (speed < -maxSpeed)
 			speed = -maxSpeed;
 
-		speed = slew(speed, accel_step); // slew
+		speed = slew(speed, accel_step, &lastSpeed); // slew
 
 		// set motors
 		if (vectorAngle != 0) {

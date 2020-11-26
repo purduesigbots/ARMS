@@ -7,6 +7,7 @@
 namespace chassis {
 
 extern bool useVelocity;
+extern double accel_step;
 
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
@@ -27,6 +28,11 @@ void reset();
  * Get the average position between the sides of the chassis
  */
 double position(bool yDirection = false, bool forceEncoder = false);
+
+/**
+ * Get a gradually accelerating speed towards the target input
+ */
+double slew(double speed, double step, double* prev);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion
