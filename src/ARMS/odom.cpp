@@ -1,5 +1,5 @@
-#include "ARMS/chassis.h"
 #include "ARMS/odom.h"
+#include "ARMS/chassis.h"
 #include "api.h"
 
 using namespace pros;
@@ -42,7 +42,7 @@ int odomTask() {
 		delta_angle = heading - prev_heading;
 		prev_heading = heading;
 
-		if(delta_angle != 0) {
+		if (delta_angle != 0) {
 			radius = center_arc / delta_angle;
 			center_displacement = 2 * sin(delta_angle / 2) * radius;
 		} else {
@@ -61,136 +61,112 @@ int odomTask() {
 	}
 }
 
-
 double getAngle(std::array<double, 2> point) {
-  double x = point[0];
-  double y = point[1];
+	double x = point[0];
+	double y = point[1];
 
-  x -= global_x;
-  y -= global_y;
+	x -= global_x;
+	y -= global_y;
 
-	double delta_theta = heading - atan2(y,x);
+	double delta_theta = heading - atan2(y, x);
 
-	while(fabs(delta_theta) > M_PI) {
+	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
 	}
 
-  return delta_theta;
+	return delta_theta;
 }
-
 
 double getDistance(std::array<double, 2> point) {
-  double x = point[0];
-  double y = point[1];
+	double x = point[0];
+	double y = point[1];
 
-  x -= global_x;
-  y -= global_y;
-  return sqrt(x*x + y*y);
+	x -= global_x;
+	y -= global_y;
+	return sqrt(x * x + y * y);
 }
-
-double slew(double speed, double last_speed) {
-	int step;
-
-	int accel_step = 100;
-	int deccel_step = 100;
-
-	if (abs(last_speed) < abs(speed))
-		step = accel_step;
-	else
-		step = deccel_step;
-
-	if (speed > last_speed + step)
-		last_speed += step;
-	else if (speed < last_speed - step)
-		last_speed -= step;
-	else {
-		last_speed = speed;
-	}
-
-	return last_speed;
-}
-
 
 void goToPoint(std::array<double, 2> point) {
 	double max_speed = 80; // 100 max
 	double exit_error = 5; // radius around point in inches
 
-  double kP_vel = 8.0;
-  double kI_vel = 0.0;
-  double kD_vel = 0.0;
+	double kP_vel = 8.0;
+	double kI_vel = 0.0;
+	double kD_vel = 0.0;
 
-  double kP_ang = 50.0;
-  double kI_ang = 0.0;
-  double kD_ang = 0.0;
+	double kP_ang = 50.0;
+	double kI_ang = 0.0;
+	double kD_ang = 0.0;
 
+	double slew_step = 10;
 	double left_prev = 0;
 	double right_prev = 0;
 
-  double vel_prev_error = getDistance(point);
-  double ang_prev_error = getAngle(point);
+	double vel_prev_error = getDistance(point);
+	double ang_prev_error = getAngle(point);
 
 	bool driving = true;
 
-  while(driving) {
+	while (driving) {
 		int reverse = 1;
 
-    double vel_error = getDistance(point);
-    double ang_error = getAngle(point);
+		double vel_error = getDistance(point);
+		double ang_error = getAngle(point);
 
 		if (fabs(ang_error) > M_PI_2) {
-				ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
-				reverse = -1;
+			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+			reverse = -1;
 		}
 
-    double vel_derivative = vel_error - vel_prev_error;
-    double ang_derivative = ang_error - ang_prev_error;
+		double vel_derivative = vel_error - vel_prev_error;
+		double ang_derivative = ang_error - ang_prev_error;
 
-    vel_prev_error = vel_error;
-    ang_prev_error = ang_error;
+		vel_prev_error = vel_error;
+		ang_prev_error = ang_error;
 
-    double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
-    double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
+		double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
+		double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
 
 		forward_speed *= reverse;
 
-    double left_speed = forward_speed - turn_modifier;
-    double right_speed = forward_speed + turn_modifier;
+		double left_speed = forward_speed - turn_modifier;
+		double right_speed = forward_speed + turn_modifier;
 
-    if (left_speed > max_speed) {
-      double diff = left_speed - max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    } else if (left_speed < -max_speed) {
-      double diff = left_speed + max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    }
+		if (left_speed > max_speed) {
+			double diff = left_speed - max_speed;
+			left_speed -= diff;
+			right_speed -= diff;
+		} else if (left_speed < -max_speed) {
+			double diff = left_speed + max_speed;
+			left_speed -= diff;
+			right_speed -= diff;
+		}
 
-    if (right_speed > max_speed) {
-      double diff = right_speed - max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    } else if (right_speed < -max_speed) {
-      double diff = right_speed + max_speed;
-      left_speed -= diff;
-      right_speed -= diff;
-    }
+		if (right_speed > max_speed) {
+			double diff = right_speed - max_speed;
+			left_speed -= diff;
+			right_speed -= diff;
+		} else if (right_speed < -max_speed) {
+			double diff = right_speed + max_speed;
+			left_speed -= diff;
+			right_speed -= diff;
+		}
 
-    //left_speed = slew(left_speed, left_prev);
-    //right_speed = slew(right_speed, right_prev);
+		left_speed = chassis::slew(left_speed, chassis::accel_step, &left_prev);
+		right_speed = chassis::slew(right_speed, chassis::accel_step, &right_prev);
 
 		left_prev = left_speed;
 		right_prev = right_speed;
 
-    chassis::leftMotors->moveVoltage(left_speed * 120);
-    chassis::rightMotors->moveVoltage(right_speed * 120);
+		chassis::leftMotors->moveVoltage(left_speed * 120);
+		chassis::rightMotors->moveVoltage(right_speed * 120);
 
-    if (vel_error < exit_error)
-      driving = false;
+		if (vel_error < exit_error)
+			driving = false;
 		delay(20);
-  }
-  chassis::leftMotors->moveVoltage(0);
-  chassis::rightMotors->moveVoltage(0);
+	}
+	chassis::leftMotors->moveVoltage(0);
+	chassis::rightMotors->moveVoltage(0);
 }
 
 } // namespace odom

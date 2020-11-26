@@ -16,8 +16,6 @@ double getAngle(std::array<double, 2> point);
 
 double getDistance(std::array<double, 2> point);
 
-double slew(double speed, double last_speed);
-
 void goToPoint(std::array<double, 2> point);
 
 } // namespace odom
