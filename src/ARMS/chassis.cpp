@@ -426,13 +426,19 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 
 /**************************************************/
 // PID controllers
+double pid(double target, double sv, double* psv, double kp, double kd) {
+	double error = target - sv;
+	double derivative = error - *psv;
+	*psv = error;
+	double speed = error * linearKP + derivative * linearKD;
+	return speed;
+}
+
 double linearPID(bool rightSide = false) {
-	static double prevError = 0;
+	static double psv = 0;
 
-	// get position in the x direction
+	// get position in the x and y directions
 	double sv_x = position();
-
-	// get position in the y direction
 	double sv_y = position(true);
 
 	// calculate total displacement using pythagorean theorem
@@ -442,15 +448,10 @@ double linearPID(bool rightSide = false) {
 	else
 		sv = sv_x; // just use the x value for non-holonomic movements
 
-	// speed
-	double error = linearTarget - sv;
-	double derivative = error - prevError;
-	prevError = error;
-	double speed = error * linearKP + derivative * linearKD;
+	double speed = pid(linearTarget, sv, &psv, linearKP, linearKD);
 
-	// difference pid
+	// difference PID
 	double dif = difference() * difKP;
-
 	if (rightSide)
 		speed += dif;
 	else
@@ -460,6 +461,10 @@ double linearPID(bool rightSide = false) {
 }
 
 double angularPID() {
+	static double psv = 0;
+	double sv = angle();
+	double speed = pid(angularTarget, sv, &psv, angularKP, angularKD);
+	return speed;
 }
 
 /**************************************************/
@@ -473,8 +478,8 @@ int chassisTask() {
 		double rightSpeed = 0;
 
 		if (mode == LINEAR) {
-			leftSpeed = -angularPID();
 			rightSpeed = angularPID();
+			leftSpeed = -rightSpeed;
 		} else if (mode == ANGULAR) {
 			leftSpeed = linearPID();
 			rightSpeed = linearPID(true); // dif pid for right side
