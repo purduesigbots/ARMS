@@ -12,6 +12,9 @@ extern double accel_step;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
+extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
+extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
+extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
 
 /**

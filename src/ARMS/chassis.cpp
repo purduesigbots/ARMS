@@ -506,8 +506,9 @@ int chassisTask() {
 }
 
 void startTasks() {
+	delay(500);
 	Task chassis_task(chassisTask);
-	if (imu) {
+	if (imu || middleEncoder) {
 		Task odom_task(odom::odomTask);
 	}
 }
@@ -515,15 +516,17 @@ void startTasks() {
 std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 	std::shared_ptr<ADIEncoder> encoder;
 
+	bool reversed = encoderPort > 0 ? false : true;
+
 	int encoderPort2 =
 	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
 	encoderPort = abs(encoderPort);
 
 	if (expanderPort != 0) {
 		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
-		encoder = std::make_shared<ADIEncoder>(pair, false);
+		encoder = std::make_shared<ADIEncoder>(pair, reversed);
 	} else {
-		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2);
+		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2, reversed);
 	}
 
 	return encoder;
@@ -567,7 +570,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 			delay(10);
 		}
 		delay(1000);
-		printf("IMU calibrated!");
+		// printf("IMU calibrated!");
 	}
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());

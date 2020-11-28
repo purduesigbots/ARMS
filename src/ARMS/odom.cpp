@@ -13,17 +13,20 @@ double heading_degrees;
 
 int odomTask() {
 	double drive_constant = 47.94; // ticks per inch
+	double chassis_width = 12.75;  // distance between tracking wheels
 
 	double prev_heading = 0;
 	double prev_left_pos = 0;
 	double prev_right_pos = 0;
+	double prev_middle_pos = 0;
 
 	double right_arc = 0;
 	double left_arc = 0;
 	double center_arc = 0;
+	double horizontal_arc = 0;
 	double delta_angle = 0;
-	double radius = 0;
 	double center_displacement = 0;
+	double horizontal_displacement = 0;
 	double delta_x = 0;
 	double delta_y = 0;
 
@@ -31,31 +34,64 @@ int odomTask() {
 	global_y = 0;
 
 	while (true) {
-		right_arc = chassis::rightMotors->getPosition() - prev_right_pos;
-		left_arc = chassis::leftMotors->getPosition() - prev_left_pos;
-		prev_right_pos = chassis::rightMotors->getPosition();
-		prev_left_pos = chassis::leftMotors->getPosition();
+		int left_val;
+		int right_val;
+
+		if (chassis::leftEncoder) {
+			left_val = chassis::leftEncoder->get_value();
+			right_val = chassis::rightEncoder->get_value();
+		} else {
+			left_val = chassis::leftMotors->getPosition();
+			right_val = chassis::rightMotors->getPosition();
+		}
+
+		left_arc = left_val - prev_left_pos;
+		right_arc = right_val - prev_right_pos;
+
+		prev_left_pos = left_val;
+		prev_right_pos = right_val;
+
 		center_arc = (right_arc + left_arc) / 2.0;
 
-		heading_degrees = chassis::imu->get_rotation();
-		heading = heading_degrees * M_PI / 180;
+		int horizontal_val = 0;
+		if (chassis::middleEncoder)
+			horizontal_val = chassis::middleEncoder->get_value();
+
+		horizontal_arc = horizontal_val - prev_middle_pos;
+
+		prev_middle_pos = horizontal_val;
+
+		if (chassis::imu) {
+			heading_degrees = chassis::imu->get_rotation();
+			heading = heading_degrees * M_PI / 180;
+		} else {
+			heading = prev_heading +
+			          (left_arc - right_arc) / (drive_constant * chassis_width);
+			heading_degrees = heading * 180 / M_PI;
+		}
+
 		delta_angle = heading - prev_heading;
 		prev_heading = heading;
 
 		if (delta_angle != 0) {
-			radius = center_arc / delta_angle;
-			center_displacement = 2 * sin(delta_angle / 2) * radius;
+			center_displacement =
+			    2 * sin(delta_angle / 2) * (center_arc / delta_angle);
+			horizontal_displacement =
+			    2 * sin(delta_angle / 2) * (horizontal_arc / delta_angle);
 		} else {
 			center_displacement = center_arc;
+			horizontal_displacement = horizontal_arc;
 		}
 
-		delta_x = cos(heading) * center_displacement;
-		delta_y = sin(heading) * center_displacement;
+		delta_x = cos(heading) * center_displacement +
+		          sin(heading) * horizontal_displacement;
+		delta_y = sin(heading) * center_displacement +
+		          cos(heading) * horizontal_displacement;
 
 		global_x += delta_x / drive_constant;
 		global_y += delta_y / drive_constant;
 
-		printf("%f, %f, %f \n", global_x, global_y, heading_degrees);
+		printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
 
 		delay(10);
 	}
