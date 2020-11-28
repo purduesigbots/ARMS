@@ -8,9 +8,10 @@ using namespace pros;
 namespace chassis {
 
 // chassis mode enums
+#define GTP 3
+#define ANGULAR 2
 #define LINEAR 1
 #define DISABLE 0
-#define ANGULAR -1
 
 // imu
 std::shared_ptr<Imu> imu;
@@ -57,41 +58,43 @@ int maxSpeed = 100;
 double linearTarget = 0;
 double angularTarget = 0;
 double vectorAngle = 0;
-double lastSpeed = 0;
+double leftPrev = 0;
+double rightPrev = 0;
 bool useVelocity = false;
 
 /**************************************************/
 // basic control
 
 // move motor group at given velocity
-void motorVoltage(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
-	motor->moveVoltage(vel * 120);
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed,
+               bool vel = useVelocity) {
+	if (vel)
+		motor->moveVelocity(vel * (double)motor->getGearing() / 200);
+	else
+		motor->moveVoltage(speed * 120);
 }
 
-void motorVelocity(std::shared_ptr<okapi::MotorGroup> motor, int vel) {
-	motor->moveVelocity(vel * (double)motor->getGearing() / 200);
-}
-
-void motorVoltage(std::shared_ptr<okapi::Motor> motor, int vel) {
-	motor->moveVoltage(vel * 120);
-}
-
-void motorVelocity(std::shared_ptr<okapi::Motor> motor, int vel) {
-	motor->moveVelocity(vel * (double)motor->getGearing() / 200);
+void motorMove(std::shared_ptr<okapi::Motor> motor, int speed,
+               bool vel = useVelocity) {
+	if (vel)
+		motor->moveVelocity(vel * (double)motor->getGearing() / 200);
+	else
+		motor->moveVoltage(speed * 120);
 }
 
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	leftMotors->setBrakeMode(b);
 	rightMotors->setBrakeMode(b);
-	motorVelocity(leftMotors, 0);
-	motorVelocity(rightMotors, 0);
+	motorMove(leftMotors, 0, true);
+	motorMove(rightMotors, 0, true);
 }
 
 void reset() {
-	lastSpeed = 0;
+	leftPrev = 0;
+	rightPrev = 0;
 
-	motorVelocity(leftMotors, 0);
-	motorVelocity(rightMotors, 0);
+	motorMove(leftMotors, 0, true);
+	motorMove(rightMotors, 0, true);
 	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
@@ -106,12 +109,25 @@ void reset() {
 	}
 }
 
-double position(bool yDirection, bool forceEncoder) {
+std::array<double, 2> getEncoders() {
+	std::array<double, 2> encoders;
+
+	if (leftEncoder) {
+		encoders[0] = leftEncoder->get_value();
+		encoders[1] = rightEncoder->get_value();
+	} else {
+		encoders[0] = leftMotors->getPosition();
+		encoders[1] = rightMotors->getPosition();
+	}
+
+	return encoders;
+}
+
+double position(bool yDirection) {
 	if (yDirection) {
 		double top_pos, bot_pos;
 
-		// TODO change when we add middle encoder
-		if (false) {
+		if (middleEncoder) {
 			top_pos = middleEncoder->get_value();
 			bot_pos = middleEncoder->get_value();
 		} else {
@@ -119,43 +135,37 @@ double position(bool yDirection, bool forceEncoder) {
 			bot_pos = backRight->getPosition() - backLeft->getPosition();
 		}
 
-		return ((mode == ANGULAR ? -top_pos : top_pos) + bot_pos) / 2;
-
-	} else if (imu && mode == ANGULAR && !forceEncoder) {
-		// read sensors using IMU if turning and one exists
-		return -imu->get_rotation();
+		return (top_pos + bot_pos) / 2;
 
 	} else {
-		double left_pos, right_pos;
+		return (getEncoders()[0] + getEncoders()[1]) / 2;
+	}
+}
 
-		if (leftEncoder) {
-			left_pos = leftEncoder->get_value();
-			right_pos = rightEncoder->get_value();
-		} else {
-			left_pos = leftMotors->getPosition();
-			right_pos = rightMotors->getPosition();
-		}
-
-		return ((mode == ANGULAR ? -left_pos : left_pos) + right_pos) / 2;
+double angle() {
+	if (imu) {
+		return -imu->get_rotation();
+	} else {
+		return (-getEncoders()[0] + getEncoders()[1]) / 2;
 	}
 }
 
 double difference() {
-	double left_pos, right_pos;
-
-	if (leftEncoder) {
-		left_pos = leftEncoder->get_value();
-		right_pos = rightEncoder->get_value();
-	} else {
-		left_pos = leftMotors->getPosition();
-		right_pos = rightMotors->getPosition();
-	}
-
-	return (mode == ANGULAR ? 0 : (left_pos - right_pos));
+	return (getEncoders()[0] - getEncoders()[1]);
 }
 
 /**************************************************/
-// slew control
+// speed control
+double limitSpeed(double speed) {
+	// speed limiting
+	if (speed > maxSpeed)
+		speed = maxSpeed;
+	if (speed < -maxSpeed)
+		speed = -maxSpeed;
+
+	return speed;
+}
+
 double slew(double target_speed, double step, double* current_speed) {
 
 	if (abs(*current_speed) > abs(target_speed))
@@ -178,7 +188,7 @@ bool settled() {
 	static double last = 0;
 	static double lastTarget = 0;
 
-	double curr = position(false, true);
+	double curr = position(false);
 
 	double target = angularTarget;
 	if (mode == LINEAR)
@@ -254,7 +264,7 @@ void moveHoloAsync(double distance, double angle, int max) {
 	maxSpeed = max;
 	linearTarget = distance;
 	vectorAngle = angle * M_PI / 180;
-	mode = 1;
+	mode = LINEAR;
 }
 
 void move(double sp, int max) {
@@ -290,29 +300,24 @@ void fast(double sp, int max) {
 	mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
-		speed = slew(max, accel_step, &lastSpeed);
+		speed = slew(max, accel_step, &leftPrev);
 		// differential PID
 		double dif = difference() * difKP;
-		if (useVelocity) {
-			motorVelocity(leftMotors, speed - dif);
-			motorVelocity(rightMotors, speed + dif);
-		} else {
-			motorVoltage(leftMotors, speed - dif);
-			motorVoltage(rightMotors, speed + dif);
-		}
+		motorMove(leftMotors, speed - dif);
+		motorMove(rightMotors, speed + dif);
 		delay(20);
 	}
 }
 
 void voltage(int t, int left_speed, int right_speed) {
-	motorVoltage(leftMotors, left_speed);
-	motorVoltage(rightMotors, right_speed == 0 ? left_speed : right_speed);
+	motorMove(leftMotors, left_speed, false);
+	motorMove(rightMotors, right_speed == 0 ? left_speed : right_speed, false);
 	delay(t);
 }
 
 void velocity(int t, int max) {
-	motorVelocity(leftMotors, max);
-	motorVelocity(rightMotors, max);
+	motorMove(leftMotors, max, true);
+	motorMove(rightMotors, max, true);
 	delay(t);
 }
 
@@ -330,8 +335,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type < 2) {
-		motorVelocity(leftMotors, 0);
-		motorVelocity(rightMotors, 0);
+		motorMove(leftMotors, 0, true);
+		motorMove(rightMotors, 0, true);
 		delay(10);
 	}
 
@@ -354,7 +359,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = slew(speed, accel_step, &lastSpeed); // slew
+		speed = slew(speed, accel_step, &leftPrev); // slew
 
 		if (reversed)
 			speed = -speed;
@@ -369,8 +374,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 			scaled_speed *= (1 - (double)time_step / arc_length);
 
 		// assign chassis motor speeds
-		motorVelocity(leftMotors, mirror ? speed : scaled_speed);
-		motorVelocity(rightMotors, mirror ? scaled_speed : speed);
+		motorMove(leftMotors, mirror ? speed : scaled_speed, true);
+		motorMove(rightMotors, mirror ? scaled_speed : speed, true);
 
 		// increment time step
 		time_step += 10;
@@ -378,8 +383,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1 && type != 2) {
-		motorVelocity(leftMotors, 0);
-		motorVelocity(rightMotors, 0);
+		motorMove(leftMotors, 0, true);
+		motorMove(rightMotors, 0, true);
 	}
 }
 
@@ -420,54 +425,70 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 }
 
 /**************************************************/
+// PID controllers
+double linearPID(bool rightSide = false) {
+	static double prevError = 0;
+
+	// get position in the x direction
+	double sv_x = position();
+
+	// get position in the y direction
+	double sv_y = position(true);
+
+	// calculate total displacement using pythagorean theorem
+	double sv;
+	if (vectorAngle != 0)
+		sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
+	else
+		sv = sv_x; // just use the x value for non-holonomic movements
+
+	// speed
+	double error = linearTarget - sv;
+	double derivative = error - prevError;
+	prevError = error;
+	double speed = error * linearKP + derivative * linearKD;
+
+	// difference pid
+	double dif = difference() * difKP;
+
+	if (rightSide)
+		speed += dif;
+	else
+		speed -= dif;
+
+	return speed;
+}
+
+double angularPID() {
+}
+
+/**************************************************/
 // task control
 int chassisTask() {
-	double prevError = 0;
-	double kp;
-	double kd;
-	double sp;
 
 	while (1) {
 		delay(20);
 
+		double leftSpeed = 0;
+		double rightSpeed = 0;
+
 		if (mode == LINEAR) {
-			sp = linearTarget;
-			kp = linearKP;
-			kd = linearKD;
+			leftSpeed = -angularPID();
+			rightSpeed = angularPID();
 		} else if (mode == ANGULAR) {
-			sp = angularTarget;
-			kp = angularKP;
-			kd = angularKD;
+			leftSpeed = linearPID();
+			rightSpeed = linearPID(true); // dif pid for right side
 		} else {
 			continue;
 		}
 
-		// get position in the x direction
-		double sv_x = position();
-
-		// get position in the y direction
-		double sv_y = position(true);
-
-		// calculate total displacement using pythagorean theorem
-		double sv;
-		if (vectorAngle != 0)
-			sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-		else
-			sv = sv_x; // just use the x value for non-holonomic movements
-
-		// speed
-		double error = sp - sv;
-		double derivative = error - prevError;
-		prevError = error;
-		double speed = error * kp + derivative * kd;
-
 		// speed limiting
-		if (speed > maxSpeed)
-			speed = maxSpeed;
-		if (speed < -maxSpeed)
-			speed = -maxSpeed;
+		leftSpeed = limitSpeed(leftSpeed);
+		rightSpeed = limitSpeed(rightSpeed);
 
-		speed = slew(speed, accel_step, &lastSpeed); // slew
+		// slew
+		leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
+		rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
 
 		// set motors
 		if (vectorAngle != 0) {
@@ -483,24 +504,26 @@ int chassisTask() {
 				largestVector = abs(backVector);
 			}
 
-			frontVector *= speed / largestVector;
-			backVector *= speed / largestVector;
+			double largestSpeed;
+			if (leftSpeed > rightSpeed)
+				largestSpeed = leftSpeed;
+			else
+				largestSpeed = rightSpeed;
 
-			motorVoltage(frontLeft, frontVector);
-			motorVoltage(backLeft, backVector);
-			motorVoltage(frontRight, backVector);
-			motorVoltage(backRight, frontVector);
+			double scalingFactor = largestSpeed / largestVector;
+
+			frontVector *= scalingFactor;
+			backVector *= scalingFactor;
+
+			motorMove(frontLeft, frontVector);
+			motorMove(backLeft, backVector);
+			motorMove(frontRight, backVector);
+			motorMove(backRight, frontVector);
 
 		} else {
 			double dif = difference() * difKP;
-
-			if (useVelocity) {
-				motorVelocity(leftMotors, (speed - dif) * mode);
-				motorVelocity(rightMotors, speed + dif);
-			} else {
-				motorVoltage(leftMotors, (speed - dif) * mode);
-				motorVoltage(rightMotors, speed + dif);
-			}
+			motorMove(leftMotors, leftSpeed);
+			motorMove(rightMotors, rightSpeed);
 		}
 	}
 }
@@ -596,22 +619,22 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(int left_speed, int right_speed) {
 	mode = DISABLE; // turns off autonomous tasks
-	motorVoltage(leftMotors, left_speed);
-	motorVoltage(rightMotors, right_speed);
+	motorMove(leftMotors, left_speed, false);
+	motorMove(rightMotors, right_speed, false);
 }
 
 void arcade(int vertical, int horizontal) {
 	mode = DISABLE; // turns off autonomous task
-	motorVoltage(leftMotors, vertical + horizontal);
-	motorVoltage(rightMotors, vertical - horizontal);
+	motorMove(leftMotors, vertical + horizontal, false);
+	motorMove(rightMotors, vertical - horizontal, false);
 }
 
 void holonomic(int x, int y, int z) {
 	mode = 0; // turns off autonomous task
-	motorVoltage(frontLeft, x + y + z);
-	motorVoltage(frontRight, x - y - z);
-	motorVoltage(backLeft, x + y - z);
-	motorVoltage(backRight, x - y + z);
+	motorMove(frontLeft, x + y + z, false);
+	motorMove(frontRight, x - y - z, false);
+	motorMove(backLeft, x + y - z, false);
+	motorMove(backRight, x - y + z, false);
 }
 
 } // namespace chassis

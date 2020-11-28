@@ -32,7 +32,12 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-double position(bool yDirection = false, bool forceEncoder = false);
+double position(bool yDirection = false);
+
+/**
+ * Get the average position between the sides of the chassis
+ */
+double angle();
 
 /**
  * Get a gradually accelerating speed towards the target input
