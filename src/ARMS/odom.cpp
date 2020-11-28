@@ -190,8 +190,9 @@ void goToPoint(std::array<double, 2> point) {
 		chassis::leftMotors->moveVoltage(left_speed * 120);
 		chassis::rightMotors->moveVoltage(right_speed * 120);
 
-		if (lin_error < exit_error)
+		if (lin_error < exit_error || chassis::settled())
 			driving = false;
+
 		delay(20);
 	}
 	chassis::leftMotors->moveVoltage(0);
