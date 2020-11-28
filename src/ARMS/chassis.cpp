@@ -46,8 +46,8 @@ double arc_step;   // acceleration for arcs
 // pid constants
 double linearKP;
 double linearKD;
-double turnKP;
-double turnKD;
+double angularKP;
+double angularKD;
 double arcKP;
 double difKP;
 
@@ -55,7 +55,7 @@ double difKP;
 int mode = DISABLE;
 int maxSpeed = 100;
 double linearTarget = 0;
-double turnTarget = 0;
+double angularTarget = 0;
 double vectorAngle = 0;
 double lastSpeed = 0;
 bool useVelocity = false;
@@ -180,7 +180,7 @@ bool settled() {
 
 	double curr = position(false, true);
 
-	double target = turnTarget;
+	double target = angularTarget;
 	if (mode == LINEAR)
 		target = linearTarget;
 
@@ -229,7 +229,7 @@ void turnAsync(double sp, int max) {
 
 	reset();
 	maxSpeed = max;
-	turnTarget = sp;
+	angularTarget = sp;
 	vectorAngle = 0;
 }
 
@@ -435,9 +435,9 @@ int chassisTask() {
 			kp = linearKP;
 			kd = linearKD;
 		} else if (mode == ANGULAR) {
-			sp = turnTarget;
-			kp = turnKP;
-			kd = turnKD;
+			sp = angularTarget;
+			kp = angularKP;
+			kd = angularKD;
 		} else {
 			continue;
 		}
@@ -529,8 +529,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double distance_constant, double degree_constant, double settle_count,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, double linearKP, double linearKD,
-          double turnKP, double turnKD, double arcKP, double difKP, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+          double angularKP, double angularKD, double arcKP, double difKP,
+          int imuPort, std::tuple<int, int, int> encoderPorts,
+          int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -542,8 +543,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::arc_step = arc_step;
 	chassis::linearKP = linearKP;
 	chassis::linearKD = linearKD;
-	chassis::turnKP = turnKP;
-	chassis::turnKD = turnKD;
+	chassis::angularKP = angularKP;
+	chassis::angularKD = angularKD;
 	chassis::arcKP = arcKP;
 	chassis::difKP = difKP;
 

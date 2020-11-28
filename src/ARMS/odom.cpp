@@ -8,11 +8,19 @@ namespace odom {
 
 bool debug;
 double chassis_width;
+double slew_step;
+double exit_error;
 
+// pid constants
+double linearKP;
+double linearKD;
+double angularKP;
+double angularKD;
+
+// odom tracking values
 double global_x;
 double global_y;
 double heading;
-double heading_degrees;
 
 int odomTask() {
 	double prev_heading = 0;
@@ -51,13 +59,14 @@ int odomTask() {
 
 		prev_middle_pos = horizontal_val;
 
+		double heading_degrees;
+
 		if (chassis::imu) {
 			heading_degrees = chassis::imu->get_rotation();
 			heading = heading_degrees * M_PI / 180;
 		} else {
-			heading =
-			    prev_heading + (left_arc - right_arc) /
-			                       (chassis::distance_constant * chassis::width);
+			heading = prev_heading + (left_arc - right_arc) /
+			                             (chassis::distance_constant * chassis_width);
 			heading_degrees = heading * 180 / M_PI;
 		}
 
@@ -91,7 +100,7 @@ int odomTask() {
 	}
 }
 
-double getAngle(std::array<double, 2> point) {
+double getAngleError(std::array<double, 2> point) {
 	double x = point[0];
 	double y = point[1];
 
@@ -107,7 +116,7 @@ double getAngle(std::array<double, 2> point) {
 	return delta_theta;
 }
 
-double getDistance(std::array<double, 2> point) {
+double getDistanceError(std::array<double, 2> point) {
 	double x = point[0];
 	double y = point[1];
 
@@ -118,44 +127,34 @@ double getDistance(std::array<double, 2> point) {
 
 void goToPoint(std::array<double, 2> point) {
 	double max_speed = 80; // 100 max
-	double exit_error = 5; // radius around point in inches
 
-	double kP_vel = 8.0;
-	double kI_vel = 0.0;
-	double kD_vel = 0.0;
-
-	double kP_ang = 50.0;
-	double kI_ang = 0.0;
-	double kD_ang = 0.0;
-
-	double slew_step = 10;
 	double left_prev = 0;
 	double right_prev = 0;
 
-	double vel_prev_error = getDistance(point);
-	double ang_prev_error = getAngle(point);
+	double vel_prev_error = getDistanceError(point);
+	double ang_prev_error = getAngleError(point);
 
 	bool driving = true;
 
 	while (driving) {
 		int reverse = 1;
 
-		double vel_error = getDistance(point);
-		double ang_error = getAngle(point);
+		double lin_error = getDistanceError(point); // linear
+		double ang_error = getAngleError(point);    // angular
 
 		if (fabs(ang_error) > M_PI_2) {
 			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 			reverse = -1;
 		}
 
-		double vel_derivative = vel_error - vel_prev_error;
+		double vel_derivative = lin_error - vel_prev_error;
 		double ang_derivative = ang_error - ang_prev_error;
 
-		vel_prev_error = vel_error;
+		vel_prev_error = lin_error;
 		ang_prev_error = ang_error;
 
-		double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
-		double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
+		double forward_speed = linearKP * lin_error + linearKD * vel_derivative;
+		double turn_modifier = angularKP * ang_error + angularKD * ang_derivative;
 
 		forward_speed *= reverse;
 
@@ -191,7 +190,7 @@ void goToPoint(std::array<double, 2> point) {
 		chassis::leftMotors->moveVoltage(left_speed * 120);
 		chassis::rightMotors->moveVoltage(right_speed * 120);
 
-		if (vel_error < exit_error)
+		if (lin_error < exit_error)
 			driving = false;
 		delay(20);
 	}
@@ -199,9 +198,18 @@ void goToPoint(std::array<double, 2> point) {
 	chassis::rightMotors->moveVoltage(0);
 }
 
-void init(bool debug, double chassis_width) {
+void init(bool debug, double chassis_width, double linearKP, double linearKD,
+          double angularKP, double angularKD, double slew_step,
+          double exit_error) {
+
 	odom::debug = debug;
 	odom::chassis_width = chassis_width;
+	odom::linearKP = linearKP;
+	odom::linearKD = linearKD;
+	odom::angularKP = angularKP;
+	odom::angularKD = angularKD;
+	odom::slew_step = slew_step;
+	odom::exit_error = exit_error;
 }
 
 } // namespace odom

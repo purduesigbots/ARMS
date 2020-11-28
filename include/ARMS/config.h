@@ -41,6 +41,14 @@ namespace odom {
 #define DEBUG true
 #define CHASSIS_WIDTH 12.75 // only needed for non-imu setups
 
+// go to point constants
+#define GTP_LINEAR_KP 8
+#define GTP_LINEAR_KD 0
+#define GTP_ANGULAR_KP 50
+#define GTP_ANGULAR_KD 0
+#define GTP_SLEW_STEP 10
+#define GTP_EXIT_ERROR 5 // radius in inches
+
 } // namespace odom
 
 // Auton selector configuration constants

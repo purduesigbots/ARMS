@@ -155,8 +155,8 @@ void followPath(std::vector<std::array<double, 2>> path) {
 		std::array<double, 2> vel_tracking_point =
 		    findIntersectionPoint(path, outer_radius);
 
-		double ang_error = odom::getAngle(ang_tracking_point);
-		double vel_error = odom::getAngle(vel_tracking_point);
+		double ang_error = odom::getAngleError(ang_tracking_point);
+		double vel_error = odom::getDistanceError(vel_tracking_point);
 
 		double ang_derivative = ang_error - ang_prev_error;
 		double vel_derivative = vel_error - vel_prev_error;
