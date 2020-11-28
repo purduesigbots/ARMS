@@ -1,6 +1,7 @@
 #include "ARMS/chassis.h"
 #include "ARMS/config.h"
 #include "ARMS/odom.h"
+#include "ARMS/pid.h"
 #include "api.h"
 
 using namespace pros;
@@ -44,20 +45,9 @@ double settle_threshold_angular;
 double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
 
-// pid constants
-double linearKP;
-double linearKD;
-double angularKP;
-double angularKD;
-double arcKP;
-double difKP;
-
 // chassis variables
 int mode = DISABLE;
 int maxSpeed = 100;
-double linearTarget = 0;
-double angularTarget = 0;
-double vectorAngle = 0;
 double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
@@ -190,9 +180,9 @@ bool settled() {
 
 	double curr = position(false);
 
-	double target = angularTarget;
+	double target = pid::angularTarget;
 	if (mode == LINEAR)
-		target = linearTarget;
+		target = pid::linearTarget;
 
 	if (abs(last - curr) <
 	    (mode == LINEAR ? settle_threshold_linear : settle_threshold_angular))
@@ -224,9 +214,9 @@ void moveAsync(double sp, int max) {
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
-	linearTarget = sp;
+	pid::linearTarget = sp;
 	mode = LINEAR;
-	vectorAngle = 0;
+	pid::vectorAngle = 0;
 }
 
 void turnAsync(double sp, int max) {
@@ -239,8 +229,8 @@ void turnAsync(double sp, int max) {
 
 	reset();
 	maxSpeed = max;
-	angularTarget = sp;
-	vectorAngle = 0;
+	pid::angularTarget = sp;
+	pid::vectorAngle = 0;
 }
 
 void turnAbsoluteAsync(double sp, int max) {
@@ -262,8 +252,8 @@ void moveHoloAsync(double distance, double angle, int max) {
 	distance *= distance_constant;
 	reset();
 	maxSpeed = max;
-	linearTarget = distance;
-	vectorAngle = angle * M_PI / 180;
+	pid::linearTarget = distance;
+	pid::vectorAngle = angle * M_PI / 180;
 	mode = LINEAR;
 }
 
@@ -302,7 +292,7 @@ void fast(double sp, int max) {
 	while (abs(position()) < abs(sp * distance_constant)) {
 		speed = slew(max, accel_step, &leftPrev);
 		// differential PID
-		double dif = difference() * difKP;
+		double dif = difference() * pid::difKP;
 		motorMove(leftMotors, speed - dif);
 		motorMove(rightMotors, speed + dif);
 		delay(20);
@@ -344,7 +334,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 		// speed
 		int error = arc_length - time_step;
-		double speed = error * arcKP;
+		double speed = error * pid::arcKP;
 
 		if (type == 1 || type == 2)
 			speed = max;
@@ -425,49 +415,6 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 }
 
 /**************************************************/
-// PID controllers
-double pid(double target, double sv, double* psv, double kp, double kd) {
-	double error = target - sv;
-	double derivative = error - *psv;
-	*psv = error;
-	double speed = error * linearKP + derivative * linearKD;
-	return speed;
-}
-
-double linearPID(bool rightSide = false) {
-	static double psv = 0;
-
-	// get position in the x and y directions
-	double sv_x = position();
-	double sv_y = position(true);
-
-	// calculate total displacement using pythagorean theorem
-	double sv;
-	if (vectorAngle != 0)
-		sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-	else
-		sv = sv_x; // just use the x value for non-holonomic movements
-
-	double speed = pid(linearTarget, sv, &psv, linearKP, linearKD);
-
-	// difference PID
-	double dif = difference() * difKP;
-	if (rightSide)
-		speed += dif;
-	else
-		speed -= dif;
-
-	return speed;
-}
-
-double angularPID() {
-	static double psv = 0;
-	double sv = angle();
-	double speed = pid(angularTarget, sv, &psv, angularKP, angularKD);
-	return speed;
-}
-
-/**************************************************/
 // task control
 int chassisTask() {
 
@@ -478,11 +425,11 @@ int chassisTask() {
 		double rightSpeed = 0;
 
 		if (mode == LINEAR) {
-			rightSpeed = angularPID();
+			rightSpeed = pid::angular();
 			leftSpeed = -rightSpeed;
 		} else if (mode == ANGULAR) {
-			leftSpeed = linearPID();
-			rightSpeed = linearPID(true); // dif pid for right side
+			leftSpeed = pid::linear();
+			rightSpeed = pid::linear(true); // dif pid for right side
 		} else {
 			continue;
 		}
@@ -496,10 +443,10 @@ int chassisTask() {
 		rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
 
 		// set motors
-		if (vectorAngle != 0) {
+		if (pid::vectorAngle != 0) {
 			// calculate vectors for each wheel set
-			double frontVector = sin(M_PI / 4 - vectorAngle);
-			double backVector = sin(M_PI / 4 + vectorAngle);
+			double frontVector = sin(M_PI / 4 - pid::vectorAngle);
+			double backVector = sin(M_PI / 4 + pid::vectorAngle);
 
 			// set scaling factor based on largest vector
 			double largestVector;
@@ -526,7 +473,6 @@ int chassisTask() {
 			motorMove(backRight, frontVector);
 
 		} else {
-			double dif = difference() * difKP;
 			motorMove(leftMotors, leftSpeed);
 			motorMove(rightMotors, rightSpeed);
 		}
@@ -556,10 +502,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double settle_count,
           double settle_threshold_linear, double settle_threshold_angular,
-          double accel_step, double arc_step, double linearKP, double linearKD,
-          double angularKP, double angularKD, double arcKP, double difKP,
-          int imuPort, std::tuple<int, int, int> encoderPorts,
-          int expanderPort) {
+          double accel_step, double arc_step, int imuPort,
+          std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -569,12 +513,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
-	chassis::linearKP = linearKP;
-	chassis::linearKD = linearKD;
-	chassis::angularKP = angularKP;
-	chassis::angularKD = angularKD;
-	chassis::arcKP = arcKP;
-	chassis::difKP = difKP;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);

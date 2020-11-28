@@ -35,9 +35,14 @@ void reset();
 double position(bool yDirection = false);
 
 /**
- * Get the average position between the sides of the chassis
+ * Get the angle of the chassis
  */
 double angle();
+
+/**
+ * Get the difference between the sides of the chassis
+ */
+double difference();
 
 /**
  * Get a gradually accelerating speed towards the target input
@@ -166,9 +171,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
           double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
           double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-          double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
-          double turnKP = TURN_KP, double turnKD = TURN_KD,
-          double arcKP = ARC_KP, double difKP = DIF_KP, int imuPort = IMU_PORT,
+          int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
           int expanderPort = EXPANDER_PORT);
 
