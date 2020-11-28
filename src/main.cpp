@@ -5,6 +5,7 @@ pros::Controller master(CONTROLLER_MASTER);
 void initialize() {
 	chassis::init();
 	odom::init();
+	pid::init();
 	selector::init();
 }
 
