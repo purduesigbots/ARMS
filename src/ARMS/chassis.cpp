@@ -505,14 +505,6 @@ int chassisTask() {
 	}
 }
 
-void startTasks() {
-	delay(500);
-	Task chassis_task(chassisTask);
-	if (imu || middleEncoder) {
-		Task odom_task(odom::odomTask);
-	}
-}
-
 std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 	std::shared_ptr<ADIEncoder> encoder;
 
@@ -596,8 +588,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
 	}
 
-	// start task
-	startTasks();
+	Task chassis_task(chassisTask);
 }
 
 /**************************************************/

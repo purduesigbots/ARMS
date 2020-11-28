@@ -8,6 +8,8 @@ namespace chassis {
 
 extern bool useVelocity;
 extern double accel_step;
+extern double distance_constant;
+extern double width;
 
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;

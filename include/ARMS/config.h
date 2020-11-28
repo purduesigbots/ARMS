@@ -36,6 +36,13 @@ namespace chassis {
 
 } // namespace chassis
 
+namespace odom {
+
+#define DEBUG true
+#define CHASSIS_WIDTH 12.75 // only needed for non-imu setups
+
+} // namespace odom
+
 // Auton selector configuration constants
 namespace selector {
 

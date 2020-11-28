@@ -6,58 +6,48 @@ using namespace pros;
 
 namespace odom {
 
+bool debug;
+double chassis_width;
+
 double global_x;
 double global_y;
 double heading;
 double heading_degrees;
 
 int odomTask() {
-	double drive_constant = 47.94; // ticks per inch
-	double chassis_width = 12.75;  // distance between tracking wheels
-
 	double prev_heading = 0;
 	double prev_left_pos = 0;
 	double prev_right_pos = 0;
 	double prev_middle_pos = 0;
 
-	double right_arc = 0;
-	double left_arc = 0;
-	double center_arc = 0;
-	double horizontal_arc = 0;
-	double delta_angle = 0;
-	double center_displacement = 0;
-	double horizontal_displacement = 0;
-	double delta_x = 0;
-	double delta_y = 0;
-
 	global_x = 0;
 	global_y = 0;
 
 	while (true) {
-		int left_val;
-		int right_val;
+		int left_pos;
+		int right_pos;
 
 		if (chassis::leftEncoder) {
-			left_val = chassis::leftEncoder->get_value();
-			right_val = chassis::rightEncoder->get_value();
+			left_pos = chassis::leftEncoder->get_value();
+			right_pos = chassis::rightEncoder->get_value();
 		} else {
-			left_val = chassis::leftMotors->getPosition();
-			right_val = chassis::rightMotors->getPosition();
+			left_pos = chassis::leftMotors->getPosition();
+			right_pos = chassis::rightMotors->getPosition();
 		}
 
-		left_arc = left_val - prev_left_pos;
-		right_arc = right_val - prev_right_pos;
+		double left_arc = left_pos - prev_left_pos;
+		double right_arc = right_pos - prev_right_pos;
 
-		prev_left_pos = left_val;
-		prev_right_pos = right_val;
+		prev_left_pos = left_pos;
+		prev_right_pos = right_pos;
 
-		center_arc = (right_arc + left_arc) / 2.0;
+		double center_arc = (right_arc + left_arc) / 2.0;
 
 		int horizontal_val = 0;
 		if (chassis::middleEncoder)
 			horizontal_val = chassis::middleEncoder->get_value();
 
-		horizontal_arc = horizontal_val - prev_middle_pos;
+		double horizontal_arc = horizontal_val - prev_middle_pos;
 
 		prev_middle_pos = horizontal_val;
 
@@ -65,14 +55,17 @@ int odomTask() {
 			heading_degrees = chassis::imu->get_rotation();
 			heading = heading_degrees * M_PI / 180;
 		} else {
-			heading = prev_heading +
-			          (left_arc - right_arc) / (drive_constant * chassis_width);
+			heading =
+			    prev_heading + (left_arc - right_arc) /
+			                       (chassis::distance_constant * chassis::width);
 			heading_degrees = heading * 180 / M_PI;
 		}
 
-		delta_angle = heading - prev_heading;
+		double delta_angle = heading - prev_heading;
 		prev_heading = heading;
 
+		double center_displacement;
+		double horizontal_displacement;
 		if (delta_angle != 0) {
 			center_displacement =
 			    2 * sin(delta_angle / 2) * (center_arc / delta_angle);
@@ -83,15 +76,16 @@ int odomTask() {
 			horizontal_displacement = horizontal_arc;
 		}
 
-		delta_x = cos(heading) * center_displacement +
-		          sin(heading) * horizontal_displacement;
-		delta_y = sin(heading) * center_displacement +
-		          cos(heading) * horizontal_displacement;
+		double delta_x = cos(heading) * center_displacement +
+		                 sin(heading) * horizontal_displacement;
+		double delta_y = sin(heading) * center_displacement +
+		                 cos(heading) * horizontal_displacement;
 
-		global_x += delta_x / drive_constant;
-		global_y += delta_y / drive_constant;
+		global_x += delta_x / chassis::distance_constant;
+		global_y += delta_y / chassis::distance_constant;
 
-		printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
+		if (debug)
+			printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
 
 		delay(10);
 	}
@@ -203,6 +197,11 @@ void goToPoint(std::array<double, 2> point) {
 	}
 	chassis::leftMotors->moveVoltage(0);
 	chassis::rightMotors->moveVoltage(0);
+}
+
+void init(bool debug, double chassis_width) {
+	odom::debug = debug;
+	odom::chassis_width = chassis_width;
 }
 
 } // namespace odom
