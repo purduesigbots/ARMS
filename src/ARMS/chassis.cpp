@@ -31,7 +31,8 @@ double distance_constant; // ticks per foot
 double degree_constant;   // ticks per degree
 
 // settle constants
-double settle_count;
+int settle_count;
+int settle_time;
 double settle_threshold_linear;
 double settle_threshold_angular;
 
@@ -83,6 +84,8 @@ void reset() {
 
 	leftPrev = 0;
 	rightPrev = 0;
+
+	settle_count = 0;
 
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
@@ -173,31 +176,47 @@ double slew(double target_speed, double step, double* current_speed) {
 
 /**************************************************/
 // chassis settling
+int stopped(double sv, double* last) {
+	double thresh = settle_threshold_linear;
+	if (pid::mode == ANGULAR)
+		thresh = settle_threshold_angular;
+
+	if (sv - *last < thresh)
+		return 1;
+	else
+		return 0;
+}
+
 bool settled() {
 	static int count = 0;
-	static double last = 0;
-	static double lastTarget = 0;
 
-	double curr = position(false);
+	static double psv_left = 0;
+	static double psv_right = 0;
+	static double psv_middle = 0;
 
-	double target = pid::angularTarget;
-	if (pid::mode == LINEAR)
-		target = pid::linearTarget;
+	int stopCount = 0;
 
-	if (abs(last - curr) < (pid::mode == LINEAR ? settle_threshold_linear
-	                                            : settle_threshold_angular))
+	if (leftEncoder) {
+		stopCount += stopped(leftEncoder->get_value(), &psv_left);
+		stopCount += stopped(rightEncoder->get_value(), &psv_right);
+	} else {
+		stopCount += stopped(leftMotors->getPosition(), &psv_left);
+		stopCount += stopped(rightMotors->getPosition(), &psv_right);
+	}
+
+	if (middleEncoder) {
+		stopCount += stopped(middleEncoder->get_value(), &psv_middle);
+	} else {
+		stopCount += stopped(position(true), &psv_middle);
+	}
+
+	if (stopCount > 0)
 		count++;
 	else
 		count = 0;
 
-	if (target != lastTarget)
-		count = 0;
-
-	lastTarget = target;
-	last = curr;
-
 	// not driving if we haven't moved
-	if (count > settle_count)
+	if (count > settle_time)
 		return true;
 	else
 		return false;
@@ -504,7 +523,7 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double settle_count,
+          double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {
