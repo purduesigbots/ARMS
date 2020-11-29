@@ -44,7 +44,7 @@ int odomTask() {
 
 		double center_arc = (right_arc + left_arc) / 2.0;
 
-		int horizontal_val = 0;
+		double horizontal_val = 0;
 		if (chassis::middleEncoder)
 			horizontal_val = chassis::middleEncoder->get_value();
 
@@ -133,6 +133,8 @@ void init(bool debug, double chassis_width, double exit_error) {
 	odom::debug = debug;
 	odom::chassis_width = chassis_width;
 	odom::exit_error = exit_error;
+	delay(1000);
+	Task odom_task(odomTask);
 }
 
 } // namespace odom
