@@ -7,6 +7,18 @@
 namespace chassis {
 
 extern bool useVelocity;
+extern double accel_step;
+extern double distance_constant;
+extern double width;
+extern double maxSpeed;
+
+extern std::shared_ptr<okapi::MotorGroup> leftMotors;
+extern std::shared_ptr<okapi::MotorGroup> rightMotors;
+
+extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
+extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
+extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
+extern std::shared_ptr<pros::Imu> imu;
 
 /**
  * Set the brake mode for all chassis motors
@@ -21,7 +33,27 @@ void reset();
 /**
  * Get the average position between the sides of the chassis
  */
-double position(bool yDirection = false, bool forceEncoder = false);
+double position(bool yDirection = false);
+
+/**
+ * Get the angle of the chassis
+ */
+double angle();
+
+/**
+ * Get the difference between the sides of the chassis
+ */
+double difference();
+
+/**
+ * Reduce a speed
+ */
+double limitSpeed(double speed);
+
+/**
+ * Get a gradually accelerating speed towards the target input
+ */
+double slew(double speed, double step, double* prev);
 
 /**
  * Get a boolean that is true if the chassis motors are in motion
@@ -141,13 +173,11 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
           int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
           double degree_constant = DEGREE_CONSTANT,
-          double settle_count = SETTLE_COUNT,
+          int settle_time = SETTLE_TIME,
           double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
           double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
           double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-          double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
-          double turnKP = TURN_KP, double turnKD = TURN_KD,
-          double arcKP = ARC_KP, double difKP = DIF_KP, int imuPort = IMU_PORT,
+          int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
           int expanderPort = EXPANDER_PORT);
 
