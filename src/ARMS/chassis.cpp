@@ -31,7 +31,8 @@ double distance_constant; // ticks per foot
 double degree_constant;   // ticks per degree
 
 // settle constants
-double settle_count;
+int settle_count;
+int settle_time;
 double settle_threshold_linear;
 double settle_threshold_angular;
 
@@ -75,14 +76,16 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 void reset() {
 
 	// reset odom
-	odom::global_x = 0;
-	odom::global_y = 0;
 	odom::prev_left_pos = 0;
 	odom::prev_right_pos = 0;
 	odom::prev_middle_pos = 0;
 
 	leftPrev = 0;
 	rightPrev = 0;
+
+	settle_count = 0;
+
+	pid::vectorAngle = 0;
 
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
@@ -173,31 +176,44 @@ double slew(double target_speed, double step, double* current_speed) {
 
 /**************************************************/
 // chassis settling
+int wheelMoving(double sv, double* psv) {
+	int stop = 0;
+	double thresh = settle_threshold_linear;
+	if (pid::mode == ANGULAR)
+		thresh = settle_threshold_angular;
+
+	if (abs(sv - *psv) < thresh)
+		stop = 1;
+
+	*psv = sv;
+
+	return stop;
+}
+
 bool settled() {
-	static int count = 0;
-	static double last = 0;
-	static double lastTarget = 0;
+	static double psv_left = 0;
+	static double psv_right = 0;
+	static double psv_middle = 0;
 
-	double curr = position(false);
+	int wheelMovingCount = 0;
 
-	double target = pid::angularTarget;
-	if (pid::mode == LINEAR)
-		target = pid::linearTarget;
+	if (leftEncoder) {
+		wheelMovingCount += wheelMoving(leftEncoder->get_value(), &psv_left);
+		wheelMovingCount += wheelMoving(rightEncoder->get_value(), &psv_right);
+	} else {
+		wheelMovingCount += wheelMoving(leftMotors->getPosition(), &psv_left);
+		wheelMovingCount += wheelMoving(rightMotors->getPosition(), &psv_right);
+	}
 
-	if (abs(last - curr) < (pid::mode == LINEAR ? settle_threshold_linear
-	                                            : settle_threshold_angular))
-		count++;
+	wheelMovingCount += wheelMoving(position(true), &psv_middle);
+
+	if (wheelMovingCount == 0)
+		settle_count++;
 	else
-		count = 0;
-
-	if (target != lastTarget)
-		count = 0;
-
-	lastTarget = target;
-	last = curr;
+		settle_count = 0;
 
 	// not driving if we haven't moved
-	if (count > settle_count)
+	if (settle_count > settle_time)
 		return true;
 	else
 		return false;
@@ -216,7 +232,6 @@ void moveAsync(double sp, int max) {
 	maxSpeed = max;
 	pid::linearTarget = sp;
 	pid::mode = LINEAR;
-	pid::vectorAngle = 0;
 }
 
 void turnAsync(double sp, int max) {
@@ -230,7 +245,6 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	pid::angularTarget = sp;
-	pid::vectorAngle = 0;
 }
 
 void turnAbsoluteAsync(double sp, int max) {
@@ -425,11 +439,11 @@ int chassisTask() {
 		double rightSpeed = 0;
 
 		if (pid::mode == LINEAR) {
-			rightSpeed = pid::angular();
-			leftSpeed = -rightSpeed;
-		} else if (pid::mode == ANGULAR) {
 			leftSpeed = pid::linear();
 			rightSpeed = pid::linear(true); // dif pid for right side
+		} else if (pid::mode == ANGULAR) {
+			rightSpeed = pid::angular();
+			leftSpeed = -rightSpeed;
 		} else if (pid::mode == GTP) {
 			std::array<double, 2> speeds = pid::gtp();
 			leftSpeed = speeds[0];
@@ -504,7 +518,7 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double settle_count,
+          double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {

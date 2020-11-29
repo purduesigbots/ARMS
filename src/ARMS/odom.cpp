@@ -1,5 +1,6 @@
 #include "ARMS/odom.h"
 #include "ARMS/chassis.h"
+#include "ARMS/pid.h"
 #include "api.h"
 
 using namespace pros;
@@ -121,6 +122,8 @@ double getDistanceError(std::array<double, 2> point) {
 void goToPointAsync(std::array<double, 2> point, double max) {
 	chassis::reset();
 	chassis::maxSpeed = max;
+	pid::pointTarget = point;
+	pid::mode = GTP;
 }
 
 void goToPoint(std::array<double, 2> point, double max) {
