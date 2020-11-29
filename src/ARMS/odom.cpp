@@ -8,25 +8,18 @@ namespace odom {
 
 bool debug;
 double chassis_width;
-double slew_step;
 double exit_error;
-
-// pid constants
-double linearKP;
-double linearKD;
-double angularKP;
-double angularKD;
 
 // odom tracking values
 double global_x;
 double global_y;
 double heading;
+double prev_heading = 0;
+double prev_left_pos = 0;
+double prev_right_pos = 0;
+double prev_middle_pos = 0;
 
 int odomTask() {
-	double prev_heading = 0;
-	double prev_left_pos = 0;
-	double prev_right_pos = 0;
-	double prev_middle_pos = 0;
 
 	global_x = 0;
 	global_y = 0;
@@ -125,91 +118,20 @@ double getDistanceError(std::array<double, 2> point) {
 	return sqrt(x * x + y * y);
 }
 
-void goToPoint(std::array<double, 2> point) {
-	double max_speed = 80; // 100 max
-
-	double left_prev = 0;
-	double right_prev = 0;
-
-	double vel_prev_error = getDistanceError(point);
-	double ang_prev_error = getAngleError(point);
-
-	bool driving = true;
-
-	while (driving) {
-		int reverse = 1;
-
-		double lin_error = getDistanceError(point); // linear
-		double ang_error = getAngleError(point);    // angular
-
-		if (fabs(ang_error) > M_PI_2) {
-			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
-			reverse = -1;
-		}
-
-		double vel_derivative = lin_error - vel_prev_error;
-		double ang_derivative = ang_error - ang_prev_error;
-
-		vel_prev_error = lin_error;
-		ang_prev_error = ang_error;
-
-		double forward_speed = linearKP * lin_error + linearKD * vel_derivative;
-		double turn_modifier = angularKP * ang_error + angularKD * ang_derivative;
-
-		forward_speed *= reverse;
-
-		double left_speed = forward_speed - turn_modifier;
-		double right_speed = forward_speed + turn_modifier;
-
-		if (left_speed > max_speed) {
-			double diff = left_speed - max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		} else if (left_speed < -max_speed) {
-			double diff = left_speed + max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		}
-
-		if (right_speed > max_speed) {
-			double diff = right_speed - max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		} else if (right_speed < -max_speed) {
-			double diff = right_speed + max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		}
-
-		left_speed = chassis::slew(left_speed, chassis::accel_step, &left_prev);
-		right_speed = chassis::slew(right_speed, chassis::accel_step, &right_prev);
-
-		left_prev = left_speed;
-		right_prev = right_speed;
-
-		chassis::leftMotors->moveVoltage(left_speed * 120);
-		chassis::rightMotors->moveVoltage(right_speed * 120);
-
-		if (lin_error < exit_error || chassis::settled())
-			driving = false;
-
-		delay(20);
-	}
-	chassis::leftMotors->moveVoltage(0);
-	chassis::rightMotors->moveVoltage(0);
+void goToPointAsync(std::array<double, 2> point, double max) {
+	chassis::reset();
+	chassis::maxSpeed = max;
 }
 
-void init(bool debug, double chassis_width, double linearKP, double linearKD,
-          double angularKP, double angularKD, double slew_step,
-          double exit_error) {
+void goToPoint(std::array<double, 2> point, double max) {
+	goToPointAsync(point, max);
+	delay(450);
+	chassis::waitUntilSettled();
+}
 
+void init(bool debug, double chassis_width, double exit_error) {
 	odom::debug = debug;
 	odom::chassis_width = chassis_width;
-	odom::linearKP = linearKP;
-	odom::linearKD = linearKD;
-	odom::angularKP = angularKP;
-	odom::angularKD = angularKD;
-	odom::slew_step = slew_step;
 	odom::exit_error = exit_error;
 }
 

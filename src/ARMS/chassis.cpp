@@ -8,12 +8,6 @@ using namespace pros;
 
 namespace chassis {
 
-// chassis mode enums
-#define GTP 3
-#define ANGULAR 2
-#define LINEAR 1
-#define DISABLE 0
-
 // imu
 std::shared_ptr<Imu> imu;
 
@@ -46,8 +40,7 @@ double accel_step; // smaller number = more slew
 double arc_step;   // acceleration for arcs
 
 // chassis variables
-int mode = DISABLE;
-int maxSpeed = 100;
+double maxSpeed = 100;
 double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
@@ -80,6 +73,14 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void reset() {
+
+	// reset odom
+	odom::global_x = 0;
+	odom::global_y = 0;
+	odom::prev_left_pos = 0;
+	odom::prev_right_pos = 0;
+	odom::prev_middle_pos = 0;
+
 	leftPrev = 0;
 	rightPrev = 0;
 
@@ -88,7 +89,6 @@ void reset() {
 	delay(10);
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
-
 	frontLeft->tarePosition();
 	frontRight->tarePosition();
 	backLeft->tarePosition();
@@ -181,11 +181,11 @@ bool settled() {
 	double curr = position(false);
 
 	double target = pid::angularTarget;
-	if (mode == LINEAR)
+	if (pid::mode == LINEAR)
 		target = pid::linearTarget;
 
-	if (abs(last - curr) <
-	    (mode == LINEAR ? settle_threshold_linear : settle_threshold_angular))
+	if (abs(last - curr) < (pid::mode == LINEAR ? settle_threshold_linear
+	                                            : settle_threshold_angular))
 		count++;
 	else
 		count = 0;
@@ -215,12 +215,12 @@ void moveAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	pid::linearTarget = sp;
-	mode = LINEAR;
+	pid::mode = LINEAR;
 	pid::vectorAngle = 0;
 }
 
 void turnAsync(double sp, int max) {
-	mode = ANGULAR;
+	pid::mode = ANGULAR;
 
 	if (imu)
 		sp += position();
@@ -234,7 +234,7 @@ void turnAsync(double sp, int max) {
 }
 
 void turnAbsoluteAsync(double sp, int max) {
-	mode = ANGULAR;
+	pid::mode = ANGULAR;
 
 	// convert from absolute to relative set point
 	sp = sp - (int)position() % 360;
@@ -254,7 +254,7 @@ void moveHoloAsync(double distance, double angle, int max) {
 	maxSpeed = max;
 	pid::linearTarget = distance;
 	pid::vectorAngle = angle * M_PI / 180;
-	mode = LINEAR;
+	pid::mode = LINEAR;
 }
 
 void move(double sp, int max) {
@@ -287,7 +287,7 @@ void fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
-	mode = DISABLE;
+	pid::mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
 		speed = slew(max, accel_step, &leftPrev);
@@ -314,7 +314,7 @@ void velocity(int t, int max) {
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	mode = DISABLE;
+	pid::mode = DISABLE;
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -424,12 +424,16 @@ int chassisTask() {
 		double leftSpeed = 0;
 		double rightSpeed = 0;
 
-		if (mode == LINEAR) {
+		if (pid::mode == LINEAR) {
 			rightSpeed = pid::angular();
 			leftSpeed = -rightSpeed;
-		} else if (mode == ANGULAR) {
+		} else if (pid::mode == ANGULAR) {
 			leftSpeed = pid::linear();
 			rightSpeed = pid::linear(true); // dif pid for right side
+		} else if (pid::mode == GTP) {
+			std::array<double, 2> speeds = pid::gtp();
+			leftSpeed = speeds[0];
+			rightSpeed = speeds[1];
 		} else {
 			continue;
 		}
@@ -561,19 +565,19 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 /**************************************************/
 // operator control
 void tank(int left_speed, int right_speed) {
-	mode = DISABLE; // turns off autonomous tasks
+	pid::mode = DISABLE; // turns off autonomous tasks
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed, false);
 }
 
 void arcade(int vertical, int horizontal) {
-	mode = DISABLE; // turns off autonomous task
+	pid::mode = DISABLE; // turns off autonomous task
 	motorMove(leftMotors, vertical + horizontal, false);
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
 void holonomic(int x, int y, int z) {
-	mode = 0; // turns off autonomous task
+	pid::mode = 0; // turns off autonomous task
 	motorMove(frontLeft, x + y + z, false);
 	motorMove(frontRight, x - y - z, false);
 	motorMove(backLeft, x + y - z, false);

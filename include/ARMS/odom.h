@@ -9,17 +9,20 @@ namespace odom {
 extern double global_x;
 extern double global_y;
 extern double heading;
+extern double prev_right_pos;
+extern double prev_left_pos;
+extern double prev_middle_pos;
 
 double getAngleError(std::array<double, 2> point);
 
 double getDistanceError(std::array<double, 2> point);
 
-void goToPoint(std::array<double, 2> point);
+void goToPointAsync(std::array<double, 2> point, double max = 80);
+
+void goToPoint(std::array<double, 2> point, double max = 80);
 
 void init(bool debug = DEBUG, double chassis_width = CHASSIS_WIDTH,
-          double linearKP = GTP_LINEAR_KP, double linearKD = GTP_LINEAR_KD,
-          double angularKP = GTP_ANGULAR_KP, double angularKD = GTP_ANGULAR_KD,
-          double slew_step = GTP_SLEW_STEP, double exit_error = GTP_SLEW_STEP);
+          double exit_error = EXIT_ERROR);
 
 } // namespace odom
 

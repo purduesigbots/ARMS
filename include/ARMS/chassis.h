@@ -10,6 +10,7 @@ extern bool useVelocity;
 extern double accel_step;
 extern double distance_constant;
 extern double width;
+extern double maxSpeed;
 
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
@@ -43,6 +44,11 @@ double angle();
  * Get the difference between the sides of the chassis
  */
 double difference();
+
+/**
+ * Reduce a speed
+ */
+double limitSpeed(double speed);
 
 /**
  * Get a gradually accelerating speed towards the target input

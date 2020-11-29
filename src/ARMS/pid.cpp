@@ -1,12 +1,20 @@
-#include "chassis.h"
+#include "ARMS/pid.h"
+#include "ARMS/chassis.h"
+#include "ARMS/odom.h"
 
 namespace pid {
+
+int mode = DISABLE;
 
 // pid constants
 double linearKP;
 double linearKD;
 double angularKP;
 double angularKD;
+double linear_pointKP;
+double linear_pointKD;
+double angular_pointKP;
+double angular_pointKD;
 double arcKP;
 double difKP;
 
@@ -14,17 +22,22 @@ double difKP;
 double linearTarget = 0;
 double angularTarget = 0;
 double vectorAngle = 0;
+std::array<double, 2> pointTarget{0, 0};
 
-double pid(double target, double sv, double* psv, double kp, double kd) {
-	double error = target - sv;
-	double derivative = error - *psv;
-	*psv = error;
+double pid(double error, double* pe, double kp, double kd) {
+	double derivative = error - *pe;
+	*pe = error;
 	double speed = error * linearKP + derivative * linearKD;
 	return speed;
 }
 
-double linear(bool rightSide = false) {
-	static double psv = 0;
+double pid(double target, double sv, double* pe, double kp, double kd) {
+	double error = target - sv;
+	return pid(error, pe, kp, kd);
+}
+
+double linear(bool rightSide) {
+	static double pe = 0; // previous error
 
 	// get position in the x and y directions
 	double sv_x = chassis::position();
@@ -37,7 +50,7 @@ double linear(bool rightSide = false) {
 	else
 		sv = sv_x; // just use the x value for non-holonomic movements
 
-	double speed = pid(linearTarget, sv, &psv, linearKP, linearKD);
+	double speed = pid(linearTarget, sv, &pe, linearKP, linearKD);
 
 	// difference PID
 	double dif = chassis::difference() * difKP;
@@ -50,19 +63,71 @@ double linear(bool rightSide = false) {
 }
 
 double angular() {
-	static double psv = 0;
+	static double pe = 0; // previous error
 	double sv = chassis::angle();
-	double speed = pid(angularTarget, sv, &psv, angularKP, angularKD);
+	double speed = pid(angularTarget, sv, &pe, angularKP, angularKD);
 	return speed;
 }
 
+std::array<double, 2> gtp() {
+	// previous sensor values
+	static double psv_left = 0;
+	static double psv_right = 0;
+
+	double lin_error = odom::getDistanceError(pointTarget); // linear
+	double ang_error = odom::getAngleError(pointTarget);    // angular
+
+	// previous error values
+	static double pe_lin = lin_error;
+	static double pe_ang = ang_error;
+
+	// reverse if point is behind robot
+	int reverse = 1;
+	if (fabs(ang_error) > M_PI_2) {
+		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+		reverse = -1;
+	}
+
+	// calculate pid
+	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
+	double ang_speed = pid(ang_error, &pe_ang, linear_pointKP, linear_pointKD);
+
+	lin_speed *= reverse; // apply reversal
+
+	// add speeds together
+	double left_speed = lin_speed - ang_speed;
+	double right_speed = lin_speed + ang_speed;
+
+	// speed scaling
+	double dif = 0;
+	if (left_speed > chassis::maxSpeed)
+		dif += left_speed - chassis::maxSpeed;
+	else if (left_speed < -chassis::maxSpeed)
+		dif += left_speed + chassis::maxSpeed;
+
+	if (right_speed > chassis::maxSpeed)
+		dif += right_speed - chassis::maxSpeed;
+	else if (right_speed < -chassis::maxSpeed)
+		dif += right_speed + chassis::maxSpeed;
+
+	left_speed -= dif;
+	right_speed -= dif;
+
+	return {left_speed, right_speed};
+}
+
 void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double arcKP, double difKP) {
+          double linear_pointKP, double linear_pointKD, double angular_pointKP,
+          double angular_pointKD, double arcKP, double difKP) {
 
 	pid::linearKP = linearKP;
 	pid::linearKD = linearKD;
 	pid::angularKP = angularKP;
 	pid::angularKD = angularKD;
+	pid::linear_pointKP = linear_pointKP;
+	pid::linear_pointKD = linear_pointKD;
+	pid::angular_pointKP = angular_pointKP;
+	pid::angular_pointKD = angular_pointKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
 }
