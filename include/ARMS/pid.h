@@ -17,6 +17,7 @@ extern int mode;
 extern double linearTarget;
 extern double angularTarget;
 extern double vectorAngle;
+extern std::array<double, 2> pointTarget;
 
 extern double arcKP; // needs to be exposed since arcs have not been integrated
                      // into new PID format

@@ -76,8 +76,6 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 void reset() {
 
 	// reset odom
-	odom::global_x = 0;
-	odom::global_y = 0;
 	odom::prev_left_pos = 0;
 	odom::prev_right_pos = 0;
 	odom::prev_middle_pos = 0;
@@ -86,6 +84,8 @@ void reset() {
 	rightPrev = 0;
 
 	settle_count = 0;
+
+	pid::vectorAngle = 0;
 
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
@@ -176,47 +176,44 @@ double slew(double target_speed, double step, double* current_speed) {
 
 /**************************************************/
 // chassis settling
-int stopped(double sv, double* last) {
+int wheelMoving(double sv, double* psv) {
+	int stop = 0;
 	double thresh = settle_threshold_linear;
 	if (pid::mode == ANGULAR)
 		thresh = settle_threshold_angular;
 
-	if (sv - *last < thresh)
-		return 1;
-	else
-		return 0;
+	if (abs(sv - *psv) < thresh)
+		stop = 1;
+
+	*psv = sv;
+
+	return stop;
 }
 
 bool settled() {
-	static int count = 0;
-
 	static double psv_left = 0;
 	static double psv_right = 0;
 	static double psv_middle = 0;
 
-	int stopCount = 0;
+	int wheelMovingCount = 0;
 
 	if (leftEncoder) {
-		stopCount += stopped(leftEncoder->get_value(), &psv_left);
-		stopCount += stopped(rightEncoder->get_value(), &psv_right);
+		wheelMovingCount += wheelMoving(leftEncoder->get_value(), &psv_left);
+		wheelMovingCount += wheelMoving(rightEncoder->get_value(), &psv_right);
 	} else {
-		stopCount += stopped(leftMotors->getPosition(), &psv_left);
-		stopCount += stopped(rightMotors->getPosition(), &psv_right);
+		wheelMovingCount += wheelMoving(leftMotors->getPosition(), &psv_left);
+		wheelMovingCount += wheelMoving(rightMotors->getPosition(), &psv_right);
 	}
 
-	if (middleEncoder) {
-		stopCount += stopped(middleEncoder->get_value(), &psv_middle);
-	} else {
-		stopCount += stopped(position(true), &psv_middle);
-	}
+	wheelMovingCount += wheelMoving(position(true), &psv_middle);
 
-	if (stopCount > 0)
-		count++;
+	if (wheelMovingCount == 0)
+		settle_count++;
 	else
-		count = 0;
+		settle_count = 0;
 
 	// not driving if we haven't moved
-	if (count > settle_time)
+	if (settle_count > settle_time)
 		return true;
 	else
 		return false;
@@ -235,7 +232,6 @@ void moveAsync(double sp, int max) {
 	maxSpeed = max;
 	pid::linearTarget = sp;
 	pid::mode = LINEAR;
-	pid::vectorAngle = 0;
 }
 
 void turnAsync(double sp, int max) {
@@ -249,7 +245,6 @@ void turnAsync(double sp, int max) {
 	reset();
 	maxSpeed = max;
 	pid::angularTarget = sp;
-	pid::vectorAngle = 0;
 }
 
 void turnAbsoluteAsync(double sp, int max) {
@@ -444,11 +439,11 @@ int chassisTask() {
 		double rightSpeed = 0;
 
 		if (pid::mode == LINEAR) {
-			rightSpeed = pid::angular();
-			leftSpeed = -rightSpeed;
-		} else if (pid::mode == ANGULAR) {
 			leftSpeed = pid::linear();
 			rightSpeed = pid::linear(true); // dif pid for right side
+		} else if (pid::mode == ANGULAR) {
+			rightSpeed = pid::angular();
+			leftSpeed = -rightSpeed;
 		} else if (pid::mode == GTP) {
 			std::array<double, 2> speeds = pid::gtp();
 			leftSpeed = speeds[0];
