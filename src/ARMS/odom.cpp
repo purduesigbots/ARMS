@@ -129,7 +129,8 @@ void goToPointAsync(std::array<double, 2> point, double max) {
 void goToPoint(std::array<double, 2> point, double max) {
 	goToPointAsync(point, max);
 	delay(450);
-	chassis::waitUntilSettled();
+	while (!chassis::settled() && getDistanceError(point) < exit_error)
+		delay(20);
 }
 
 void init(bool debug, double chassis_width, double exit_error) {
