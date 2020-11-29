@@ -9,15 +9,20 @@ namespace odom {
 extern double global_x;
 extern double global_y;
 extern double heading;
-extern double heading_degrees;
+extern double prev_right_pos;
+extern double prev_left_pos;
+extern double prev_middle_pos;
 
-double getAngle(std::array<double, 2> point);
+double getAngleError(std::array<double, 2> point);
 
-double getDistance(std::array<double, 2> point);
+double getDistanceError(std::array<double, 2> point);
 
-void goToPoint(std::array<double, 2> point);
+void goToPointAsync(std::array<double, 2> point, double max = 80);
 
-void init(bool debug = DEBUG, double chassis_width = CHASSIS_WIDTH);
+void goToPoint(std::array<double, 2> point, double max = 80);
+
+void init(bool debug = DEBUG, double chassis_width = CHASSIS_WIDTH,
+          double exit_error = EXIT_ERROR);
 
 } // namespace odom
 

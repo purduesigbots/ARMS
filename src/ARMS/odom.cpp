@@ -8,17 +8,18 @@ namespace odom {
 
 bool debug;
 double chassis_width;
+double exit_error;
 
+// odom tracking values
 double global_x;
 double global_y;
 double heading;
-double heading_degrees;
+double prev_heading = 0;
+double prev_left_pos = 0;
+double prev_right_pos = 0;
+double prev_middle_pos = 0;
 
 int odomTask() {
-	double prev_heading = 0;
-	double prev_left_pos = 0;
-	double prev_right_pos = 0;
-	double prev_middle_pos = 0;
 
 	global_x = 0;
 	global_y = 0;
@@ -51,13 +52,14 @@ int odomTask() {
 
 		prev_middle_pos = horizontal_val;
 
+		double heading_degrees;
+
 		if (chassis::imu) {
 			heading_degrees = chassis::imu->get_rotation();
 			heading = heading_degrees * M_PI / 180;
 		} else {
-			heading =
-			    prev_heading + (left_arc - right_arc) /
-			                       (chassis::distance_constant * chassis::width);
+			heading = prev_heading + (left_arc - right_arc) /
+			                             (chassis::distance_constant * chassis_width);
 			heading_degrees = heading * 180 / M_PI;
 		}
 
@@ -91,7 +93,7 @@ int odomTask() {
 	}
 }
 
-double getAngle(std::array<double, 2> point) {
+double getAngleError(std::array<double, 2> point) {
 	double x = point[0];
 	double y = point[1];
 
@@ -107,7 +109,7 @@ double getAngle(std::array<double, 2> point) {
 	return delta_theta;
 }
 
-double getDistance(std::array<double, 2> point) {
+double getDistanceError(std::array<double, 2> point) {
 	double x = point[0];
 	double y = point[1];
 
@@ -116,92 +118,21 @@ double getDistance(std::array<double, 2> point) {
 	return sqrt(x * x + y * y);
 }
 
-void goToPoint(std::array<double, 2> point) {
-	double max_speed = 80; // 100 max
-	double exit_error = 5; // radius around point in inches
-
-	double kP_vel = 8.0;
-	double kI_vel = 0.0;
-	double kD_vel = 0.0;
-
-	double kP_ang = 50.0;
-	double kI_ang = 0.0;
-	double kD_ang = 0.0;
-
-	double slew_step = 10;
-	double left_prev = 0;
-	double right_prev = 0;
-
-	double vel_prev_error = getDistance(point);
-	double ang_prev_error = getAngle(point);
-
-	bool driving = true;
-
-	while (driving) {
-		int reverse = 1;
-
-		double vel_error = getDistance(point);
-		double ang_error = getAngle(point);
-
-		if (fabs(ang_error) > M_PI_2) {
-			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
-			reverse = -1;
-		}
-
-		double vel_derivative = vel_error - vel_prev_error;
-		double ang_derivative = ang_error - ang_prev_error;
-
-		vel_prev_error = vel_error;
-		ang_prev_error = ang_error;
-
-		double forward_speed = kP_vel * vel_error + kD_vel * vel_derivative;
-		double turn_modifier = kP_ang * ang_error + kD_ang * ang_derivative;
-
-		forward_speed *= reverse;
-
-		double left_speed = forward_speed - turn_modifier;
-		double right_speed = forward_speed + turn_modifier;
-
-		if (left_speed > max_speed) {
-			double diff = left_speed - max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		} else if (left_speed < -max_speed) {
-			double diff = left_speed + max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		}
-
-		if (right_speed > max_speed) {
-			double diff = right_speed - max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		} else if (right_speed < -max_speed) {
-			double diff = right_speed + max_speed;
-			left_speed -= diff;
-			right_speed -= diff;
-		}
-
-		left_speed = chassis::slew(left_speed, chassis::accel_step, &left_prev);
-		right_speed = chassis::slew(right_speed, chassis::accel_step, &right_prev);
-
-		left_prev = left_speed;
-		right_prev = right_speed;
-
-		chassis::leftMotors->moveVoltage(left_speed * 120);
-		chassis::rightMotors->moveVoltage(right_speed * 120);
-
-		if (vel_error < exit_error)
-			driving = false;
-		delay(20);
-	}
-	chassis::leftMotors->moveVoltage(0);
-	chassis::rightMotors->moveVoltage(0);
+void goToPointAsync(std::array<double, 2> point, double max) {
+	chassis::reset();
+	chassis::maxSpeed = max;
 }
 
-void init(bool debug, double chassis_width) {
+void goToPoint(std::array<double, 2> point, double max) {
+	goToPointAsync(point, max);
+	delay(450);
+	chassis::waitUntilSettled();
+}
+
+void init(bool debug, double chassis_width, double exit_error) {
 	odom::debug = debug;
 	odom::chassis_width = chassis_width;
+	odom::exit_error = exit_error;
 }
 
 } // namespace odom
