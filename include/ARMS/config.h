@@ -12,7 +12,7 @@ namespace chassis {
 #define DEGREE_CONSTANT 2.3   // ticks per degree
 
 // chassis settling constants
-#define SETTLE_COUNT 8
+#define SETTLE_TIME 8
 #define SETTLE_THRESHOLD_LINEAR 3
 #define SETTLE_THRESHOLD_ANGULAR 1
 

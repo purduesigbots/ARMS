@@ -26,8 +26,8 @@ std::array<double, 2> pointTarget{0, 0};
 
 double pid(double error, double* pe, double kp, double kd) {
 	double derivative = error - *pe;
+	double speed = error * kp + derivative * kd;
 	*pe = error;
-	double speed = error * linearKP + derivative * linearKD;
 	return speed;
 }
 
@@ -92,6 +92,10 @@ std::array<double, 2> gtp() {
 	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
 	double ang_speed = pid(ang_error, &pe_ang, linear_pointKP, linear_pointKD);
 
+	// store previous previos error
+	pe_lin = lin_error;
+	pe_ang = ang_error;
+
 	lin_speed *= reverse; // apply reversal
 
 	// add speeds together
@@ -99,19 +103,25 @@ std::array<double, 2> gtp() {
 	double right_speed = lin_speed + ang_speed;
 
 	// speed scaling
-	double dif = 0;
-	if (left_speed > chassis::maxSpeed)
-		dif += left_speed - chassis::maxSpeed;
-	else if (left_speed < -chassis::maxSpeed)
-		dif += left_speed + chassis::maxSpeed;
+	if (left_speed > chassis::maxSpeed) {
+		double diff = left_speed - chassis::maxSpeed;
+		left_speed -= diff;
+		right_speed -= diff;
+	} else if (left_speed < -chassis::maxSpeed) {
+		double diff = left_speed + chassis::maxSpeed;
+		left_speed -= diff;
+		right_speed -= diff;
+	}
 
-	if (right_speed > chassis::maxSpeed)
-		dif += right_speed - chassis::maxSpeed;
-	else if (right_speed < -chassis::maxSpeed)
-		dif += right_speed + chassis::maxSpeed;
-
-	left_speed -= dif;
-	right_speed -= dif;
+	if (right_speed > chassis::maxSpeed) {
+		double diff = right_speed - chassis::maxSpeed;
+		left_speed -= diff;
+		right_speed -= diff;
+	} else if (right_speed < -chassis::maxSpeed) {
+		double diff = right_speed + chassis::maxSpeed;
+		left_speed -= diff;
+		right_speed -= diff;
+	}
 
 	return {left_speed, right_speed};
 }
