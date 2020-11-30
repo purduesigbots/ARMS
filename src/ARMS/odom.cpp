@@ -137,15 +137,13 @@ void holoAsync(std::array<double, 2> point, double angle, double max) {
 void move(std::array<double, 2> point, double max) {
 	moveAsync(point, max);
 	delay(450);
-	while (!chassis::settled() && getDistanceError(point) < exit_error)
-		delay(20);
+	chassis::waitUntilSettled();
 }
 
 void holo(std::array<double, 2> point, double angle, double max) {
 	holoAsync(point, angle, max);
 	delay(450);
-	while (!chassis::settled() && getDistanceError(point) < exit_error)
-		delay(20);
+	chassis::waitUntilSettled();
 }
 
 void init(bool debug, double chassis_width, double exit_error) {
