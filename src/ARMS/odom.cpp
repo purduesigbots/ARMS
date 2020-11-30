@@ -119,15 +119,30 @@ double getDistanceError(std::array<double, 2> point) {
 	return sqrt(x * x + y * y);
 }
 
-void goToPointAsync(std::array<double, 2> point, double max) {
+void moveAsync(std::array<double, 2> point, double max) {
 	chassis::reset();
 	chassis::maxSpeed = max;
 	pid::pointTarget = point;
-	pid::mode = GTP;
+	pid::mode = ODOM;
 }
 
-void goToPoint(std::array<double, 2> point, double max) {
-	goToPointAsync(point, max);
+void holoAsync(std::array<double, 2> point, double angle, double max) {
+	chassis::reset();
+	chassis::maxSpeed = max;
+	pid::pointTarget = point;
+	pid::angularTarget = angle;
+	pid::mode = ODOM_HOLO;
+}
+
+void move(std::array<double, 2> point, double max) {
+	moveAsync(point, max);
+	delay(450);
+	while (!chassis::settled() && getDistanceError(point) < exit_error)
+		delay(20);
+}
+
+void holo(std::array<double, 2> point, double angle, double max) {
+	holoAsync(point, angle, max);
 	delay(450);
 	while (!chassis::settled() && getDistanceError(point) < exit_error)
 		delay(20);

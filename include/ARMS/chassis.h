@@ -83,7 +83,7 @@ void turnAbsoluteAsync(double sp, int max = 100);
 /**
  * Begin an asycronous holonomic chassis movement
  */
-void moveAsync(double distance, double angle, int max = 100);
+void holoAsync(double distance, double angle, int max = 100);
 
 /**
  * Perform a chassis movement and wait until settled
@@ -104,7 +104,7 @@ void turnAbsolute(double sp, int max = 100);
 /**
  * Perform a holonomic movement and wait until settled
  */
-void moveHolo(double distance, double angle, int max = 100);
+void holo(double distance, double angle, int max = 100);
 
 /**
  * Move a distance at a set voltage with no PID

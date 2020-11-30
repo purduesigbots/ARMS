@@ -262,7 +262,7 @@ void turnAbsoluteAsync(double sp, int max) {
 	turnAsync(sp, max);
 }
 
-void moveHoloAsync(double distance, double angle, int max) {
+void holoAsync(double distance, double angle, int max) {
 	distance *= distance_constant;
 	reset();
 	maxSpeed = max;
@@ -289,8 +289,8 @@ void turnAbsolute(double sp, int max) {
 	waitUntilSettled();
 }
 
-void moveHolo(double distance, double angle, int max) {
-	moveHoloAsync(distance, angle, max);
+void holo(double distance, double angle, int max) {
+	holoAsync(distance, angle, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -444,8 +444,8 @@ int chassisTask() {
 		} else if (pid::mode == ANGULAR) {
 			rightSpeed = pid::angular();
 			leftSpeed = -rightSpeed;
-		} else if (pid::mode == GTP) {
-			std::array<double, 2> speeds = pid::gtp();
+		} else if (pid::mode == ODOM) {
+			std::array<double, 2> speeds = pid::odom();
 			leftSpeed = speeds[0];
 			rightSpeed = speeds[1];
 		} else {

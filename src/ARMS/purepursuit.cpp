@@ -149,7 +149,7 @@ void followPath(std::vector<std::array<double, 2>> path) {
 		std::array<double, 2> ang_tracking_point =
 		    findIntersectionPoint(path, inner_radius);
 		if (last_segment) {
-			odom::goToPoint(path[path.size() - 1]);
+			odom::move(path[path.size() - 1]);
 			break;
 		}
 		std::array<double, 2> vel_tracking_point =

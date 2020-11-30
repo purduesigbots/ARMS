@@ -69,13 +69,19 @@ double angular() {
 	return speed;
 }
 
-std::array<double, 2> gtp() {
+std::array<double, 2> odom() {
 	// previous sensor values
 	static double psv_left = 0;
 	static double psv_right = 0;
 
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
+
+	// if holonomic, angular error is relative to field, not to point
+	if (pid::mode == ODOM_HOLO) {
+		pid::vectorAngle = ang_error;
+		ang_error = (pid::angularTarget - chassis::angle()) * M_PI / 180;
+	}
 
 	// previous error values
 	static double pe_lin = lin_error;

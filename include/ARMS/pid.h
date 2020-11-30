@@ -7,7 +7,8 @@
 namespace pid {
 
 // pid mode enums
-#define GTP 3
+#define ODOM_HOLO 4
+#define ODOM 3
 #define ANGULAR 2
 #define LINEAR 1
 #define DISABLE 0
@@ -26,7 +27,7 @@ extern double difKP; // needs to be exposed for use with chassis::fast
 
 double linear(bool rightSide = false);
 double angular();
-std::array<double, 2> gtp();
+std::array<double, 2> odom();
 
 void init(double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
           double angularKP = ANGULAR_KP, double angularKD = ANGULAR_KD,
