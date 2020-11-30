@@ -526,7 +526,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
-	chassis::settle_count = settle_count;
+	chassis::settle_time = settle_time;
 	chassis::settle_threshold_linear = settle_threshold_linear;
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
