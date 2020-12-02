@@ -444,7 +444,7 @@ int chassisTask() {
 		} else if (pid::mode == ANGULAR) {
 			rightSpeed = pid::angular();
 			leftSpeed = -rightSpeed;
-		} else if (pid::mode == ODOM) {
+		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO) {
 			std::array<double, 2> speeds = pid::odom();
 			leftSpeed = speeds[0];
 			rightSpeed = speeds[1];
@@ -591,7 +591,7 @@ void arcade(int vertical, int horizontal) {
 }
 
 void holonomic(int x, int y, int z) {
-	pid::mode = 0; // turns off autonomous task
+	pid::mode = DISABLE; // turns off autonomous task
 	motorMove(frontLeft, x + y + z, false);
 	motorMove(frontRight, x - y - z, false);
 	motorMove(backLeft, x + y - z, false);
