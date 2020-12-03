@@ -79,8 +79,9 @@ std::array<double, 2> odom() {
 
 	// if holonomic, angular error is relative to field, not to point
 	if (pid::mode == ODOM_HOLO) {
-		pid::vectorAngle = ang_error;
-		ang_error = (pid::angularTarget - chassis::angle()) * M_PI / 180;
+		pid::vectorAngle = -ang_error;
+		ang_error = odom::heading + (pid::angularTarget * M_PI / 180);
+		ang_error = 0;
 	}
 
 	// previous error values
@@ -89,14 +90,14 @@ std::array<double, 2> odom() {
 
 	// reverse if point is behind robot
 	int reverse = 1;
-	if (fabs(ang_error) > M_PI_2) {
+	if (fabs(ang_error) > M_PI_2 && mode == ODOM) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		reverse = -1;
 	}
 
 	// calculate pid
 	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
-	double ang_speed = pid(ang_error, &pe_ang, linear_pointKP, linear_pointKD);
+	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKD);
 
 	// store previous previos error
 	pe_lin = lin_error;

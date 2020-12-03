@@ -100,6 +100,9 @@ void reset() {
 		leftEncoder->reset();
 		rightEncoder->reset();
 	}
+	if (middleEncoder) {
+		middleEncoder->reset();
+	}
 }
 
 std::array<double, 2> getEncoders() {
@@ -177,17 +180,17 @@ double slew(double target_speed, double step, double* current_speed) {
 /**************************************************/
 // chassis settling
 int wheelMoving(double sv, double* psv) {
-	int stop = 0;
+	int isMoving = 0;
 	double thresh = settle_threshold_linear;
 	if (pid::mode == ANGULAR)
 		thresh = settle_threshold_angular;
 
-	if (abs(sv - *psv) < thresh)
-		stop = 1;
+	if (abs(sv - *psv) > thresh)
+		isMoving = 1;
 
 	*psv = sv;
 
-	return stop;
+	return isMoving;
 }
 
 bool settled() {
@@ -456,41 +459,44 @@ int chassisTask() {
 		leftSpeed = limitSpeed(leftSpeed);
 		rightSpeed = limitSpeed(rightSpeed);
 
-		// slew
-		leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
-		rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
-
 		// set motors
 		if (pid::vectorAngle != 0) {
 			// calculate vectors for each wheel set
 			double frontVector = sin(M_PI / 4 - pid::vectorAngle);
 			double backVector = sin(M_PI / 4 + pid::vectorAngle);
 
+			// calculate turning
+			double turnSpeed = rightSpeed - leftSpeed;
+
 			// set scaling factor based on largest vector
 			double largestVector;
-			if (abs(frontVector) > abs(backVector)) {
-				largestVector = abs(frontVector);
+			if (fabs(frontVector) > fabs(backVector)) {
+				largestVector = frontVector;
 			} else {
-				largestVector = abs(backVector);
+				largestVector = backVector;
 			}
 
 			double largestSpeed;
-			if (leftSpeed > rightSpeed)
+			if (fabs(leftSpeed) > fabs(rightSpeed))
 				largestSpeed = leftSpeed;
 			else
 				largestSpeed = rightSpeed;
 
-			double scalingFactor = largestSpeed / largestVector;
+			double scalingFactor =
+			    (fabs(largestSpeed) + fabs(turnSpeed)) / fabs(largestVector);
 
 			frontVector *= scalingFactor;
 			backVector *= scalingFactor;
 
-			motorMove(frontLeft, frontVector);
-			motorMove(backLeft, backVector);
-			motorMove(frontRight, backVector);
-			motorMove(backRight, frontVector);
+			motorMove(frontLeft, frontVector + turnSpeed);
+			motorMove(backLeft, backVector + turnSpeed);
+			motorMove(frontRight, backVector - turnSpeed);
+			motorMove(backRight, frontVector - turnSpeed);
 
 		} else {
+			leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
+			rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
+
 			motorMove(leftMotors, leftSpeed);
 			motorMove(rightMotors, rightSpeed);
 		}
