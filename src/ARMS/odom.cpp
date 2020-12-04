@@ -96,13 +96,13 @@ int odomTask() {
 }
 
 double getAngleError(std::array<double, 2> point) {
-	double x = point[0];
-	double y = point[1];
+	double y = point[0];
+	double x = point[1];
 
-	x -= global_x;
 	y -= global_y;
+	x -= global_x;
 
-	double delta_theta = heading - atan2(y, x);
+	double delta_theta = heading - atan2(x, y);
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
@@ -112,11 +112,11 @@ double getAngleError(std::array<double, 2> point) {
 }
 
 double getDistanceError(std::array<double, 2> point) {
-	double x = point[0];
-	double y = point[1];
+	double y = point[0];
+	double x = point[1];
 
-	x -= global_x;
 	y -= global_y;
+	x -= global_x;
 	return sqrt(x * x + y * y);
 }
 
@@ -155,7 +155,7 @@ void init(bool debug, double left_right_distance, double middle_distance,
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
 	odom::exit_error = exit_error;
-	delay(1000);
+	delay(1500);
 	Task odom_task(odomTask);
 }
 
