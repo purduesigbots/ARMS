@@ -27,10 +27,13 @@ namespace chassis {
 } // namespace chassis
 
 namespace odom {
-#define DEBUG true
-#define CHASSIS_WIDTH 12.75 // only needed for non-imu setups
-#define SLEW_STEP 10        // point function slew
-#define EXIT_ERROR 5        // point function exit radius in inches
+#define ODOM_DEBUG 1
+#define LEFT_RIGHT_DISTANCE 6.375 // only needed for non-imu setups
+#define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
+#define LEFT_RIGHT_TPI 41.4       // Ticks per inch
+#define MIDDLE_TPI 41.4           // Ticks per inch
+#define SLEW_STEP 10              // point function slew
+#define EXIT_ERROR 5              // point function exit radius in inches
 } // namespace odom
 
 namespace pid {
