@@ -17,6 +17,7 @@ double angular_pointKP;
 double angular_pointKD;
 double arcKP;
 double difKP;
+double min_error;
 
 // pid targets
 double linearTarget = 0;
@@ -77,6 +78,10 @@ std::array<double, 2> odom() {
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
+	// remove angular component if close to target to prevent spinning
+	if (lin_error < min_error)
+		ang_error = 0;
+
 	// if holonomic, angular error is relative to field, not to point
 	if (pid::mode == ODOM_HOLO) {
 		pid::vectorAngle = -ang_error;
@@ -135,7 +140,8 @@ std::array<double, 2> odom() {
 
 void init(double linearKP, double linearKD, double angularKP, double angularKD,
           double linear_pointKP, double linear_pointKD, double angular_pointKP,
-          double angular_pointKD, double arcKP, double difKP) {
+          double angular_pointKD, double arcKP, double difKP,
+          double min_error) {
 
 	pid::linearKP = linearKP;
 	pid::linearKD = linearKD;
@@ -147,6 +153,7 @@ void init(double linearKP, double linearKD, double angularKP, double angularKD,
 	pid::angular_pointKD = angular_pointKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
+	pid::min_error = min_error;
 }
 
 } // namespace pid

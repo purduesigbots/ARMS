@@ -33,7 +33,6 @@ namespace odom {
 #define LEFT_RIGHT_TPI 41.4       // Ticks per inch
 #define MIDDLE_TPI 41.4           // Ticks per inch
 #define SLEW_STEP 10              // point function slew
-#define EXIT_ERROR 5              // point function exit radius in inches
 } // namespace odom
 
 namespace pid {
@@ -50,6 +49,7 @@ namespace pid {
 #define LINEAR_POINT_KD 0
 #define ANGULAR_POINT_KP 50
 #define ANGULAR_POINT_KD 0
+#define MIN_ERROR 5 // minimum error, stops robot from spinning around point
 } // namespace pid
 
 // Auton selector configuration constants

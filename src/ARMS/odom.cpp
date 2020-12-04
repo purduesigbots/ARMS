@@ -148,13 +148,12 @@ void holo(std::array<double, 2> point, double angle, double max) {
 }
 
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi, double exit_error) {
+          double left_right_tpi, double middle_tpi) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
-	odom::exit_error = exit_error;
 	delay(1500);
 	Task odom_task(odomTask);
 }

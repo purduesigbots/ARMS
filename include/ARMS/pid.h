@@ -35,7 +35,7 @@ void init(double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
           double linear_pointKD = LINEAR_POINT_KD,
           double angular_pointKP = ANGULAR_POINT_KP,
           double angular_pointKD = ANGULAR_POINT_KD, double arcKP = ARC_KP,
-          double difKP = DIF_KP);
+          double difKP = DIF_KP, double min_error = MIN_ERROR);
 
 } // namespace pid
 
