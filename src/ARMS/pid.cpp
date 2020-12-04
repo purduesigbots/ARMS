@@ -78,15 +78,12 @@ std::array<double, 2> odom() {
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
-	// remove angular component if close to target to prevent spinning
-	if (lin_error < min_error)
-		ang_error = 0;
-
 	// if holonomic, angular error is relative to field, not to point
 	if (pid::mode == ODOM_HOLO) {
-		pid::vectorAngle = -ang_error;
+		pid::vectorAngle = ang_error;
 		ang_error = odom::heading + (pid::angularTarget * M_PI / 180);
-		ang_error = 0;
+	} else if (lin_error < min_error) {
+		ang_error = 0; // prevent spinning
 	}
 
 	// previous error values

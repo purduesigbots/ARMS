@@ -42,6 +42,7 @@ double arc_step;   // acceleration for arcs
 
 // chassis variables
 double maxSpeed = 100;
+double maxAngular = 50; // holonomic odom only
 double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
@@ -152,12 +153,12 @@ double difference() {
 
 /**************************************************/
 // speed control
-double limitSpeed(double speed) {
+double limitSpeed(double speed, double max) {
 	// speed limiting
-	if (speed > maxSpeed)
-		speed = maxSpeed;
-	if (speed < -maxSpeed)
-		speed = -maxSpeed;
+	if (speed > max)
+		speed = max;
+	if (speed < -max)
+		speed = -max;
 
 	return speed;
 }
@@ -456,17 +457,14 @@ int chassisTask() {
 		}
 
 		// speed limiting
-		leftSpeed = limitSpeed(leftSpeed);
-		rightSpeed = limitSpeed(rightSpeed);
+		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
+		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
 
 		// set motors
 		if (pid::vectorAngle != 0) {
 			// calculate vectors for each wheel set
 			double frontVector = sin(M_PI / 4 - pid::vectorAngle);
 			double backVector = sin(M_PI / 4 + pid::vectorAngle);
-
-			// calculate turning
-			double turnSpeed = rightSpeed - leftSpeed;
 
 			// set scaling factor based on largest vector
 			double largestVector;
@@ -482,16 +480,18 @@ int chassisTask() {
 			else
 				largestSpeed = rightSpeed;
 
-			double scalingFactor =
-			    (fabs(largestSpeed) + fabs(turnSpeed)) / fabs(largestVector);
+			double scalingFactor = fabs(largestSpeed) / fabs(largestVector);
 
 			frontVector *= scalingFactor;
 			backVector *= scalingFactor;
 
-			motorMove(frontLeft, frontVector + turnSpeed);
-			motorMove(backLeft, backVector + turnSpeed);
-			motorMove(frontRight, backVector - turnSpeed);
-			motorMove(backRight, frontVector - turnSpeed);
+			double turnSpeed = rightSpeed - leftSpeed;
+			turnSpeed = limitSpeed(turnSpeed, 50);
+
+			motorMove(frontLeft, frontVector - turnSpeed);
+			motorMove(backLeft, backVector - turnSpeed);
+			motorMove(frontRight, backVector + turnSpeed);
+			motorMove(backRight, frontVector + turnSpeed);
 
 		} else {
 			leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
