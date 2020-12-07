@@ -130,7 +130,7 @@ void goToPoint(std::array<double, 2> point, double max) {
 	goToPointAsync(point, max);
 	delay(450);
 	while (!chassis::settled() && getDistanceError(point) < exit_error)
-		delay(20);
+		delay(10);
 }
 
 void init(bool debug, double chassis_width, double exit_error) {

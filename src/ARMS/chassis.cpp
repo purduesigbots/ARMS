@@ -309,7 +309,7 @@ void fast(double sp, int max) {
 		double dif = difference() * pid::difKP;
 		motorMove(leftMotors, speed - dif);
 		motorMove(rightMotors, speed + dif);
-		delay(20);
+		delay(10);
 	}
 }
 
@@ -433,7 +433,7 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 int chassisTask() {
 
 	while (1) {
-		delay(20);
+		delay(10);
 
 		double leftSpeed = 0;
 		double rightSpeed = 0;
