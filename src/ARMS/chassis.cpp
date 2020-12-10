@@ -46,6 +46,9 @@ double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
 
+// joystick threshold
+int joystick_threshold;
+
 /**************************************************/
 // basic control
 
@@ -521,7 +524,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          int joystick_threshold) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -531,6 +535,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
+	chassis::joystick_threshold = joystick_threshold;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -580,18 +585,34 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(int left_speed, int right_speed) {
 	pid::mode = DISABLE; // turns off autonomous tasks
+
+	// apply thresholding
+	left_speed = (abs(left_speed) > joystick_threshold ? left_speed : 0);
+	right_speed = (abs(right_speed) > joystick_threshold ? right_speed : 0);
+
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed, false);
 }
 
 void arcade(int vertical, int horizontal) {
 	pid::mode = DISABLE; // turns off autonomous task
+
+	// apply thresholding
+	vertical = (abs(vertical) > joystick_threshold ? vertical : 0);
+	horizontal = (abs(horizontal) > joystick_threshold ? horizontal : 0);
+
 	motorMove(leftMotors, vertical + horizontal, false);
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
 void holonomic(int x, int y, int z) {
 	pid::mode = 0; // turns off autonomous task
+
+	// apply thresholding
+	x = (abs(x) > joystick_threshold ? x : 0);
+	y = (abs(y) > joystick_threshold ? y : 0);
+	z = (abs(z) > joystick_threshold ? z : 0);
+
 	motorMove(frontLeft, x + y + z, false);
 	motorMove(frontRight, x - y - z, false);
 	motorMove(backLeft, x + y - z, false);

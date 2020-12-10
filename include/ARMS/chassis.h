@@ -179,7 +179,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
           int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
-          int expanderPort = EXPANDER_PORT);
+          int expanderPort = EXPANDER_PORT,
+          int joystick_threshold = JOYSTICK_THRESHOLD);
 
 } // namespace chassis
 
