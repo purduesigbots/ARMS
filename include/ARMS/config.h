@@ -34,6 +34,8 @@ namespace odom {
 } // namespace odom
 
 namespace pid {
+#define PID_DEBUG false
+
 // normal pid constants
 #define LINEAR_KP .3
 #define LINEAR_KD .5
