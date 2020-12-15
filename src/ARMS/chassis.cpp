@@ -325,6 +325,12 @@ void velocity(int t, int max) {
 	delay(t);
 }
 
+void velocity(int t, int left_max, int right_max) {
+	motorMove(leftMotors, left_max, true);
+	motorMove(rightMotors, right_max, true);
+	delay(t);
+}
+
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
