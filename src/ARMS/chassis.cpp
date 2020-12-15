@@ -325,7 +325,6 @@ void velocity(int t, int max) {
 	delay(t);
 }
 
-
 /**************************************************/
 // task control
 int chassisTask() {
