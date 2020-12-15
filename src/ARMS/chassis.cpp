@@ -435,22 +435,21 @@ int chassisTask() {
 	while (1) {
 		delay(10);
 
-		double leftSpeed = 0;
-		double rightSpeed = 0;
+		std::array<double, 2> speeds = {0, 0}; // left, right
 
 		if (pid::mode == LINEAR) {
-			leftSpeed = pid::linear();
-			rightSpeed = pid::linear(true); // dif pid for right side
+			speeds = pid::gtp();
 		} else if (pid::mode == ANGULAR) {
-			rightSpeed = pid::angular();
-			leftSpeed = -rightSpeed;
+			speeds[1] = pid::angular();
+			speeds[0] = -speeds[1];
 		} else if (pid::mode == GTP) {
-			std::array<double, 2> speeds = pid::gtp();
-			leftSpeed = speeds[0];
-			rightSpeed = speeds[1];
+			speeds = pid::gtp();
 		} else {
 			continue;
 		}
+
+		double leftSpeed = speeds[0];
+		double rightSpeed = speeds[1];
 
 		// speed limiting
 		leftSpeed = limitSpeed(leftSpeed);
