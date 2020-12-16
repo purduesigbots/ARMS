@@ -5,6 +5,7 @@
 namespace pid {
 
 int mode = DISABLE;
+bool debug = false;
 
 // pid constants
 double linearKP;
@@ -25,6 +26,9 @@ double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
 
 double pid(double error, double* pe, double kp, double kd) {
+	if (debug)
+		printf("%.2f\n", error);
+
 	double derivative = error - *pe;
 	double speed = error * kp + derivative * kd;
 	*pe = error;
@@ -121,10 +125,12 @@ std::array<double, 2> gtp() {
 	return {left_speed, right_speed};
 }
 
-void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double linear_pointKP, double linear_pointKD, double angular_pointKP,
-          double angular_pointKD, double arcKP, double difKP) {
+void init(bool debug, double linearKP, double linearKD, double angularKP,
+          double angularKD, double linear_pointKP, double linear_pointKD,
+          double angular_pointKP, double angular_pointKD, double arcKP,
+          double difKP) {
 
+	pid::debug = debug;
 	pid::linearKP = linearKP;
 	pid::linearKD = linearKD;
 	pid::angularKP = angularKP;
