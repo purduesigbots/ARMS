@@ -24,7 +24,7 @@ extern double arcKP; // needs to be exposed since arcs have not been integrated
 
 extern double difKP; // needs to be exposed for use with chassis::fast
 
-std::array<double, 2> linear(bool rightSide = false);
+std::array<double, 2> linear();
 double angular();
 std::array<double, 2> gtp();
 
