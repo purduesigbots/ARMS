@@ -36,7 +36,7 @@ double pid(double target, double sv, double* pe, double kp, double kd) {
 	return pid(error, pe, kp, kd);
 }
 
-double linear(bool rightSide) {
+std::array<double, 2> linear() {
 	static double pe = 0; // previous error
 
 	// get position in the x and y directions
@@ -54,12 +54,7 @@ double linear(bool rightSide) {
 
 	// difference PID
 	double dif = chassis::difference() * difKP;
-	if (rightSide)
-		speed += dif;
-	else
-		speed -= dif;
-
-	return speed;
+	return {speed -= dif, speed += dif};
 }
 
 double angular() {
