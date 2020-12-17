@@ -10,7 +10,7 @@ namespace chassis {
 double prev = 0; // previous chassis speed
 
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
-	chassis::reset();
+	reset();
 	int time_step = 0;
 	pid::mode = DISABLE;
 	bool reversed = false;
@@ -23,8 +23,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 	// fix jerk bug between velocity movements
 	if (type < 2) {
-		chassis::motorMove(chassis::leftMotors, 0, true);
-		chassis::motorMove(chassis::rightMotors, 0, true);
+		motorMove(leftMotors, 0, true);
+		motorMove(rightMotors, 0, true);
 		delay(10);
 	}
 
@@ -47,7 +47,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = chassis::slew(speed, accel_step, &prev); // slew
+		speed = slew(speed, accel_step, &prev); // slew
 
 		if (reversed)
 			speed = -speed;
@@ -62,8 +62,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 			scaled_speed *= (1 - (double)time_step / arc_length);
 
 		// assign chassis motor speeds (using velocity)
-		chassis::motorMove(chassis::leftMotors, mirror ? speed : scaled_speed, 1);
-		chassis::motorMove(chassis::rightMotors, mirror ? scaled_speed : speed, 1);
+		motorMove(leftMotors, mirror ? speed : scaled_speed, 1);
+		motorMove(rightMotors, mirror ? scaled_speed : speed, 1);
 
 		// increment time step
 		time_step += 10;
@@ -71,8 +71,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 
 	if (type != 1 && type != 2) {
-		chassis::motorMove(chassis::leftMotors, 0, true);
-		chassis::motorMove(chassis::rightMotors, 0, true);
+		motorMove(leftMotors, 0, true);
+		motorMove(rightMotors, 0, true);
 	}
 }
 
@@ -90,7 +90,7 @@ void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 	arc(mirror, arc1, 1, max, 1);
 
 	// middle movement
-	chassis::velocity(mid, max);
+	velocity(mid, max);
 
 	// final arc
 	arc(!mirror, arc2, 1, max, 2);
