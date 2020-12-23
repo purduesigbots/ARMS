@@ -114,18 +114,12 @@ void fast(double sp, int max = 100);
 /**
  * Move for a duration at a set voltage with no PID
  */
-void voltage(int t, int left_speed = 100, int right_speed = 0);
+void voltage(int t, int left_speed = 100, int right_speed = 101);
 
 /**
  * Move for a duration at a set velocity using internal PID
  */
-void velocity(int t, int max = 100);
-
-/**
- * Move for a duration at a set velocity using internal PID with different
- * velocities for each side of the drive
- */
-void velocity(int t, int left_max, int right_max);
+void velocity(int t, int left_max = 100, int right_max = 101);
 
 /**
  * Move the robot in an arc with a set length, radius, and speed
