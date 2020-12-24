@@ -5,6 +5,7 @@
 namespace pid {
 
 int mode = DISABLE;
+bool debug = false;
 
 // pid constants
 double linearKP;
@@ -26,6 +27,9 @@ double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
 
 double pid(double error, double* pe, double kp, double kd) {
+	if (debug)
+		printf("%.2f\n", error);
+
 	double derivative = error - *pe;
 	double speed = error * kp + derivative * kd;
 	*pe = error;
@@ -37,7 +41,7 @@ double pid(double target, double sv, double* pe, double kp, double kd) {
 	return pid(error, pe, kp, kd);
 }
 
-double linear(bool rightSide) {
+std::array<double, 2> linear() {
 	static double pe = 0; // previous error
 
 	// get position in the x and y directions
@@ -55,12 +59,7 @@ double linear(bool rightSide) {
 
 	// difference PID
 	double dif = chassis::difference() * difKP;
-	if (rightSide)
-		speed += dif;
-	else
-		speed -= dif;
-
-	return speed;
+	return {speed -= dif, speed += dif};
 }
 
 double angular() {
@@ -135,11 +134,12 @@ std::array<double, 2> odom() {
 	return {left_speed, right_speed};
 }
 
-void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double linear_pointKP, double linear_pointKD, double angular_pointKP,
-          double angular_pointKD, double arcKP, double difKP,
-          double min_error) {
+void init(bool debug, double linearKP, double linearKD, double angularKP,
+          double angularKD, double linear_pointKP, double linear_pointKD,
+          double angular_pointKP, double angular_pointKD, double arcKP,
+          double difKP, double min_error) {
 
+	pid::debug = debug;
 	pid::linearKP = linearKP;
 	pid::linearKD = linearKD;
 	pid::angularKP = angularKP;

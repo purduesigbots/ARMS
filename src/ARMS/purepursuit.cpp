@@ -204,7 +204,7 @@ void followPath(std::vector<std::array<double, 2>> path) {
 		chassis::leftMotors->moveVoltage(left_speed * 120);
 		chassis::rightMotors->moveVoltage(right_speed * 120);
 
-		delay(20);
+		delay(10);
 	}
 }
 

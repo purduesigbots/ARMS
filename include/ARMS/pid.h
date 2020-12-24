@@ -25,12 +25,13 @@ extern double arcKP; // needs to be exposed since arcs have not been integrated
 
 extern double difKP; // needs to be exposed for use with chassis::fast
 
-double linear(bool rightSide = false);
+std::array<double, 2> linear();
 double angular();
 std::array<double, 2> odom();
 
-void init(double linearKP = LINEAR_KP, double linearKD = LINEAR_KD,
-          double angularKP = ANGULAR_KP, double angularKD = ANGULAR_KD,
+void init(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
+          double linearKD = LINEAR_KD, double angularKP = ANGULAR_KP,
+          double angularKD = ANGULAR_KD,
           double linear_pointKP = LINEAR_POINT_KP,
           double linear_pointKD = LINEAR_POINT_KD,
           double angular_pointKP = ANGULAR_POINT_KP,

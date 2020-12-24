@@ -47,6 +47,9 @@ double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
 
+// joystick threshold
+int joystick_threshold;
+
 /**************************************************/
 // basic control
 
@@ -313,7 +316,7 @@ void fast(double sp, int max) {
 		double dif = difference() * pid::difKP;
 		motorMove(leftMotors, speed - dif);
 		motorMove(rightMotors, speed + dif);
-		delay(20);
+		delay(10);
 	}
 }
 
@@ -329,132 +332,28 @@ void velocity(int t, int max) {
 	delay(t);
 }
 
-void arc(bool mirror, int arc_length, double rad, int max, int type) {
-	reset();
-	int time_step = 0;
-	pid::mode = DISABLE;
-	bool reversed = false;
-
-	// reverse the movement if the length is negative
-	if (arc_length < 0) {
-		reversed = true;
-		arc_length = -arc_length;
-	}
-
-	// fix jerk bug between velocity movements
-	if (type < 2) {
-		motorMove(leftMotors, 0, true);
-		motorMove(rightMotors, 0, true);
-		delay(10);
-	}
-
-	while (time_step < arc_length) {
-
-		// speed
-		int error = arc_length - time_step;
-		double speed = error * pid::arcKP;
-
-		if (type == 1 || type == 2)
-			speed = max;
-
-		// speed limiting
-		if (speed > max)
-			speed = max;
-		if (speed < -max)
-			speed = -max;
-
-		// prevent backtracking
-		if (speed < 0)
-			speed = 0;
-
-		speed = slew(speed, accel_step, &leftPrev); // slew
-
-		if (reversed)
-			speed = -speed;
-
-		double scaled_speed = speed * rad;
-
-		if (type == 1)
-			scaled_speed *= (double)time_step / arc_length;
-		else if (type == 2)
-			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
-		else if (type == 3)
-			scaled_speed *= (1 - (double)time_step / arc_length);
-
-		// assign chassis motor speeds
-		motorMove(leftMotors, mirror ? speed : scaled_speed, true);
-		motorMove(rightMotors, mirror ? scaled_speed : speed, true);
-
-		// increment time step
-		time_step += 10;
-		delay(10);
-	}
-
-	if (type != 1 && type != 2) {
-		motorMove(leftMotors, 0, true);
-		motorMove(rightMotors, 0, true);
-	}
-}
-
-void arcLeft(int arc_length, double rad, int max, int type) {
-	arc(false, arc_length, rad, max, type);
-}
-
-void arcRight(int arc_length, double rad, int max, int type) {
-	arc(true, arc_length, rad, max, type);
-}
-
-void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
-
-	// first arc
-	arc(mirror, arc1, 1, max, 1);
-
-	// middle movement
-	velocity(mid, max);
-
-	// final arc
-	arc(!mirror, arc2, 1, max, 2);
-}
-
-void sLeft(int arc1, int mid, int arc2, int max) {
-	scurve(false, arc1, mid, arc2, max);
-}
-
-void sRight(int arc1, int mid, int arc2, int max) {
-	scurve(true, arc1, mid, arc2, max);
-}
-
-void _sLeft(int arc1, int mid, int arc2, int max) {
-	scurve(true, -arc1, mid, -arc2, -max);
-}
-
-void _sRight(int arc1, int mid, int arc2, int max) {
-	scurve(false, -arc1, -mid, -arc2, max);
-}
-
 /**************************************************/
 // task control
 int chassisTask() {
 
 	while (1) {
-		delay(20);
+		delay(10);
 
-		double leftSpeed = 0;
-		double rightSpeed = 0;
+		std::array<double, 2> speeds = {0, 0}; // left, right
 
 		if (pid::mode == LINEAR) {
-			leftSpeed = pid::linear();
-			rightSpeed = pid::linear(true); // dif pid for right side
+			speeds = pid::gtp();
 		} else if (pid::mode == ANGULAR) {
-			rightSpeed = pid::angular();
-			leftSpeed = -rightSpeed;
-		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO) {
-			std::array<double, 2> speeds = pid::odom();
-			leftSpeed = speeds[0];
-			rightSpeed = speeds[1];
+			speeds[1] = pid::angular();
+			speeds[0] = -speeds[1];
+		} else if (pid::mode == GTP) {
+			speeds = pid::gtp();
 		} else {
 			continue;
 		}
+
+		double leftSpeed = speeds[0];
+		double rightSpeed = speeds[1];
 
 		// speed limiting
 		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
@@ -527,7 +426,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          int joystick_threshold) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -537,6 +437,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
+	chassis::joystick_threshold = joystick_threshold;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -586,18 +487,34 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(int left_speed, int right_speed) {
 	pid::mode = DISABLE; // turns off autonomous tasks
+
+	// apply thresholding
+	left_speed = (abs(left_speed) > joystick_threshold ? left_speed : 0);
+	right_speed = (abs(right_speed) > joystick_threshold ? right_speed : 0);
+
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed, false);
 }
 
 void arcade(int vertical, int horizontal) {
 	pid::mode = DISABLE; // turns off autonomous task
+
+	// apply thresholding
+	vertical = (abs(vertical) > joystick_threshold ? vertical : 0);
+	horizontal = (abs(horizontal) > joystick_threshold ? horizontal : 0);
+
 	motorMove(leftMotors, vertical + horizontal, false);
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
 void holonomic(int x, int y, int z) {
 	pid::mode = DISABLE; // turns off autonomous task
+
+	// apply thresholding
+	x = (abs(x) > joystick_threshold ? x : 0);
+	y = (abs(y) > joystick_threshold ? y : 0);
+	z = (abs(z) > joystick_threshold ? z : 0);
+
 	motorMove(frontLeft, x + y + z, false);
 	motorMove(frontRight, x - y - z, false);
 	motorMove(backLeft, x + y - z, false);

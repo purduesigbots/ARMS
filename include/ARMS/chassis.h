@@ -21,6 +21,16 @@ extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
 
 /**
+ * Set the speed of target motor
+ */
+void motorMove(std::shared_ptr<okapi::Motor> motor, int speed, bool vel);
+
+/**
+ * Set the speed of target motor group
+ */
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed, bool vel);
+
+/**
  * Set the brake mode for all chassis motors
  */
 void setBrakeMode(okapi::AbstractMotor::brakeMode b);
@@ -122,36 +132,6 @@ void voltage(int t, int left_speed = 100, int right_speed = 0);
 void velocity(int t, int max = 100);
 
 /**
- * Move the robot in an arc with a set length, radius, and speed
- */
-void arcLeft(int length, double rad, int max = 100, int type = 0);
-
-/**
- * Move the robot in an arc with a set length, radius, and speed
- */
-void arcRight(int length, double rad, int max = 100, int type = 0);
-
-/**
- * Preform a forward S shaped movement with a set length, and speed
- */
-void sLeft(int arc1, int mid, int arc2, int max = 100);
-
-/**
- * Preform a forward S shaped movement with a set length, and speed
- */
-void sRight(int arc1, int mid, int arc2, int max = 100);
-
-/**
- * Preform a backward S shaped movement with a set length, and speed
- */
-void _sLeft(int arc1, int mid, int arc2, int max = 100);
-
-/**
- * Preform a backward S shaped movement with a set length, and speed
- */
-void _sRight(int arc1, int mid, int arc2, int max = 100);
-
-/**
  * Assign a voltage to each motor on a scale of -100 to 100
  */
 void tank(int left, int right);
@@ -179,7 +159,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
           int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
-          int expanderPort = EXPANDER_PORT);
+          int expanderPort = EXPANDER_PORT,
+          int joystick_threshold = JOYSTICK_THRESHOLD);
 
 } // namespace chassis
 

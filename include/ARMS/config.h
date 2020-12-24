@@ -24,6 +24,10 @@ namespace chassis {
 #define IMU_PORT 0            // port 0 for disabled
 #define ENCODER_PORTS 0, 0, 0 // port 0 for disabled
 #define EXPANDER_PORT 0
+
+// joystick
+#define JOYSTICK_THRESHOLD 10 // min value needed for joystick to move drive
+
 } // namespace chassis
 
 namespace odom {
@@ -36,6 +40,8 @@ namespace odom {
 } // namespace odom
 
 namespace pid {
+#define PID_DEBUG false
+
 // normal pid constants
 #define LINEAR_KP .3
 #define LINEAR_KD .5
