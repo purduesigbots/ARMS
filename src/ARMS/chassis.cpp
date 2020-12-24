@@ -342,7 +342,7 @@ int chassisTask() {
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
 		if (pid::mode == LINEAR) {
-			speeds = pid::odom();
+			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
 			speeds[1] = pid::angular();
 			speeds[0] = -speeds[1];
