@@ -124,12 +124,12 @@ void fast(double sp, int max = 100);
 /**
  * Move for a duration at a set voltage with no PID
  */
-void voltage(int t, int left_speed = 100, int right_speed = 0);
+void voltage(int t, int left_speed = 100, int right_speed = 101);
 
 /**
  * Move for a duration at a set velocity using internal PID
  */
-void velocity(int t, int max = 100);
+void velocity(int t, int left_max = 100, int right_max = 101);
 
 /**
  * Assign a voltage to each motor on a scale of -100 to 100
