@@ -105,6 +105,12 @@ int odomTask() {
 	}
 }
 
+void reset(std::array<double, 2> point, double angle) {
+	global_y = point[0];
+	global_x = point[1];
+	heading = angle * M_PI / 180.0;
+}
+
 double getAngleError(std::array<double, 2> point) {
 	double y = point[0];
 	double x = point[1];
@@ -148,7 +154,13 @@ void holoAsync(std::array<double, 2> point, double angle, double max) {
 void move(std::array<double, 2> point, double max) {
 	moveAsync(point, max);
 	delay(450);
-	while (!chassis::settled() && getDistanceError(point) < exit_error)
+	chassis::waitUntilSettled();
+}
+
+void moveThru(std::array<double, 2> point, double max) {
+	moveAsync(point, max);
+	delay(450);
+	while (getDistanceError(point) > exit_error)
 		delay(10);
 }
 
@@ -158,8 +170,16 @@ void holo(std::array<double, 2> point, double angle, double max) {
 	chassis::waitUntilSettled();
 }
 
+void holoThru(std::array<double, 2> point, double angle, double max) {
+	holoAsync(point, angle, max);
+	delay(450);
+	while (getDistanceError(point) > exit_error)
+		delay(10);
+}
+
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi, bool holonomic) {
+          double left_right_tpi, double middle_tpi, bool holonomic,
+          double exit_error) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
@@ -168,6 +188,7 @@ void init(bool debug, double left_right_distance, double middle_distance,
 	if (chassis::leftEncoder)
 		holonomic = false; // holonomic should only be used on non-encoder x-drives
 	odom::holonomic = holonomic;
+	odom::exit_error = exit_error;
 	delay(1500);
 	Task odom_task(odomTask);
 }

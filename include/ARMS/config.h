@@ -35,6 +35,7 @@ namespace odom {
 #define MIDDLE_TPI 41.4           // Ticks per inch
 #define SLEW_STEP 10              // point function slew
 #define HOLONOMIC 1               // holonomic chassis odom
+#define EXIT_ERROR 10 // exit distance for moveThru and holoThru movements
 } // namespace odom
 
 namespace pid {

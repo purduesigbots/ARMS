@@ -83,10 +83,6 @@ void reset() {
 	odom::prev_right_pos = 0;
 	odom::prev_middle_pos = 0;
 
-	for (int i = 0; i < 4; i++) {
-		output_prev[i] = 0;
-	}
-
 	settle_count = 0;
 
 	pid::vectorAngle = 0;
