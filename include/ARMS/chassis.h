@@ -12,6 +12,11 @@ extern double distance_constant;
 extern double width;
 extern double maxSpeed;
 
+extern std::shared_ptr<okapi::Motor> frontLeft;
+extern std::shared_ptr<okapi::Motor> frontRight;
+extern std::shared_ptr<okapi::Motor> backLeft;
+extern std::shared_ptr<okapi::Motor> backRight;
+
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 

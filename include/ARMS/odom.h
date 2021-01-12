@@ -29,7 +29,7 @@ void init(bool debug = ODOM_DEBUG,
           double left_right_distance = LEFT_RIGHT_DISTANCE,
           double middle_distance = MIDDLE_DISTANCE,
           double left_right_tpi = LEFT_RIGHT_TPI,
-          double middle_tpi = MIDDLE_TPI);
+          double middle_tpi = MIDDLE_TPI, bool holonomic = HOLONOMIC);
 
 } // namespace odom
 

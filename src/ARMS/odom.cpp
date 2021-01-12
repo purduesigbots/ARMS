@@ -13,6 +13,7 @@ double middle_distance;
 double left_right_tpi;
 double middle_tpi;
 double exit_error;
+bool holonomic;
 
 // odom tracking values
 double global_x;
@@ -38,6 +39,10 @@ int odomTask() {
 		if (chassis::leftEncoder) {
 			left_pos = chassis::leftEncoder->get_value();
 			right_pos = chassis::rightEncoder->get_value();
+		} else if (holonomic) {
+			left_pos = chassis::backLeft->getPosition();
+			right_pos = chassis::frontRight->getPosition();
+			middle_pos = chassis::backRight->getPosition();
 		} else {
 			left_pos = chassis::leftMotors->getPosition();
 			right_pos = chassis::rightMotors->getPosition();
@@ -58,7 +63,8 @@ int odomTask() {
 			heading = heading_degrees * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
-			delta_angle = (delta_left - delta_right) / (left_right_distance * 2.0);
+			delta_angle = (delta_left - delta_right) / (left_right_distance * 2);
+
 			heading += delta_angle;
 			heading_degrees = heading * 180.0 / M_PI;
 		}
@@ -69,7 +75,7 @@ int odomTask() {
 		prev_middle_pos = middle_pos;
 		prev_heading = heading;
 
-		// calculate local displacement
+		// calculate local displacemente
 		double local_x;
 		double local_y;
 
@@ -83,6 +89,10 @@ int odomTask() {
 		}
 
 		double p = heading - delta_angle / 2.0; // global angle
+
+		// account for holonomic rotation
+		if (holonomic)
+			p -= M_PI / 4;
 
 		// convert to absolute displacement
 		global_y += cos(p) * local_y - sin(p) * local_x;
@@ -149,12 +159,15 @@ void holo(std::array<double, 2> point, double angle, double max) {
 }
 
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi) {
+          double left_right_tpi, double middle_tpi, bool holonomic) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
+	if (chassis::leftEncoder)
+		holonomic = false; // holonomic should only be used on non-encoder x-drives
+	odom::holonomic = holonomic;
 	delay(1500);
 	Task odom_task(odomTask);
 }
