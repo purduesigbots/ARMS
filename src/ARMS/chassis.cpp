@@ -42,6 +42,7 @@ double arc_step;   // acceleration for arcs
 
 // chassis variables
 double maxSpeed = 100;
+double maxAngular = 50; // holonomic odom only
 double leftPrev = 0;
 double rightPrev = 0;
 bool useVelocity = false;
@@ -103,6 +104,9 @@ void reset() {
 		leftEncoder->reset();
 		rightEncoder->reset();
 	}
+	if (middleEncoder) {
+		middleEncoder->reset();
+	}
 }
 
 std::array<double, 2> getEncoders() {
@@ -152,12 +156,12 @@ double difference() {
 
 /**************************************************/
 // speed control
-double limitSpeed(double speed) {
+double limitSpeed(double speed, double max) {
 	// speed limiting
-	if (speed > maxSpeed)
-		speed = maxSpeed;
-	if (speed < -maxSpeed)
-		speed = -maxSpeed;
+	if (speed > max)
+		speed = max;
+	if (speed < -max)
+		speed = -max;
 
 	return speed;
 }
@@ -180,17 +184,17 @@ double slew(double target_speed, double step, double* current_speed) {
 /**************************************************/
 // chassis settling
 int wheelMoving(double sv, double* psv) {
-	int stop = 0;
+	int isMoving = 0;
 	double thresh = settle_threshold_linear;
 	if (pid::mode == ANGULAR)
 		thresh = settle_threshold_angular;
 
-	if (abs(sv - *psv) < thresh)
-		stop = 1;
+	if (abs(sv - *psv) > thresh)
+		isMoving = 1;
 
 	*psv = sv;
 
-	return stop;
+	return isMoving;
 }
 
 bool settled() {
@@ -265,7 +269,7 @@ void turnAbsoluteAsync(double sp, int max) {
 	turnAsync(sp, max);
 }
 
-void moveHoloAsync(double distance, double angle, int max) {
+void holoAsync(double distance, double angle, int max) {
 	distance *= distance_constant;
 	reset();
 	maxSpeed = max;
@@ -292,8 +296,8 @@ void turnAbsolute(double sp, int max) {
 	waitUntilSettled();
 }
 
-void moveHolo(double distance, double angle, int max) {
-	moveHoloAsync(distance, angle, max);
+void holo(double distance, double angle, int max) {
+	holoAsync(distance, angle, max);
 	delay(450);
 	waitUntilSettled();
 }
@@ -338,12 +342,12 @@ int chassisTask() {
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
 		if (pid::mode == LINEAR) {
-			speeds = pid::gtp();
+			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
 			speeds[1] = pid::angular();
 			speeds[0] = -speeds[1];
-		} else if (pid::mode == GTP) {
-			speeds = pid::gtp();
+		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO) {
+			speeds = pid::odom();
 		} else {
 			continue;
 		}
@@ -352,12 +356,8 @@ int chassisTask() {
 		double rightSpeed = speeds[1];
 
 		// speed limiting
-		leftSpeed = limitSpeed(leftSpeed);
-		rightSpeed = limitSpeed(rightSpeed);
-
-		// slew
-		leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
-		rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
+		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
+		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
 
 		// set motors
 		if (pid::vectorAngle != 0) {
@@ -367,29 +367,35 @@ int chassisTask() {
 
 			// set scaling factor based on largest vector
 			double largestVector;
-			if (abs(frontVector) > abs(backVector)) {
-				largestVector = abs(frontVector);
+			if (fabs(frontVector) > fabs(backVector)) {
+				largestVector = frontVector;
 			} else {
-				largestVector = abs(backVector);
+				largestVector = backVector;
 			}
 
 			double largestSpeed;
-			if (leftSpeed > rightSpeed)
+			if (fabs(leftSpeed) > fabs(rightSpeed))
 				largestSpeed = leftSpeed;
 			else
 				largestSpeed = rightSpeed;
 
-			double scalingFactor = largestSpeed / largestVector;
+			double scalingFactor = fabs(largestSpeed) / fabs(largestVector);
 
 			frontVector *= scalingFactor;
 			backVector *= scalingFactor;
 
-			motorMove(frontLeft, frontVector);
-			motorMove(backLeft, backVector);
-			motorMove(frontRight, backVector);
-			motorMove(backRight, frontVector);
+			double turnSpeed = rightSpeed - leftSpeed;
+			turnSpeed = limitSpeed(turnSpeed, 50);
+
+			motorMove(frontLeft, frontVector - turnSpeed);
+			motorMove(backLeft, backVector - turnSpeed);
+			motorMove(frontRight, backVector + turnSpeed);
+			motorMove(backRight, frontVector + turnSpeed);
 
 		} else {
+			leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
+			rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
+
 			motorMove(leftMotors, leftSpeed);
 			motorMove(rightMotors, rightSpeed);
 		}
@@ -426,7 +432,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
-	chassis::settle_count = settle_count;
+	chassis::settle_time = settle_time;
 	chassis::settle_threshold_linear = settle_threshold_linear;
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
@@ -502,7 +508,7 @@ void arcade(int vertical, int horizontal) {
 }
 
 void holonomic(int x, int y, int z) {
-	pid::mode = 0; // turns off autonomous task
+	pid::mode = DISABLE; // turns off autonomous task
 
 	// apply thresholding
 	x = (abs(x) > joystick_threshold ? x : 0);

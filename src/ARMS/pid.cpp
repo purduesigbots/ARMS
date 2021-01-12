@@ -18,6 +18,7 @@ double angular_pointKP;
 double angular_pointKD;
 double arcKP;
 double difKP;
+double min_error;
 
 // pid targets
 double linearTarget = 0;
@@ -68,7 +69,7 @@ double angular() {
 	return speed;
 }
 
-std::array<double, 2> gtp() {
+std::array<double, 2> odom() {
 	// previous sensor values
 	static double psv_left = 0;
 	static double psv_right = 0;
@@ -76,20 +77,28 @@ std::array<double, 2> gtp() {
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
+	// if holonomic, angular error is relative to field, not to point
+	if (pid::mode == ODOM_HOLO) {
+		pid::vectorAngle = ang_error;
+		ang_error = odom::heading + (pid::angularTarget * M_PI / 180);
+	} else if (lin_error < min_error) {
+		ang_error = 0; // prevent spinning
+	}
+
 	// previous error values
 	static double pe_lin = lin_error;
 	static double pe_ang = ang_error;
 
 	// reverse if point is behind robot
 	int reverse = 1;
-	if (fabs(ang_error) > M_PI_2) {
+	if (fabs(ang_error) > M_PI_2 && mode == ODOM) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		reverse = -1;
 	}
 
 	// calculate pid
 	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
-	double ang_speed = pid(ang_error, &pe_ang, linear_pointKP, linear_pointKD);
+	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKD);
 
 	// store previous previos error
 	pe_lin = lin_error;
@@ -128,7 +137,7 @@ std::array<double, 2> gtp() {
 void init(bool debug, double linearKP, double linearKD, double angularKP,
           double angularKD, double linear_pointKP, double linear_pointKD,
           double angular_pointKP, double angular_pointKD, double arcKP,
-          double difKP) {
+          double difKP, double min_error) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
@@ -141,6 +150,7 @@ void init(bool debug, double linearKP, double linearKD, double angularKP,
 	pid::angular_pointKD = angular_pointKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
+	pid::min_error = min_error;
 }
 
 } // namespace pid

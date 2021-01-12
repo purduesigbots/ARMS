@@ -12,6 +12,11 @@ extern double distance_constant;
 extern double width;
 extern double maxSpeed;
 
+extern std::shared_ptr<okapi::Motor> frontLeft;
+extern std::shared_ptr<okapi::Motor> frontRight;
+extern std::shared_ptr<okapi::Motor> backLeft;
+extern std::shared_ptr<okapi::Motor> backRight;
+
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
@@ -93,7 +98,7 @@ void turnAbsoluteAsync(double sp, int max = 100);
 /**
  * Begin an asycronous holonomic chassis movement
  */
-void moveAsync(double distance, double angle, int max = 100);
+void holoAsync(double distance, double angle, int max = 100);
 
 /**
  * Perform a chassis movement and wait until settled
@@ -114,7 +119,7 @@ void turnAbsolute(double sp, int max = 100);
 /**
  * Perform a holonomic movement and wait until settled
  */
-void moveHolo(double distance, double angle, int max = 100);
+void holo(double distance, double angle, int max = 100);
 
 /**
  * Move a distance at a set voltage with no PID

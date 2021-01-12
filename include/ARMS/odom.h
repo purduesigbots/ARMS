@@ -17,12 +17,19 @@ double getAngleError(std::array<double, 2> point);
 
 double getDistanceError(std::array<double, 2> point);
 
-void goToPointAsync(std::array<double, 2> point, double max = 80);
+void moveAsync(std::array<double, 2> point, double max = 80);
 
-void goToPoint(std::array<double, 2> point, double max = 80);
+void holoAsync(std::array<double, 2> point, double angle, double max = 80);
 
-void init(bool debug = DEBUG, double chassis_width = CHASSIS_WIDTH,
-          double exit_error = EXIT_ERROR);
+void move(std::array<double, 2> point, double max = 80);
+
+void holo(std::array<double, 2> point, double angle, double max = 80);
+
+void init(bool debug = ODOM_DEBUG,
+          double left_right_distance = LEFT_RIGHT_DISTANCE,
+          double middle_distance = MIDDLE_DISTANCE,
+          double left_right_tpi = LEFT_RIGHT_TPI,
+          double middle_tpi = MIDDLE_TPI, bool holonomic = HOLONOMIC);
 
 } // namespace odom
 
