@@ -43,8 +43,7 @@ double arc_step;   // acceleration for arcs
 // chassis variables
 double maxSpeed = 100;
 double maxAngular = 50; // holonomic odom only
-double leftPrev = 0;
-double rightPrev = 0;
+double output_prev[4] = {0, 0, 0, 0};
 bool useVelocity = false;
 
 // joystick threshold
@@ -84,8 +83,9 @@ void reset() {
 	odom::prev_right_pos = 0;
 	odom::prev_middle_pos = 0;
 
-	leftPrev = 0;
-	rightPrev = 0;
+	for (int i = 0; i < 4; i++) {
+		output_prev[i] = 0;
+	}
 
 	settle_count = 0;
 
@@ -311,7 +311,8 @@ void fast(double sp, int max) {
 	pid::mode = DISABLE;
 
 	while (abs(position()) < abs(sp * distance_constant)) {
-		speed = slew(max, accel_step, &leftPrev);
+		speed = slew(max, accel_step, &output_prev[0]);
+		output_prev[1] = output_prev[2] = output_prev[3] = output_prev[0];
 		// differential PID
 		double dif = difference() * pid::difKP;
 		motorMove(leftMotors, speed - dif);
@@ -359,6 +360,8 @@ int chassisTask() {
 		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
 		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
 
+		double output[4] = {0, 0, 0, 0};
+
 		// set motors
 		if (pid::vectorAngle != 0) {
 			// calculate vectors for each wheel set
@@ -387,17 +390,28 @@ int chassisTask() {
 			double turnSpeed = rightSpeed - leftSpeed;
 			turnSpeed = limitSpeed(turnSpeed, 50);
 
-			motorMove(frontLeft, frontVector - turnSpeed);
-			motorMove(backLeft, backVector - turnSpeed);
-			motorMove(frontRight, backVector + turnSpeed);
-			motorMove(backRight, frontVector + turnSpeed);
+			output[0] = frontVector - turnSpeed;
+			output[1] = backVector - turnSpeed;
+			output[2] = backVector + turnSpeed;
+			output[3] = frontVector + turnSpeed;
 
 		} else {
-			leftSpeed = slew(leftSpeed, accel_step, &leftPrev);
-			rightSpeed = slew(rightSpeed, accel_step, &rightPrev);
+			output[0] = output[1] = leftSpeed;
+			output[2] = output[3] = rightSpeed;
+		}
 
-			motorMove(leftMotors, leftSpeed);
-			motorMove(rightMotors, rightSpeed);
+		for (int i = 0; i < 4; i++) {
+			output[i] = slew(output[i], accel_step, &output_prev[i]);
+		}
+
+		if (pid::vectorAngle != 0) {
+			motorMove(frontLeft, output[0]);
+			motorMove(backLeft, output[1]);
+			motorMove(frontRight, output[2]);
+			motorMove(backRight, output[3]);
+		} else {
+			motorMove(leftMotors, output[0]);
+			motorMove(rightMotors, output[2]);
 		}
 	}
 }
