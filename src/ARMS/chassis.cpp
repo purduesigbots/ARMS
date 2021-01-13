@@ -230,11 +230,11 @@ void waitUntilSettled() {
 /**************************************************/
 // autonomous functions
 void moveAsync(double sp, int max) {
+	pid::mode = LINEAR;
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
 	pid::linearTarget = sp;
-	pid::mode = LINEAR;
 }
 
 void turnAsync(double sp, int max) {
