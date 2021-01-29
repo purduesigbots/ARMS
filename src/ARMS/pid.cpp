@@ -62,11 +62,11 @@ std::array<double, 2> linear() {
 	return {speed -= dif, speed += dif};
 }
 
-double angular() {
+std::array<double, 2> angular() {
 	static double pe = 0; // previous error
 	double sv = chassis::angle();
 	double speed = pid(angularTarget, sv, &pe, angularKP, angularKD);
-	return speed;
+	return {speed, -speed}; // clockwise positive
 }
 
 std::array<double, 2> odom() {

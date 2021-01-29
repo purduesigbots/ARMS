@@ -140,9 +140,9 @@ double position(bool yDirection) {
 
 double angle() {
 	if (imu) {
-		return -imu->get_rotation();
+		return imu->get_rotation();
 	} else {
-		return (-getEncoders()[0] + getEncoders()[1]) / 2;
+		return (getEncoders()[0] - getEncoders()[1]) / 2 / degree_constant;
 	}
 }
 
@@ -239,12 +239,7 @@ void moveAsync(double sp, int max) {
 
 void turnAsync(double sp, int max) {
 	pid::mode = ANGULAR;
-
-	if (imu)
-		sp += position();
-	else
-		sp *= degree_constant;
-
+	sp += position();
 	reset();
 	maxSpeed = max;
 	pid::angularTarget = sp;
@@ -341,8 +336,7 @@ int chassisTask() {
 		if (pid::mode == LINEAR) {
 			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
-			speeds[1] = pid::angular();
-			speeds[0] = -speeds[1];
+			speeds = pid::angular();
 		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO) {
 			speeds = pid::odom();
 		} else {
@@ -386,14 +380,14 @@ int chassisTask() {
 			double turnSpeed = rightSpeed - leftSpeed;
 			turnSpeed = limitSpeed(turnSpeed, 50);
 
-			output[0] = frontVector - turnSpeed;
-			output[1] = backVector - turnSpeed;
-			output[2] = backVector + turnSpeed;
-			output[3] = frontVector + turnSpeed;
+			output[0] = frontVector - turnSpeed; // front left
+			output[1] = backVector - turnSpeed;  // back left
+			output[2] = backVector + turnSpeed;  // front right
+			output[3] = frontVector + turnSpeed; // back right
 
 		} else {
-			output[0] = output[1] = leftSpeed;
-			output[2] = output[3] = rightSpeed;
+			output[0] = output[1] = leftSpeed;  // left motors
+			output[2] = output[3] = rightSpeed; // right motors
 		}
 
 		for (int i = 0; i < 4; i++) {
