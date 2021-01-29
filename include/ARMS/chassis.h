@@ -51,7 +51,7 @@ void reset();
 double position(bool yDirection = false);
 
 /**
- * Get the angle of the chassis
+ * Get the angle of the chassis in degrees
  */
 double angle();
 
