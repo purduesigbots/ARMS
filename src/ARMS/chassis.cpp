@@ -239,8 +239,8 @@ void moveAsync(double sp, int max) {
 
 void turnAsync(double sp, int max) {
 	pid::mode = ANGULAR;
-	sp += position();
 	reset();
+	sp += angle();
 	maxSpeed = max;
 	pid::angularTarget = sp;
 }
