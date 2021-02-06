@@ -42,6 +42,7 @@ double arc_step;   // acceleration for arcs
 
 // chassis variables
 double maxSpeed = 100;
+double maxTurn = 100;
 double maxAngular = 50; // holonomic odom only
 double output_prev[4] = {0, 0, 0, 0};
 bool useVelocity = false;
@@ -378,7 +379,7 @@ int chassisTask() {
 			backVector *= scalingFactor;
 
 			double turnSpeed = rightSpeed - leftSpeed;
-			turnSpeed = limitSpeed(turnSpeed, 50);
+			turnSpeed = limitSpeed(turnSpeed, maxTurn);
 
 			output[0] = frontVector - turnSpeed; // front left
 			output[1] = backVector - turnSpeed;  // back left
