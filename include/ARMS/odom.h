@@ -21,15 +21,18 @@ double getDistanceError(std::array<double, 2> point);
 
 void moveAsync(std::array<double, 2> point, double max = 80);
 
-void holoAsync(std::array<double, 2> point, double angle, double max = 80);
+void holoAsync(std::array<double, 2> point, double angle, double max = 80,
+               double turnMax = 50);
 
 void move(std::array<double, 2> point, double max = 80);
 
 void moveThru(std::array<double, 2> point, double max = 80);
 
-void holo(std::array<double, 2> point, double angle, double max = 80);
+void holo(std::array<double, 2> point, double angle, double max = 80,
+          double turnMax = 50);
 
-void holoThru(std::array<double, 2> point, double angle, double max = 80);
+void holoThru(std::array<double, 2> point, double angle, double max = 80,
+              double turnMax = 50);
 
 void init(bool debug = ODOM_DEBUG,
           double left_right_distance = LEFT_RIGHT_DISTANCE,
