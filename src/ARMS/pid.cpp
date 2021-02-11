@@ -102,7 +102,7 @@ std::array<double, 2> odom() {
 	if (pid::mode != ODOM_HOLO_THRU) {
 		lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
 	} else {
-		lin_speed = chassis::maxSpeed;
+		lin_speed = 10000;
 	}
 
 	// store previous previos error
