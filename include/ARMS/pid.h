@@ -7,6 +7,7 @@
 namespace pid {
 
 // pid mode enums
+#define ODOM_HOLO_THRU 5
 #define ODOM_HOLO 4
 #define ODOM 3
 #define ANGULAR 2

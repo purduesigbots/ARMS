@@ -78,7 +78,7 @@ std::array<double, 2> odom() {
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
 	// if holonomic, angular error is relative to field, not to point
-	if (pid::mode == ODOM_HOLO) {
+	if (pid::mode == ODOM_HOLO || pid::mode == ODOM_HOLO_THRU) {
 		pid::vectorAngle = ang_error;
 		ang_error = odom::heading - (pid::angularTarget * M_PI / 180);
 	} else if (lin_error < min_error) {
@@ -97,8 +97,13 @@ std::array<double, 2> odom() {
 	}
 
 	// calculate pid
-	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
 	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKD);
+	double lin_speed;
+	if (pid::mode != ODOM_HOLO_THRU) {
+		lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
+	} else {
+		lin_speed = chassis::maxSpeed;
+	}
 
 	// store previous previos error
 	pe_lin = lin_error;
