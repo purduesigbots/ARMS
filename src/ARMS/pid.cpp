@@ -98,12 +98,7 @@ std::array<double, 2> odom() {
 
 	// calculate pid
 	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKD);
-	double lin_speed;
-	if (pid::mode != ODOM_HOLO_THRU) {
-		lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
-	} else {
-		lin_speed = 10000;
-	}
+	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
 
 	// store previous previos error
 	pe_lin = lin_error;

@@ -338,7 +338,8 @@ int chassisTask() {
 			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
 			speeds = pid::angular();
-		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO) {
+		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO ||
+		           pid::mode == ODOM_HOLO_THRU) {
 			speeds = pid::odom();
 		} else {
 			continue;
@@ -373,7 +374,11 @@ int chassisTask() {
 			else
 				largestSpeed = rightSpeed;
 
-			double scalingFactor = fabs(largestSpeed) / fabs(largestVector);
+			double scalingFactor;
+			if (ODOM_HOLO_THRU)
+				scalingFactor = fabs(maxSpeed) / fabs(largestVector);
+			else
+				scalingFactor = fabs(largestSpeed) / fabs(largestVector);
 
 			frontVector *= scalingFactor;
 			backVector *= scalingFactor;
