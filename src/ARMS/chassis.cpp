@@ -375,7 +375,7 @@ int chassisTask() {
 				largestSpeed = rightSpeed;
 
 			double scalingFactor;
-			if (ODOM_HOLO_THRU)
+			if (pid::mode == ODOM_HOLO_THRU)
 				scalingFactor = fabs(maxSpeed) / fabs(largestVector);
 			else
 				scalingFactor = fabs(largestSpeed) / fabs(largestVector);
