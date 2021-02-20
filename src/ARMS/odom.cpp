@@ -178,7 +178,7 @@ void holoThru(std::array<double, 2> point, double angle, double max,
 	holoAsync(point, angle, max, turnMax);
 	pid::mode = ODOM_HOLO_THRU;
 	delay(450);
-	while (getDistanceError(point) > exit_error)
+	while (getDistanceError(point) > exit_error && !chassis::settled())
 		delay(10);
 }
 
