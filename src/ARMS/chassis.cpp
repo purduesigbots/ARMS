@@ -517,18 +517,18 @@ void arcade(int vertical, int horizontal) {
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
-void holonomic(int x, int y, int z) {
+void holonomic(int y, int x, int z) {
 	pid::mode = DISABLE; // turns off autonomous task
 
 	// apply thresholding
-	x = (abs(x) > joystick_threshold ? x : 0);
 	y = (abs(y) > joystick_threshold ? y : 0);
+	x = (abs(x) > joystick_threshold ? x : 0);
 	z = (abs(z) > joystick_threshold ? z : 0);
 
-	motorMove(frontLeft, x + y + z, false);
-	motorMove(frontRight, x - y - z, false);
-	motorMove(backLeft, x + y - z, false);
-	motorMove(backRight, x - y + z, false);
+	motorMove(frontLeft, y + x + z, false);
+	motorMove(frontRight, y - x - z, false);
+	motorMove(backLeft, y - x + z, false);
+	motorMove(backRight, y + x - z, false);
 }
 
 } // namespace chassis
