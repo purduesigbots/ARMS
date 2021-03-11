@@ -80,7 +80,14 @@ std::array<double, 2> odom() {
 	// if holonomic, angular error is relative to field, not to point
 	if (pid::mode == ODOM_HOLO || pid::mode == ODOM_HOLO_THRU) {
 		pid::vectorAngle = ang_error;
-		ang_error = odom::heading - (pid::angularTarget * M_PI / 180);
+		ang_error = (odom::heading % M_PI_2) - (pid::angularTarget * M_PI / 180);
+
+		// make sure all turns take most efficient route
+		if (ang_error > M_PI)
+			sp -= M_PI_2;
+		else if (sp < -M_PI)
+			sp += M_PI_2;
+
 	} else if (lin_error < min_error) {
 		ang_error = 0; // prevent spinning
 	}
