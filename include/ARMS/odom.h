@@ -9,6 +9,7 @@ namespace odom {
 extern double global_x;
 extern double global_y;
 extern double heading;
+extern double heading_degrees;
 extern double prev_right_pos;
 extern double prev_left_pos;
 extern double prev_middle_pos;
