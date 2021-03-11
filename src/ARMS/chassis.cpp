@@ -250,7 +250,7 @@ void turnAbsoluteAsync(double sp, int max) {
 	pid::mode = ANGULAR;
 
 	// convert from absolute to relative set point
-	sp = sp - (int)position() % 360;
+	sp = sp - (int)angle() % 360;
 
 	// make sure all turns take most efficient route
 	if (sp > 180)
