@@ -527,8 +527,8 @@ void holonomic(int y, int x, int z) {
 
 	motorMove(frontLeft, y + x + z, false);
 	motorMove(frontRight, y - x - z, false);
-	motorMove(backLeft, y + x - z, false);
-	motorMove(backRight, y - x + z, false);
+	motorMove(backLeft, y - x + z, false);
+	motorMove(backRight, y + x - z, false);
 }
 
 } // namespace chassis
