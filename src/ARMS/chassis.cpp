@@ -186,13 +186,13 @@ int wheelMoving(double sv, double* psv) {
 	if (pid::mode == ANGULAR)
 		thresh = settle_threshold_angular;
 
-	if (abs(sv - *psv) > thresh)
+	if (abs(sv - *psv) > thresh) {
 		isMoving = 1;
-
-	*psv = sv;
+		*psv = sv;
+	}
 
 	return isMoving;
-}
+} // namespace chassis
 
 bool settled() {
 	static double psv_left = 0;
@@ -200,6 +200,11 @@ bool settled() {
 	static double psv_middle = 0;
 
 	int wheelMovingCount = 0;
+
+	if (odom::holonomic) {
+		wheelMovingCount += wheelMoving(backLeft->getPosition(), &psv_left);
+		wheelMovingCount += wheelMoving(backRight->getPosition(), &psv_right);
+	}
 
 	if (leftEncoder) {
 		wheelMovingCount += wheelMoving(leftEncoder->get_value(), &psv_left);
