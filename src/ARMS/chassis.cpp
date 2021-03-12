@@ -197,13 +197,15 @@ int wheelMoving(double sv, double* psv) {
 bool settled() {
 	static double psv_left = 0;
 	static double psv_right = 0;
+	static double psv_back_left = 0;
+	static double psv_back_right = 0;
 	static double psv_middle = 0;
 
 	int wheelMovingCount = 0;
 
 	if (odom::holonomic) {
-		wheelMovingCount += wheelMoving(backLeft->getPosition(), &psv_left);
-		wheelMovingCount += wheelMoving(backRight->getPosition(), &psv_right);
+		wheelMovingCount += wheelMoving(backLeft->getPosition(), &psv_back_left);
+		wheelMovingCount += wheelMoving(backRight->getPosition(), &psv_back_right);
 	}
 
 	if (leftEncoder) {
