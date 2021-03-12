@@ -13,6 +13,7 @@ extern double heading_degrees;
 extern double prev_right_pos;
 extern double prev_left_pos;
 extern double prev_middle_pos;
+extern bool holonomic;
 
 void reset(std::array<double, 2> point = {0, 0}, double angle = 0);
 
