@@ -17,6 +17,7 @@
 #include "okapi/impl/device/motor/motorGroup.hpp"
 #include "okapi/impl/device/rotarysensor/adiEncoder.hpp"
 #include "okapi/impl/device/rotarysensor/integratedEncoder.hpp"
+#include "okapi/impl/device/rotarysensor/rotationSensor.hpp"
 #include "okapi/impl/util/timeUtilFactory.hpp"
 
 namespace okapi {
@@ -172,6 +173,27 @@ class ChassisControllerBuilder {
    * @param iright The right side sensor.
    * @return An ongoing builder.
    */
+  ChassisControllerBuilder &withSensors(const RotationSensor &ileft, const RotationSensor &iright);
+
+  /**
+   * Sets the sensors. The default sensors are the motor's integrated encoders.
+   *
+   * @param ileft The left side sensor.
+   * @param iright The right side sensor.
+   * @param imiddle The middle sensor.
+   * @return An ongoing builder.
+   */
+  ChassisControllerBuilder &withSensors(const RotationSensor &ileft,
+                                        const RotationSensor &iright,
+                                        const RotationSensor &imiddle);
+
+  /**
+   * Sets the sensors. The default sensors are the motor's integrated encoders.
+   *
+   * @param ileft The left side sensor.
+   * @param iright The right side sensor.
+   * @return An ongoing builder.
+   */
   ChassisControllerBuilder &withSensors(const IntegratedEncoder &ileft,
                                         const IntegratedEncoder &iright);
 
@@ -296,7 +318,7 @@ class ChassisControllerBuilder {
    * @param iscales The ChassisScales for the base.
    * @return An ongoing builder.
    */
-  ChassisControllerBuilder &withDimensions(const AbstractMotor::gearset &igearset,
+  ChassisControllerBuilder &withDimensions(const AbstractMotor::GearsetRatioPair &igearset,
                                            const ChassisScales &iscales);
 
   /**
@@ -452,7 +474,7 @@ class ChassisControllerBuilder {
   TimeUtilFactory closedLoopControllerTimeUtilFactory = TimeUtilFactory();
   TimeUtilFactory odometryTimeUtilFactory = TimeUtilFactory();
 
-  AbstractMotor::GearsetRatioPair gearset{AbstractMotor::gearset::invalid};
+  AbstractMotor::GearsetRatioPair gearset{AbstractMotor::gearset::invalid,1.0};
   ChassisScales driveScales{{1, 1}, imev5GreenTPR};
   bool differentOdomScales{false};
   ChassisScales odomScales{{1, 1}, imev5GreenTPR};
