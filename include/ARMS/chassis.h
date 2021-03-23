@@ -42,6 +42,11 @@ void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed, bool vel);
 void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 
 /**
+ * Reset imu if it is being used
+ */
+void resetAngle(double angle = 0);
+
+/**
  * Reset the internal motor encoders for all chassis motors
  */
 void reset();
