@@ -14,7 +14,9 @@ extern double prev_right_pos;
 extern double prev_left_pos;
 extern double prev_middle_pos;
 
-void reset(std::array<double, 2> point = {0, 0}, double angle = 0);
+void reset(std::array<double, 2> point = {0, 0});
+
+void reset(std::array<double, 2> point, double angle);
 
 double getAngleError(std::array<double, 2> point);
 

@@ -77,6 +77,11 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	motorMove(rightMotors, 0, true);
 }
 
+void resetAngle(double angle) {
+	if (imu)
+		imu->set_rotation(angle);
+}
+
 void reset() {
 
 	// reset odom
