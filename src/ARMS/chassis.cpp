@@ -319,12 +319,14 @@ void fast(double sp, int max) {
 }
 
 void voltage(int t, int left_speed, int right_speed) {
+	pid::mode = DISABLE;
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed == 101 ? left_speed : right_speed, false);
 	delay(t);
 }
 
 void velocity(int t, int left_max, int right_max) {
+	pid::mode = DISABLE;
 	motorMove(leftMotors, left_max, true);
 	motorMove(rightMotors, right_max == 101 ? left_max : right_max, true);
 	delay(t);
