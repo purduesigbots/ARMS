@@ -153,7 +153,11 @@ double angle() {
 }
 
 double difference() {
-	return (getEncoders()[0] - getEncoders()[1]);
+	if (imu) {
+		return chassis::angle() - angularTarget;
+	} else {
+		return (getEncoders()[0] - getEncoders()[1]);
+	}
 }
 
 /**************************************************/
