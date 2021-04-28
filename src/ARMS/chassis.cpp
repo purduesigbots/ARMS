@@ -154,7 +154,7 @@ double angle() {
 
 double difference() {
 	if (imu) {
-		return chassis::angle() - angularTarget;
+		return chassis::angle() - pid::angularTarget;
 	} else {
 		return (getEncoders()[0] - getEncoders()[1]);
 	}
