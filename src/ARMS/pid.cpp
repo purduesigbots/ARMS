@@ -30,24 +30,35 @@ double angularTarget = 0;
 double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
 
-double pid(double error, double* pe, double kp, double ki, double kd) {
+double pid(double error, double* pe, double* in, double kp, double ki,
+           double kd) {
 	if (debug)
 		printf("%.2f\n", error);
 
 	double derivative = error - *pe;
-	double speed = error * kp + derivative * kd;
+	if ((pe > 0 && error < 0) || (pe < 0 && error > 0))
+		*in = 0; // remove integral at zero error
+	double speed = error * kp + *in * ki + derivative * kd;
+
+	// scale back integral if over max windup
+	if (abs(speed) < 100) {
+		*in += error;
+	}
+
 	*pe = error;
+
 	return speed;
 }
 
-double pid(double target, double sv, double* pe, double kp, double ki,
-           double kd) {
+double pid(double target, double sv, double* pe, double* in, double kp,
+           double ki, double kd) {
 	double error = target - sv;
-	return pid(error, pe, kp, ki, kd);
+	return pid(error, pe, in, kp, ki, kd);
 }
 
 std::array<double, 2> linear() {
 	static double pe = 0; // previous error
+	static double in = 0; // integral
 
 	// get position in the x and y directions
 	double sv_x = chassis::position();
@@ -60,7 +71,7 @@ std::array<double, 2> linear() {
 	else
 		sv = sv_x; // just use the x value for non-holonomic movements
 
-	double speed = pid(linearTarget, sv, &pe, linearKP, linearKI, linearKD);
+	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
 
 	// difference PID
 	double dif = chassis::difference() * difKP;
@@ -69,8 +80,10 @@ std::array<double, 2> linear() {
 
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
+	static double in = 0; // integral
 	double sv = chassis::angle();
-	double speed = pid(angularTarget, sv, &pe, angularKP, angularKI, angularKD);
+	double speed =
+	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
@@ -104,6 +117,10 @@ std::array<double, 2> odom() {
 	static double pe_lin = lin_error;
 	static double pe_ang = ang_error;
 
+	// integral values
+	static double in_lin;
+	static double in_ang;
+
 	// reverse if point is behind robot
 	int reverse = 1;
 	if (fabs(ang_error) > M_PI_2 && mode == ODOM) {
@@ -112,10 +129,10 @@ std::array<double, 2> odom() {
 	}
 
 	// calculate pid
-	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKI,
-	                       angular_pointKD);
-	double lin_speed =
-	    pid(lin_error, &pe_lin, linear_pointKP, linear_pointKI, linear_pointKD);
+	double ang_speed = pid(ang_error, &pe_ang, &in_ang, angular_pointKP,
+	                       angular_pointKI, angular_pointKD);
+	double lin_speed = pid(lin_error, &pe_lin, &in_lin, linear_pointKP,
+	                       linear_pointKI, linear_pointKD);
 
 	// store previous previos error
 	pe_lin = lin_error;
