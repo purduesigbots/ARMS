@@ -31,11 +31,14 @@ std::array<double, 2> angular();
 std::array<double, 2> odom();
 
 void init(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
-          double linearKD = LINEAR_KD, double angularKP = ANGULAR_KP,
+          double linearKI = LINEAR_KI, double linearKD = LINEAR_KD,
+          double angularKP = ANGULAR_KP, double angularKI = ANGULAR_KI,
           double angularKD = ANGULAR_KD,
           double linear_pointKP = LINEAR_POINT_KP,
+          double linear_pointKI = LINEAR_POINT_KI,
           double linear_pointKD = LINEAR_POINT_KD,
           double angular_pointKP = ANGULAR_POINT_KP,
+          double angular_pointKI = ANGULAR_POINT_KI,
           double angular_pointKD = ANGULAR_POINT_KD, double arcKP = ARC_KP,
           double difKP = DIF_KP, double min_error = MIN_ERROR);
 

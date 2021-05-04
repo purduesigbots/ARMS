@@ -9,12 +9,16 @@ bool debug = false;
 
 // pid constants
 double linearKP;
+double linearKI;
 double linearKD;
 double angularKP;
+double angularKI;
 double angularKD;
 double linear_pointKP;
+double linear_pointKI;
 double linear_pointKD;
 double angular_pointKP;
+double angular_pointKI;
 double angular_pointKD;
 double arcKP;
 double difKP;
@@ -26,7 +30,7 @@ double angularTarget = 0;
 double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
 
-double pid(double error, double* pe, double kp, double kd) {
+double pid(double error, double* pe, double kp, double ki, double kd) {
 	if (debug)
 		printf("%.2f\n", error);
 
@@ -36,9 +40,10 @@ double pid(double error, double* pe, double kp, double kd) {
 	return speed;
 }
 
-double pid(double target, double sv, double* pe, double kp, double kd) {
+double pid(double target, double sv, double* pe, double kp, double ki,
+           double kd) {
 	double error = target - sv;
-	return pid(error, pe, kp, kd);
+	return pid(error, pe, kp, ki, kd);
 }
 
 std::array<double, 2> linear() {
@@ -55,7 +60,7 @@ std::array<double, 2> linear() {
 	else
 		sv = sv_x; // just use the x value for non-holonomic movements
 
-	double speed = pid(linearTarget, sv, &pe, linearKP, linearKD);
+	double speed = pid(linearTarget, sv, &pe, linearKP, linearKI, linearKD);
 
 	// difference PID
 	double dif = chassis::difference() * difKP;
@@ -65,7 +70,7 @@ std::array<double, 2> linear() {
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
 	double sv = chassis::angle();
-	double speed = pid(angularTarget, sv, &pe, angularKP, angularKD);
+	double speed = pid(angularTarget, sv, &pe, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
@@ -107,8 +112,10 @@ std::array<double, 2> odom() {
 	}
 
 	// calculate pid
-	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKD);
-	double lin_speed = pid(lin_error, &pe_lin, linear_pointKP, linear_pointKD);
+	double ang_speed = pid(ang_error, &pe_ang, angular_pointKP, angular_pointKI,
+	                       angular_pointKD);
+	double lin_speed =
+	    pid(lin_error, &pe_lin, linear_pointKP, linear_pointKI, linear_pointKD);
 
 	// store previous previos error
 	pe_lin = lin_error;
@@ -144,19 +151,25 @@ std::array<double, 2> odom() {
 	return {left_speed, right_speed};
 }
 
-void init(bool debug, double linearKP, double linearKD, double angularKP,
-          double angularKD, double linear_pointKP, double linear_pointKD,
-          double angular_pointKP, double angular_pointKD, double arcKP,
-          double difKP, double min_error) {
+void init(bool debug, double linearKP, double linearKI, double linearKD,
+          double angularKP, double angularKI, double angularKD,
+          double linear_pointKP, double linear_pointKI, double linear_pointKD,
+          double angular_pointKP, double angular_pointKI,
+          double angular_pointKD, double arcKP, double difKP,
+          double min_error) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
+	pid::linearKI = linearKI;
 	pid::linearKD = linearKD;
 	pid::angularKP = angularKP;
+	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
 	pid::linear_pointKP = linear_pointKP;
+	pid::linear_pointKI = linear_pointKI;
 	pid::linear_pointKD = linear_pointKD;
 	pid::angular_pointKP = angular_pointKP;
+	pid::angular_pointKI = angular_pointKI;
 	pid::angular_pointKD = angular_pointKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
