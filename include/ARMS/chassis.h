@@ -29,12 +29,13 @@ extern std::shared_ptr<pros::Imu> imu;
 /**
  * Set the speed of target motor
  */
-void motorMove(std::shared_ptr<okapi::Motor> motor, int speed, bool vel);
+void motorMove(std::shared_ptr<okapi::Motor> motor, double speed, bool vel);
 
 /**
  * Set the speed of target motor group
  */
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed, bool vel);
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
+               bool vel);
 
 /**
  * Set the brake mode for all chassis motors

@@ -54,7 +54,7 @@ int joystick_threshold;
 // basic control
 
 // move motor group at given velocity
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed,
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
                bool vel = useVelocity) {
 	if (vel)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
@@ -62,7 +62,7 @@ void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed,
 		motor->moveVoltage(speed * 120);
 }
 
-void motorMove(std::shared_ptr<okapi::Motor> motor, int speed,
+void motorMove(std::shared_ptr<okapi::Motor> motor, double speed,
                bool vel = useVelocity) {
 	if (vel)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
