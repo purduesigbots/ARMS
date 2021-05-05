@@ -41,7 +41,7 @@ double pid(double error, double* pe, double* in, double kp, double ki,
 	double speed = error * kp + *in * ki + derivative * kd;
 
 	// scale back integral if over max windup
-	if (abs(speed) < 100) {
+	if (fabs(speed) < 100) {
 		*in += error;
 	}
 
