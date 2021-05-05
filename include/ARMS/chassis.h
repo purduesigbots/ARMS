@@ -136,27 +136,27 @@ void fast(double sp, int max = 100);
 /**
  * Move for a duration at a set voltage with no PID
  */
-void voltage(int t, int left_speed = 100, int right_speed = 101);
+void voltage(double t, int left_speed = 100, int right_speed = 101);
 
 /**
  * Move for a duration at a set velocity using internal PID
  */
-void velocity(int t, int left_max = 100, int right_max = 101);
+void velocity(double t, int left_max = 100, int right_max = 101);
 
 /**
  * Assign a voltage to each motor on a scale of -100 to 100
  */
-void tank(int left, int right);
+void tank(double left, double right);
 
 /**
  * Assign a voltage to each motor on a scale of -100 to 100
  */
-void arcade(int vertical, int horizontal);
+void arcade(double vertical, double horizontal);
 
 /**
  * Assign a voltage to each motor on a scale of -100 to 100
  */
-void holonomic(int x, int y, int z);
+void holonomic(double x, double y, double z);
 
 /**
  * initialize the chassis
