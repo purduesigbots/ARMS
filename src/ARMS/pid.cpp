@@ -81,6 +81,8 @@ std::array<double, 2> linear() {
 	// prevent oscillations near target
 	if (dif > speed)
 		dif = speed;
+	else if (dif < -speed)
+		dif = -speed;
 
 	return {speed -= dif, speed += dif};
 }
