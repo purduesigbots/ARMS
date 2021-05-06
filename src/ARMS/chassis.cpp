@@ -54,7 +54,7 @@ int joystick_threshold;
 // basic control
 
 // move motor group at given velocity
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed,
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
                bool vel = useVelocity) {
 	if (vel)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
@@ -62,7 +62,7 @@ void motorMove(std::shared_ptr<okapi::MotorGroup> motor, int speed,
 		motor->moveVoltage(speed * 120);
 }
 
-void motorMove(std::shared_ptr<okapi::Motor> motor, int speed,
+void motorMove(std::shared_ptr<okapi::Motor> motor, double speed,
                bool vel = useVelocity) {
 	if (vel)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
@@ -174,7 +174,7 @@ double limitSpeed(double speed, double max) {
 
 double slew(double target_speed, double step, double* current_speed) {
 
-	if (abs(*current_speed) > abs(target_speed))
+	if (fabs(*current_speed) > fabs(target_speed))
 		step = 200;
 
 	if (target_speed > *current_speed + step)
@@ -195,7 +195,7 @@ int wheelMoving(double sv, double* psv) {
 	if (pid::mode == ANGULAR)
 		thresh = settle_threshold_angular;
 
-	if (abs(sv - *psv) > thresh)
+	if (fabs(sv - *psv) > thresh)
 		isMoving = 1;
 
 	*psv = sv;
@@ -311,7 +311,7 @@ void fast(double sp, int max) {
 	reset();
 	pid::mode = DISABLE;
 
-	while (abs(position()) < abs(sp * distance_constant)) {
+	while (fabs(position()) < fabs(sp * distance_constant)) {
 		speed = slew(max, accel_step, &output_prev[0]);
 		output_prev[1] = output_prev[2] = output_prev[3] = output_prev[0];
 		// differential PID
@@ -506,35 +506,35 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 
 /**************************************************/
 // operator control
-void tank(int left_speed, int right_speed) {
+void tank(double left_speed, double right_speed) {
 	pid::mode = DISABLE; // turns off autonomous tasks
 
 	// apply thresholding
-	left_speed = (abs(left_speed) > joystick_threshold ? left_speed : 0);
-	right_speed = (abs(right_speed) > joystick_threshold ? right_speed : 0);
+	left_speed = (fabs(left_speed) > joystick_threshold ? left_speed : 0);
+	right_speed = (fabs(right_speed) > joystick_threshold ? right_speed : 0);
 
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed, false);
 }
 
-void arcade(int vertical, int horizontal) {
+void arcade(double vertical, double horizontal) {
 	pid::mode = DISABLE; // turns off autonomous task
 
 	// apply thresholding
-	vertical = (abs(vertical) > joystick_threshold ? vertical : 0);
-	horizontal = (abs(horizontal) > joystick_threshold ? horizontal : 0);
+	vertical = (fabs(vertical) > joystick_threshold ? vertical : 0);
+	horizontal = (fabs(horizontal) > joystick_threshold ? horizontal : 0);
 
 	motorMove(leftMotors, vertical + horizontal, false);
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
-void holonomic(int y, int x, int z) {
+void holonomic(double y, double x, double z) {
 	pid::mode = DISABLE; // turns off autonomous task
 
 	// apply thresholding
-	y = (abs(y) > joystick_threshold ? y : 0);
-	x = (abs(x) > joystick_threshold ? x : 0);
-	z = (abs(z) > joystick_threshold ? z : 0);
+	y = (fabs(y) > joystick_threshold ? y : 0);
+	x = (fabs(x) > joystick_threshold ? x : 0);
+	z = (fabs(z) > joystick_threshold ? z : 0);
 
 	motorMove(frontLeft, y + x + z, false);
 	motorMove(frontRight, y - x - z, false);

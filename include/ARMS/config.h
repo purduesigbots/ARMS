@@ -43,16 +43,20 @@ namespace pid {
 
 // normal pid constants
 #define LINEAR_KP .3
+#define LINEAR_KI 0
 #define LINEAR_KD .5
 #define ANGULAR_KP .8
+#define ANGULAR_KI 0
 #define ANGULAR_KD 3
 #define ARC_KP .05
 #define DIF_KP .5
 
 // odom point constants
 #define LINEAR_POINT_KP 8
+#define LINEAR_POINT_KI 0
 #define LINEAR_POINT_KD 0
 #define ANGULAR_POINT_KP 50
+#define ANGULAR_POINT_KI 0
 #define ANGULAR_POINT_KD 0
 #define MIN_ERROR 5 // minimum error, stops robot from spinning around point
 } // namespace pid

@@ -57,7 +57,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (type == 1)
 			scaled_speed *= (double)time_step / arc_length;
 		else if (type == 2)
-			scaled_speed *= std::abs(2 * (.5 - (double)time_step / arc_length));
+			scaled_speed *= fabs(2 * (.5 - (double)time_step / arc_length));
 		else if (type == 3)
 			scaled_speed *= (1 - (double)time_step / arc_length);
 

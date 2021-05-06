@@ -18,3 +18,4 @@ temp.errors
 .DS_Store
 .zip
 *.zip
+.cache
