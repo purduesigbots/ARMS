@@ -244,6 +244,7 @@ void moveAsync(double sp, int max) {
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
+	pid::angularTarget = chassis::angle(); // hold the robot to the current angle
 	pid::linearTarget = sp;
 }
 
