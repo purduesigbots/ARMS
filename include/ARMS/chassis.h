@@ -70,7 +70,7 @@ double difference();
 /**
  * Reduce a speed
  */
-double limitSpeed(double speed);
+double limitSpeed(double speed, double max);
 
 /**
  * Get a gradually accelerating speed towards the target input
