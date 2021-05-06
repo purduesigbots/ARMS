@@ -79,9 +79,9 @@ std::array<double, 2> linear() {
 	double dif = chassis::difference() * difKP;
 
 	// prevent oscillations near target
-	if (dif > speed)
+	if (dif > speed && speed > 0)
 		dif = speed;
-	else if (dif < -speed)
+	else if (dif < -speed && speed < 0)
 		dif = -speed;
 
 	return {speed -= dif, speed += dif};
