@@ -73,8 +73,15 @@ std::array<double, 2> linear() {
 
 	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
 
+	speed = chassis::limitSpeed(speed);
+
 	// difference PID
 	double dif = chassis::difference() * difKP;
+
+	// prevent oscillations near target
+	if (dif > speed)
+		dif = speed;
+
 	return {speed -= dif, speed += dif};
 }
 
