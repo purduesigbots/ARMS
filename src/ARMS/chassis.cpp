@@ -471,13 +471,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	if (imuPort != 0) {
 		imu = std::make_shared<Imu>(imuPort);
 		imu->reset();
-		delay(1500);
-		while (imu->is_calibrating()) {
-			delay(10);
-		}
-		delay(1000);
-		// printf("IMU calibrated!");
 	}
+
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
 	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
