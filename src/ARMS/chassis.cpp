@@ -472,7 +472,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		imu = std::make_shared<Imu>(imuPort);
 		imu->reset();
 	}
-	
+
 	// configure individual motors for holonomic chassis
 	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
 	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
