@@ -292,3 +292,66 @@ void holonomic(double x, double y, double z);
 ```
 Assign a motor voltage to each chassis motor individually based on a holonomic calculation. Passing joystick values into this function allows for holonomic driver operator controls.
 ___
+
+# Odometry Functions
+
+##**reset**
+```cpp
+void reset(std::array<double, 2> point = {0, 0});
+```
+Reset the current odometry position to the target coordinates.
+___
+##**reset**
+```cpp
+void reset(std::array<double, 2> point, double angle);
+```
+Reset both odometry position and angle.
+___
+##**getAngleError**
+```cpp
+double getAngleError(std::array<double, 2> point);
+```
+Returns the difference in robot robot heading from the target point in degrees.
+___
+##**getDistanceError**
+```cpp
+double getDistanceError(std::array<double, 2> point);
+```
+Returns the distance from the robot's current position to the target point.
+___
+##**moveAsync**
+```cpp
+void moveAsync(std::array<double, 2> point, double max = 80);
+```
+Moves the robot asynchronously towards the target point coordinates at the given maximum speed.
+___
+##**holoAsync**
+```cpp
+void holoAsync(std::array<double, 2> point, double angle, double max = 80, double turnMax = 50);
+```
+Moves the robot asynchronously towards the target point coordinates holonomically at the given maximum speed and maximum rate of turning.
+___
+##**move**
+```cpp
+void move(std::array<double, 2> point, double max = 80);
+```
+Moves the robot towards the target point coordinates at the given maximum speed.
+___
+##**moveThru**
+```cpp
+void moveThru(std::array<double, 2> point, double max = 80);
+```
+Moves towards a target point, but exits as soon as the robot enters a radius within the target point. See [EXIT_ERROR](#constants)
+___
+##**holo**
+```cpp
+void holo(std::array<double, 2> point, double angle, double max = 80, double turnMax = 50);
+```
+Moves the robot towards the target point coordinates holonomically at the given maximum speed and maximum rate of turning.
+___
+##**holoThru**
+```cpp
+void holoThru(std::array<double, 2> point, double angle, double max = 80, double turnMax = 50);
+```
+Moves towards a target point holonomically, but exits as soon as the robot enters a radius within the target point. See [EXIT_ERROR](#constants)
+___
