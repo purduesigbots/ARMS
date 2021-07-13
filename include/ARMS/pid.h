@@ -1,5 +1,5 @@
-#ifndef _PIDA_H_
-#define _PIDA_H_
+#ifndef _ARMS_PID_H_
+#define _ARMS_PID_H_
 
 #include "ARMS/config.h"
 #include <array>

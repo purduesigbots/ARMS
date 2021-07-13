@@ -1,5 +1,5 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#ifndef _ARMS_CONFIG_H_
+#define _ARMS_CONFIG_H_
 
 // Drivetrain configuration constants
 namespace arms::chassis {

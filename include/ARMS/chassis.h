@@ -1,5 +1,5 @@
-#ifndef _CHASSIS_H_
-#define _CHASSIS_H_
+#ifndef _ARMS_CHASSIS_H_
+#define _ARMS_CHASSIS_H_
 
 #include "ARMS/config.h"
 #include "okapi/api.hpp"

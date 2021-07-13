@@ -1,5 +1,5 @@
-#ifndef _ODOM_H_
-#define _ODOM_H_
+#ifndef _ARMS_ODOM_H_
+#define _ARMS_ODOM_H_
 
 #include "ARMS/config.h"
 #include <array>

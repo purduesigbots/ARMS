@@ -1,5 +1,5 @@
-#ifndef _PURE_PURSUIT_H_
-#define _PURE_PURSUIT_H_
+#ifndef _ARMS_PURE_PURSUIT_H_
+#define _ARMS_PURE_PURSUIT_H_
 
 #include <array>
 #include <vector>

@@ -1,5 +1,5 @@
-#ifndef _ARC_H_
-#define _ARC_H_
+#ifndef _ARMS_ARC_H_
+#define _ARMS_ARC_H_
 
 namespace arms::chassis {
 
