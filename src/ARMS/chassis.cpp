@@ -6,7 +6,7 @@
 
 using namespace pros;
 
-namespace chassis {
+namespace arms::chassis {
 
 // imu
 std::shared_ptr<Imu> imu;
@@ -538,4 +538,4 @@ void holonomic(double y, double x, double z) {
 	motorMove(backRight, y + x - z, false);
 }
 
-} // namespace chassis
+} // namespace arms::chassis

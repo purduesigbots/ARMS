@@ -4,13 +4,14 @@
 #include <array>
 #include <vector>
 
-namespace purepursuit {
+namespace arms::purepursuit {
 
-std::array<double,2> findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
+std::array<double, 2>
+findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
 
 void goToPoint(std::vector<std::array<double, 2>> path);
 void followPath(std::vector<std::array<double, 2>> path);
 
-} // namespace purepursuit
+} // namespace arms::purepursuit
 
 #endif

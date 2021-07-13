@@ -5,7 +5,7 @@
 
 using namespace pros;
 
-namespace odom {
+namespace arms::odom {
 
 bool debug;
 double left_right_distance;
@@ -204,4 +204,4 @@ void init(bool debug, double left_right_distance, double middle_distance,
 	Task odom_task(odomTask);
 }
 
-} // namespace odom
+} // namespace arms::odom

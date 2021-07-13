@@ -2,7 +2,7 @@
 #include "ARMS/chassis.h"
 #include "ARMS/odom.h"
 
-namespace pid {
+namespace arms::pid {
 
 int mode = DISABLE;
 bool debug = false;
@@ -202,4 +202,4 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
 	pid::min_error = min_error;
 }
 
-} // namespace pid
+} // namespace arms::pid

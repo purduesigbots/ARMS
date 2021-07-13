@@ -4,7 +4,7 @@
 #include "ARMS/config.h"
 #include <array>
 
-namespace pid {
+namespace arms::pid {
 
 // pid mode enums
 #define ODOM_HOLO_THRU 5
@@ -42,6 +42,6 @@ void init(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
           double angular_pointKD = ANGULAR_POINT_KD, double arcKP = ARC_KP,
           double difKP = DIF_KP, double min_error = MIN_ERROR);
 
-} // namespace pid
+} // namespace arms::pid
 
 #endif

@@ -4,7 +4,7 @@
 #include "ARMS/config.h"
 #include "okapi/api.hpp"
 
-namespace chassis {
+namespace arms::chassis {
 
 extern bool useVelocity;
 extern double accel_step;
@@ -174,6 +174,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           int expanderPort = EXPANDER_PORT,
           int joystick_threshold = JOYSTICK_THRESHOLD);
 
-} // namespace chassis
+} // namespace arms::chassis
 
 #endif

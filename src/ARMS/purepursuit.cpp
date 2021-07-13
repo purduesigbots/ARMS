@@ -5,7 +5,7 @@
 
 using namespace pros;
 
-namespace purepursuit {
+namespace arms::purepursuit {
 
 bool last_segment = false;
 double m, a, b, c;
@@ -208,4 +208,4 @@ void followPath(std::vector<std::array<double, 2>> path) {
 	}
 }
 
-} // namespace purepursuit
+} // namespace arms::purepursuit

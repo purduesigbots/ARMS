@@ -1,7 +1,7 @@
 #include "ARMS/selector.h"
 #include "main.h"
 
-namespace selector {
+namespace arms::selector {
 
 int auton;
 int autonCount;
@@ -132,4 +132,4 @@ void init(int hue, int default_auton, const char** autons) {
 	pros::Task tabWatcher_task(tabWatcher);
 }
 
-} // namespace selector
+} // namespace arms::selector

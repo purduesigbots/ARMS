@@ -5,7 +5,7 @@
 #include "api.h"
 using namespace pros;
 
-namespace chassis {
+namespace arms::chassis {
 
 double prev = 0; // previous chassis speed
 
@@ -112,4 +112,4 @@ void _sRight(int arc1, int mid, int arc2, int max) {
 	scurve(false, -arc1, -mid, -arc2, max);
 }
 
-} // namespace chassis
+} // namespace arms::chassis
