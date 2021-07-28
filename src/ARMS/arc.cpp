@@ -7,9 +7,7 @@ using namespace pros;
 
 namespace arms::chassis {
 
-double prev = 0; // previous chassis speed
-
-void arc(bool mirror, int arc_length, double rad, int max, int type) {
+void Chassis::arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
 	pid::mode = DISABLE;
@@ -76,15 +74,15 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	}
 }
 
-void arcLeft(int arc_length, double rad, int max, int type) {
+void Chassis::arcLeft(int arc_length, double rad, int max, int type) {
 	arc(false, arc_length, rad, max, type);
 }
 
-void arcRight(int arc_length, double rad, int max, int type) {
+void Chassis::arcRight(int arc_length, double rad, int max, int type) {
 	arc(true, arc_length, rad, max, type);
 }
 
-void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
+void Chassis::scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 
 	// first arc
 	arc(mirror, arc1, 1, max, 1);
@@ -96,19 +94,19 @@ void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 	arc(!mirror, arc2, 1, max, 2);
 }
 
-void sLeft(int arc1, int mid, int arc2, int max) {
+void Chassis::sLeft(int arc1, int mid, int arc2, int max) {
 	scurve(false, arc1, mid, arc2, max);
 }
 
-void sRight(int arc1, int mid, int arc2, int max) {
+void Chassis::sRight(int arc1, int mid, int arc2, int max) {
 	scurve(true, arc1, mid, arc2, max);
 }
 
-void _sLeft(int arc1, int mid, int arc2, int max) {
+void Chassis::_sLeft(int arc1, int mid, int arc2, int max) {
 	scurve(true, -arc1, mid, -arc2, -max);
 }
 
-void _sRight(int arc1, int mid, int arc2, int max) {
+void Chassis::_sRight(int arc1, int mid, int arc2, int max) {
 	scurve(false, -arc1, -mid, -arc2, max);
 }
 
