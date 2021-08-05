@@ -1,6 +1,5 @@
 #include "ARMS/pid.h"
-#include "ARMS/chassis.h"
-#include "ARMS/odom.h"
+#include "api.h"
 
 namespace arms::pid {
 
@@ -235,6 +234,63 @@ PID::PID(bool debug, double linearKP, double linearKI, double linearKD,
 	this->arcKP = arcKP;
 	this->difKP = difKP;
 	this->min_error = min_error;
+}
+
+PIDBuilder::PIDBuilder()
+    : debug(false), linearKP(0), linearKI(0), linearKD(0), angularKP(0),
+      angularKI(0), angularKD(0), linear_pointKP(0), linear_pointKI(0),
+      linear_pointKD(0), angular_pointKP(0), angular_pointKI(0),
+      angular_pointKD(0), arcKP(0), difKP(0) {
+}
+
+PIDBuilder& PIDBuilder::withLinearPID(double kP, double kI, double kD) {
+	linearKP = kP;
+	linearKD = kD;
+	linearKI = kI;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withAngularPID(double kP, double kI, double kD) {
+	angularKP = kP;
+	angularKD = kD;
+	angularKI = kI;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withLinearPointPID(double kP, double kI, double kD) {
+	linear_pointKP = kP;
+	linear_pointKD = kD;
+	linear_pointKI = kI;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withAngularPointPID(double kP, double kI, double kD) {
+	angular_pointKP = kP;
+	angular_pointKD = kD;
+	angular_pointKI = kI;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withArcKP(double kP) {
+	arcKP = kP;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withDifKP(double kP) {
+	difKP = kP;
+	return *this;
+}
+
+PIDBuilder& PIDBuilder::withMinError(double m) {
+	min_error = m;
+	return *this;
+}
+
+PID PIDBuilder::build() {
+	return PID(debug, linearKP, linearKI, linearKD, angularKP, angularKI,
+	           angularKD, linear_pointKP, linear_pointKI, linear_pointKD,
+	           angular_pointKP, angular_pointKI, angular_pointKD, arcKP, difKP,
+	           min_error);
 }
 
 } // namespace arms::pid

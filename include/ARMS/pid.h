@@ -15,7 +15,7 @@ namespace arms::pid {
 #define DISABLE 0
 
 class PID {
-private:
+protected:
 	int mode;
 	bool debug;
 
@@ -70,16 +70,46 @@ public:
 	std::array<double, 2> odom(double maxSpeed, double g_x, double g_y,
 	                           double heading, double heading_degrees);
 
-	PID(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
-	    double linearKI = LINEAR_KI, double linearKD = LINEAR_KD,
-	    double angularKP = ANGULAR_KP, double angularKI = ANGULAR_KI,
-	    double angularKD = ANGULAR_KD, double linear_pointKP = LINEAR_POINT_KP,
-	    double linear_pointKI = LINEAR_POINT_KI,
-	    double linear_pointKD = LINEAR_POINT_KD,
-	    double angular_pointKP = ANGULAR_POINT_KP,
-	    double angular_pointKI = ANGULAR_POINT_KI,
-	    double angular_pointKD = ANGULAR_POINT_KD, double arcKP = ARC_KP,
-	    double difKP = DIF_KP, double min_error = MIN_ERROR);
+	PID(bool debug = false, double linearKP = 0, double linearKI = 0,
+	    double linearKD = 0, double angularKP = 0, double angularKI = 0,
+	    double angularKD = 0, double linear_pointKP = 0,
+	    double linear_pointKI = 0, double linear_pointKD = 0,
+	    double angular_pointKP = 0, double angular_pointKI = 0,
+	    double angular_pointKD = 0, double arcKP = 0, double difKP = 0,
+	    double min_error = 0);
+};
+
+class PIDBuilder {
+protected:
+	bool debug;
+	double linearKP;
+	double linearKI;
+	double linearKD;
+	double angularKP;
+	double angularKI;
+	double angularKD;
+	double linear_pointKP;
+	double linear_pointKI;
+	double linear_pointKD;
+	double angular_pointKP;
+	double angular_pointKI;
+	double angular_pointKD;
+	double arcKP;
+	double difKP;
+	double min_error;
+
+public:
+	PIDBuilder();
+
+	PIDBuilder& withLinearPID(double kP, double kI, double kD);
+	PIDBuilder& withAngularPID(double kP, double kI, double kD);
+	PIDBuilder& withLinearPointPID(double kP, double kI, double kD);
+	PIDBuilder& withAngularPointPID(double kP, double kI, double kD);
+	PIDBuilder& withArcKP(double kP);
+	PIDBuilder& withDifKP(double kP);
+	PIDBuilder& withMinError(double m);
+
+	PID build();
 };
 
 } // namespace arms::pid

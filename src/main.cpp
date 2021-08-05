@@ -1,11 +1,20 @@
 #include "main.h"
+#include "ARMS/pid.h"
 
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
+	arms::pid::PIDBuilder()
+	    .withLinearPID(0.5, 4, 1.2)
+	    .withAngularPID(0.5, 4, 1.2)
+	    .withLinearPointPID(0.5, 4, 1.2)
+	    .withAngularPID(0.5, 4, 1.2)
+	    .withArcKP(0.5)
+	    .withDifKP(0.5)
+	    .withMinError(1);
+
 	arms::chassis::init();
 	arms::odom::init();
-	arms::pid::init();
 	arms::selector::init();
 }
 

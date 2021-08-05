@@ -1,8 +1,5 @@
 #include "ARMS/chassis.h"
-#include "ARMS/config.h"
-#include "ARMS/odom.h"
-#include "ARMS/pid.h"
-#include "api.h"
+
 using namespace pros;
 
 namespace arms::chassis {
