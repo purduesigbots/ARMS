@@ -55,11 +55,6 @@ void Chassis::resetAngle(double angle) {
 
 void Chassis::reset() {
 
-	// reset odom
-	odom::prev_left_pos = 0;
-	odom::prev_right_pos = 0;
-	odom::prev_middle_pos = 0;
-
 	settle_count = 0;
 
 	pid.setVectorAngle(0);
@@ -340,7 +335,8 @@ void Chassis::startTask() {
 				speeds = pid.angular(angle());
 			} else if (pid.getMode() == ODOM || pid.getMode() == ODOM_HOLO ||
 			           pid.getMode() == ODOM_HOLO_THRU) {
-				speeds = pid.odom(maxSpeed);
+				speeds =
+				    pid.odom(maxSpeed, global_x, global_y, heading, heading_degrees);
 			} else {
 				continue;
 			}

@@ -48,6 +48,8 @@ public:
 	int getMode();
 	void setMode(int newMode);
 
+	std::array<double, 2> getPointTarget();
+	void setPointTarget(std::array<double, 2> newTarget);
 	double getLinearTarget();
 	void setLinearTarget(double newTarget);
 	double getAngularTarget();
@@ -65,7 +67,8 @@ public:
 	std::array<double, 2> linear(double sv_x, double sv_y, double maxSpeed,
 	                             double difference);
 	std::array<double, 2> angular(double angle);
-	std::array<double, 2> odom(double maxSpeed);
+	std::array<double, 2> odom(double maxSpeed, double g_x, double g_y,
+	                           double heading, double heading_degrees);
 
 	PID(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
 	    double linearKI = LINEAR_KI, double linearKD = LINEAR_KD,

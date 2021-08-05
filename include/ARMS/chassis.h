@@ -8,7 +8,7 @@
 namespace arms::chassis {
 
 class Chassis {
-private:
+protected:
 	bool useVelocity;
 	double accel_step;
 	double arc_step;
@@ -20,6 +20,11 @@ private:
 	double maxAngular;
 	double prev;
 	double output_prev[4];
+
+	double global_x;
+	double global_y;
+	double heading;
+	double heading_degrees;
 
 	std::shared_ptr<okapi::Motor> frontLeft;
 	std::shared_ptr<okapi::Motor> frontRight;

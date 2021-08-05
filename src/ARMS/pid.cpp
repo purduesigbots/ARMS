@@ -12,6 +12,14 @@ void PID::setMode(int newMode) {
 	mode = newMode;
 }
 
+std::array<double, 2> PID::getPointTarget() {
+	return pointTarget;
+}
+
+void PID::setPointTarget(std::array<double, 2> newTarget) {
+	pointTarget = newTarget;
+}
+
 double PID::getLinearTarget() {
 	return linearTarget;
 }
@@ -110,18 +118,32 @@ std::array<double, 2> PID::angular(double angle) {
 	return {speed, -speed}; // clockwise positive
 }
 
-std::array<double, 2> PID::odom(double maxSpeed) {
+std::array<double, 2> PID::odom(double maxSpeed, double g_x, double g_y,
+                                double heading, double heading_degrees) {
 	// previous sensor values
 	static double psv_left = 0;
 	static double psv_right = 0;
 
-	double lin_error = odom::getDistanceError(pointTarget); // linear
-	double ang_error = odom::getAngleError(pointTarget);    // angular
+	double y = pointTarget[0];
+	double x = pointTarget[1];
+
+	y -= g_y;
+	x -= g_x;
+
+	double lin_error = sqrt(x * x + y * y); // linear
+
+	double delta_theta = heading - atan2(x, y);
+
+	while (fabs(delta_theta) > M_PI) {
+		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
+	}
+
+	double ang_error = delta_theta; // angular
 
 	// if holonomic, angular error is relative to field, not to point
 	if (mode == ODOM_HOLO || mode == ODOM_HOLO_THRU) {
 		vectorAngle = ang_error;
-		ang_error = angularTarget - ((int)odom::heading_degrees % 360);
+		ang_error = angularTarget - ((int)heading_degrees % 360);
 
 		// make sure all turns take most efficient route
 		if (ang_error > 180)
