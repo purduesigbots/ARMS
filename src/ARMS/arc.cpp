@@ -10,7 +10,7 @@ namespace arms::chassis {
 void Chassis::arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	pid::mode = DISABLE;
+	pid.setMode(DISABLE);
 	bool reversed = false;
 
 	// reverse the movement if the length is negative
@@ -30,7 +30,7 @@ void Chassis::arc(bool mirror, int arc_length, double rad, int max, int type) {
 
 		// speed
 		int error = arc_length - time_step;
-		double speed = error * pid::arcKP;
+		double speed = error * pid.getArcKP();
 
 		if (type == 1 || type == 2)
 			speed = max;

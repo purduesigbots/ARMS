@@ -2,6 +2,7 @@
 #define _ARMS_CHASSIS_H_
 
 #include "ARMS/config.h"
+#include "ARMS/pid.h"
 #include "okapi/api.hpp"
 
 namespace arms::chassis {
@@ -39,6 +40,8 @@ private:
 	double settle_threshold_angular;
 
 	int joystick_threshold;
+
+	pid::PID pid;
 
 public:
 	std::array<double, 2> getEncoders();
@@ -226,18 +229,20 @@ public:
 	/**
 	 * initialize the chassis
 	 */
-	void
-	init(std::initializer_list<okapi::Motor> leftMotorsList = {LEFT_MOTORS},
-	     std::initializer_list<okapi::Motor> rightMotorsList = {RIGHT_MOTORS},
-	     int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
-	     double degree_constant = DEGREE_CONSTANT, int settle_time = SETTLE_TIME,
-	     double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
-	     double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
-	     double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-	     int imuPort = IMU_PORT,
-	     std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
-	     int expanderPort = EXPANDER_PORT,
-	     int joystick_threshold = JOYSTICK_THRESHOLD);
+
+	Chassis(std::initializer_list<okapi::Motor> leftMotorsList = {LEFT_MOTORS},
+	        std::initializer_list<okapi::Motor> rightMotorsList = {RIGHT_MOTORS},
+	        int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
+	        double degree_constant = DEGREE_CONSTANT,
+	        int settle_time = SETTLE_TIME,
+	        double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
+	        double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
+	        double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
+	        int imuPort = IMU_PORT,
+	        std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
+	        int expanderPort = EXPANDER_PORT,
+	        int joystick_threshold = JOYSTICK_THRESHOLD,
+	        pid::PID pid = pid::PID());
 };
 
 } // namespace arms::chassis

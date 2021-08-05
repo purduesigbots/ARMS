@@ -4,34 +4,48 @@
 
 namespace arms::pid {
 
-int mode = DISABLE;
-bool debug = false;
+int PID::getMode() {
+	return mode;
+}
 
-// pid constants
-double linearKP;
-double linearKI;
-double linearKD;
-double angularKP;
-double angularKI;
-double angularKD;
-double linear_pointKP;
-double linear_pointKI;
-double linear_pointKD;
-double angular_pointKP;
-double angular_pointKI;
-double angular_pointKD;
-double arcKP;
-double difKP;
-double min_error;
+void PID::setMode(int newMode) {
+	mode = newMode;
+}
 
-// pid targets
-double linearTarget = 0;
-double angularTarget = 0;
-double vectorAngle = 0;
-std::array<double, 2> pointTarget{0, 0};
+double PID::getLinearTarget() {
+	return linearTarget;
+}
 
-double pid(double error, double* pe, double* in, double kp, double ki,
-           double kd) {
+void PID::setLinearTarget(double newTarget) {
+	linearTarget = newTarget;
+}
+
+double PID::getAngularTarget() {
+	return angularTarget;
+}
+
+void PID::setAngularTarget(double newTarget) {
+	angularTarget = newTarget;
+}
+
+double PID::getVectorAngle() {
+	return vectorAngle;
+}
+
+void PID::setVectorAngle(double newAngle) {
+	vectorAngle = newAngle;
+}
+
+double PID::getDifKP() {
+	return difKP;
+}
+
+double PID::getArcKP() {
+	return arcKP;
+}
+
+double PID::pid(double error, double* pe, double* in, double kp, double ki,
+                double kd) {
 	if (debug)
 		printf("%.2f\n", error);
 
@@ -50,19 +64,16 @@ double pid(double error, double* pe, double* in, double kp, double ki,
 	return speed;
 }
 
-double pid(double target, double sv, double* pe, double* in, double kp,
-           double ki, double kd) {
+double PID::pid(double target, double sv, double* pe, double* in, double kp,
+                double ki, double kd) {
 	double error = target - sv;
 	return pid(error, pe, in, kp, ki, kd);
 }
 
-std::array<double, 2> linear() {
+std::array<double, 2> PID::linear(double sv_x, double sv_y, double maxSpeed,
+                                  double difference) {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
-
-	// get position in the x and y directions
-	double sv_x = chassis::position();
-	double sv_y = chassis::position(true);
 
 	// calculate total displacement using pythagorean theorem
 	double sv;
@@ -73,10 +84,13 @@ std::array<double, 2> linear() {
 
 	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
 
-	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
+	if (speed > maxSpeed)
+		speed = maxSpeed;
+	if (speed < -maxSpeed)
+		speed = -maxSpeed;
 
 	// difference PID
-	double dif = chassis::difference() * difKP;
+	double dif = difference * difKP;
 
 	// prevent oscillations near target
 	if (dif > speed && speed > 0)
@@ -87,16 +101,16 @@ std::array<double, 2> linear() {
 	return {speed -= dif, speed += dif};
 }
 
-std::array<double, 2> angular() {
+std::array<double, 2> PID::angular(double angle) {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
-	double sv = chassis::angle();
+	double sv = angle;
 	double speed =
 	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
-std::array<double, 2> odom() {
+std::array<double, 2> PID::odom(double maxSpeed) {
 	// previous sensor values
 	static double psv_left = 0;
 	static double psv_right = 0;
@@ -105,9 +119,9 @@ std::array<double, 2> odom() {
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
 	// if holonomic, angular error is relative to field, not to point
-	if (pid::mode == ODOM_HOLO || pid::mode == ODOM_HOLO_THRU) {
-		pid::vectorAngle = ang_error;
-		ang_error = pid::angularTarget - ((int)odom::heading_degrees % 360);
+	if (mode == ODOM_HOLO || mode == ODOM_HOLO_THRU) {
+		vectorAngle = ang_error;
+		ang_error = angularTarget - ((int)odom::heading_degrees % 360);
 
 		// make sure all turns take most efficient route
 		if (ang_error > 180)
@@ -154,22 +168,22 @@ std::array<double, 2> odom() {
 	double right_speed = lin_speed - ang_speed;
 
 	// speed scaling
-	if (left_speed > chassis::maxSpeed) {
-		double diff = left_speed - chassis::maxSpeed;
+	if (left_speed > maxSpeed) {
+		double diff = left_speed - maxSpeed;
 		left_speed -= diff;
 		right_speed -= diff;
-	} else if (left_speed < -chassis::maxSpeed) {
-		double diff = left_speed + chassis::maxSpeed;
+	} else if (left_speed < -maxSpeed) {
+		double diff = left_speed + maxSpeed;
 		left_speed -= diff;
 		right_speed -= diff;
 	}
 
-	if (right_speed > chassis::maxSpeed) {
-		double diff = right_speed - chassis::maxSpeed;
+	if (right_speed > maxSpeed) {
+		double diff = right_speed - maxSpeed;
 		left_speed -= diff;
 		right_speed -= diff;
-	} else if (right_speed < -chassis::maxSpeed) {
-		double diff = right_speed + chassis::maxSpeed;
+	} else if (right_speed < -maxSpeed) {
+		double diff = right_speed + maxSpeed;
 		left_speed -= diff;
 		right_speed -= diff;
 	}
@@ -177,29 +191,28 @@ std::array<double, 2> odom() {
 	return {left_speed, right_speed};
 }
 
-void init(bool debug, double linearKP, double linearKI, double linearKD,
-          double angularKP, double angularKI, double angularKD,
-          double linear_pointKP, double linear_pointKI, double linear_pointKD,
-          double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP,
-          double min_error) {
+PID::PID(bool debug, double linearKP, double linearKI, double linearKD,
+         double angularKP, double angularKI, double angularKD,
+         double linear_pointKP, double linear_pointKI, double linear_pointKD,
+         double angular_pointKP, double angular_pointKI, double angular_pointKD,
+         double arcKP, double difKP, double min_error) {
 
-	pid::debug = debug;
-	pid::linearKP = linearKP;
-	pid::linearKI = linearKI;
-	pid::linearKD = linearKD;
-	pid::angularKP = angularKP;
-	pid::angularKI = angularKI;
-	pid::angularKD = angularKD;
-	pid::linear_pointKP = linear_pointKP;
-	pid::linear_pointKI = linear_pointKI;
-	pid::linear_pointKD = linear_pointKD;
-	pid::angular_pointKP = angular_pointKP;
-	pid::angular_pointKI = angular_pointKI;
-	pid::angular_pointKD = angular_pointKD;
-	pid::arcKP = arcKP;
-	pid::difKP = difKP;
-	pid::min_error = min_error;
+	this->debug = debug;
+	this->linearKP = linearKP;
+	this->linearKI = linearKI;
+	this->linearKD = linearKD;
+	this->angularKP = angularKP;
+	this->angularKI = angularKI;
+	this->angularKD = angularKD;
+	this->linear_pointKP = linear_pointKP;
+	this->linear_pointKI = linear_pointKI;
+	this->linear_pointKD = linear_pointKD;
+	this->angular_pointKP = angular_pointKP;
+	this->angular_pointKI = angular_pointKI;
+	this->angular_pointKD = angular_pointKD;
+	this->arcKP = arcKP;
+	this->difKP = difKP;
+	this->min_error = min_error;
 }
 
 } // namespace arms::pid

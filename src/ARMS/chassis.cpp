@@ -62,7 +62,7 @@ void Chassis::reset() {
 
 	settle_count = 0;
 
-	pid::vectorAngle = 0;
+	pid.setVectorAngle(0);
 
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
@@ -125,7 +125,7 @@ double Chassis::angle() {
 
 double Chassis::difference() {
 	if (imu) {
-		return angle() - pid::angularTarget;
+		return angle() - pid.getAngularTarget();
 	} else {
 		return (getEncoders()[0] - getEncoders()[1]);
 	}
@@ -163,7 +163,7 @@ double Chassis::slew(double target_speed, double step, double* current_speed) {
 int Chassis::wheelMoving(double sv, double* psv) {
 	int isMoving = 0;
 	double thresh = settle_threshold_linear;
-	if (pid::mode == ANGULAR)
+	if (pid.getMode() == ANGULAR)
 		thresh = settle_threshold_angular;
 
 	if (fabs(sv - *psv) > thresh)
@@ -211,24 +211,24 @@ void Chassis::waitUntilSettled() {
 /**************************************************/
 // autonomous functions
 void Chassis::moveAsync(double sp, int max) {
-	pid::mode = LINEAR;
+	pid.setMode(LINEAR);
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
-	pid::angularTarget = angle(); // hold the robot to the current angle
-	pid::linearTarget = sp;
+	pid.setAngularTarget(angle()); // hold the robot to the current angle
+	pid.setLinearTarget(sp);
 }
 
 void Chassis::turnAsync(double sp, int max) {
-	pid::mode = ANGULAR;
+	pid.setMode(ANGULAR);
 	reset();
 	sp += angle();
 	maxSpeed = max;
-	pid::angularTarget = sp;
+	pid.setAngularTarget(sp);
 }
 
 void Chassis::turnAbsoluteAsync(double sp, int max) {
-	pid::mode = ANGULAR;
+	pid.setMode(ANGULAR);
 
 	// convert from absolute to relative set point
 	sp = sp - (int)angle() % 360;
@@ -246,9 +246,9 @@ void Chassis::holoAsync(double distance, double angle, int max) {
 	distance *= distance_constant;
 	reset();
 	maxSpeed = max;
-	pid::linearTarget = distance;
-	pid::vectorAngle = angle * M_PI / 180;
-	pid::mode = LINEAR;
+	pid.setLinearTarget(distance);
+	pid.setVectorAngle(angle * M_PI / 180);
+	pid.setMode(LINEAR);
 }
 
 void Chassis::move(double sp, int max) {
@@ -281,13 +281,13 @@ void Chassis::fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
-	pid::mode = DISABLE;
+	pid.setMode(DISABLE);
 
 	while (fabs(position()) < fabs(sp * distance_constant)) {
 		speed = slew(max, accel_step, &output_prev[0]);
 		output_prev[1] = output_prev[2] = output_prev[3] = output_prev[0];
 		// differential PID
-		double dif = difference() * pid::difKP;
+		double dif = difference() * pid.getDifKP();
 		motorMove(leftMotors, speed - dif);
 		motorMove(rightMotors, speed + dif);
 		delay(10);
@@ -295,14 +295,14 @@ void Chassis::fast(double sp, int max) {
 }
 
 void Chassis::voltage(int t, int left_speed, int right_speed) {
-	pid::mode = DISABLE;
+	pid.setMode(DISABLE);
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed == 101 ? left_speed : right_speed, false);
 	delay(t);
 }
 
 void Chassis::velocity(int t, int left_max, int right_max) {
-	pid::mode = DISABLE;
+	pid.setMode(DISABLE);
 	motorMove(leftMotors, left_max, true);
 	motorMove(rightMotors, right_max == 101 ? left_max : right_max, true);
 	delay(t);
@@ -334,13 +334,13 @@ void Chassis::startTask() {
 
 			std::array<double, 2> speeds = {0, 0}; // left, right
 
-			if (pid::mode == LINEAR) {
-				speeds = pid::linear();
-			} else if (pid::mode == ANGULAR) {
-				speeds = pid::angular();
-			} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO ||
-			           pid::mode == ODOM_HOLO_THRU) {
-				speeds = pid::odom();
+			if (pid.getMode() == LINEAR) {
+				speeds = pid.linear(position(), position(true), maxSpeed, difference());
+			} else if (pid.getMode() == ANGULAR) {
+				speeds = pid.angular(angle());
+			} else if (pid.getMode() == ODOM || pid.getMode() == ODOM_HOLO ||
+			           pid.getMode() == ODOM_HOLO_THRU) {
+				speeds = pid.odom(maxSpeed);
 			} else {
 				continue;
 			}
@@ -355,10 +355,10 @@ void Chassis::startTask() {
 			double output[4] = {0, 0, 0, 0};
 
 			// set motors
-			if (pid::vectorAngle != 0) {
+			if (pid.getVectorAngle() != 0) {
 				// calculate vectors for each wheel set
-				double frontVector = sin(M_PI / 4 - pid::vectorAngle);
-				double backVector = sin(M_PI / 4 + pid::vectorAngle);
+				double frontVector = sin(M_PI / 4 - pid.getVectorAngle());
+				double backVector = sin(M_PI / 4 + pid.getVectorAngle());
 
 				// set scaling factor based on largest vector
 				double largestVector;
@@ -375,7 +375,7 @@ void Chassis::startTask() {
 					largestSpeed = rightSpeed;
 
 				double scalingFactor;
-				if (pid::mode == ODOM_HOLO_THRU)
+				if (pid.getMode() == ODOM_HOLO_THRU)
 					scalingFactor = fabs(maxSpeed) / fabs(largestVector);
 				else
 					scalingFactor = fabs(largestSpeed) / fabs(largestVector);
@@ -400,7 +400,7 @@ void Chassis::startTask() {
 				output[i] = slew(output[i], accel_step, &output_prev[i]);
 			}
 
-			if (pid::vectorAngle != 0) {
+			if (pid.getVectorAngle() != 0) {
 				motorMove(frontLeft, output[0]);
 				motorMove(backLeft, output[1]);
 				motorMove(frontRight, output[2]);
@@ -413,25 +413,25 @@ void Chassis::startTask() {
 	});
 }
 
-void Chassis::init(std::initializer_list<okapi::Motor> leftMotorsList,
-                   std::initializer_list<okapi::Motor> rightMotorsList,
-                   int gearset, double distance_constant,
-                   double degree_constant, int settle_time,
-                   double settle_threshold_linear,
-                   double settle_threshold_angular, double accel_step,
-                   double arc_step, int imuPort,
-                   std::tuple<int, int, int> encoderPorts, int expanderPort,
-                   int joystick_threshold) {
+Chassis::Chassis(std::initializer_list<okapi::Motor> leftMotorsList,
+                 std::initializer_list<okapi::Motor> rightMotorsList,
+                 int gearset, double distance_constant, double degree_constant,
+                 int settle_time, double settle_threshold_linear,
+                 double settle_threshold_angular, double accel_step,
+                 double arc_step, int imuPort,
+                 std::tuple<int, int, int> encoderPorts, int expanderPort,
+                 int joystick_threshold, pid::PID pid) {
 
 	// assign constants
-	distance_constant = distance_constant;
-	degree_constant = degree_constant;
-	settle_time = settle_time;
-	settle_threshold_linear = settle_threshold_linear;
-	settle_threshold_angular = settle_threshold_angular;
-	accel_step = accel_step;
-	arc_step = arc_step;
-	joystick_threshold = joystick_threshold;
+	this->distance_constant = distance_constant;
+	this->degree_constant = degree_constant;
+	this->settle_time = settle_time;
+	this->settle_threshold_linear = settle_threshold_linear;
+	this->settle_threshold_angular = settle_threshold_angular;
+	this->accel_step = accel_step;
+	this->arc_step = arc_step;
+	this->joystick_threshold = joystick_threshold;
+	this->pid = pid;
 
 	// configure chassis motors
 	leftMotors = std::make_shared<okapi::MotorGroup>(leftMotorsList);
@@ -475,7 +475,7 @@ void Chassis::init(std::initializer_list<okapi::Motor> leftMotorsList,
 /**************************************************/
 // operator control
 void Chassis::tank(double left_speed, double right_speed) {
-	pid::mode = DISABLE; // turns off autonomous tasks
+	pid.setMode(DISABLE); // turns off autonomous tasks
 
 	// apply thresholding
 	left_speed = (fabs(left_speed) > joystick_threshold ? left_speed : 0);
@@ -486,7 +486,7 @@ void Chassis::tank(double left_speed, double right_speed) {
 }
 
 void Chassis::arcade(double vertical, double horizontal) {
-	pid::mode = DISABLE; // turns off autonomous task
+	pid.setMode(DISABLE); // turns off autonomous task
 
 	// apply thresholding
 	vertical = (fabs(vertical) > joystick_threshold ? vertical : 0);
@@ -497,7 +497,7 @@ void Chassis::arcade(double vertical, double horizontal) {
 }
 
 void Chassis::holonomic(double y, double x, double z) {
-	pid::mode = DISABLE; // turns off autonomous task
+	pid.setMode(DISABLE); // turns off autonomous task
 
 	// apply thresholding
 	y = (fabs(y) > joystick_threshold ? y : 0);
