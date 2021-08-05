@@ -1,11 +1,10 @@
-#include "ARMS/purepursuit.h"
 #include "ARMS/chassis.h"
 #include "ARMS/odom.h"
 #include "api.h"
 
 using namespace pros;
 
-namespace arms::purepursuit {
+namespace arms::odom {
 
 bool last_segment = false;
 double m, a, b, c;
@@ -17,10 +16,11 @@ std::array<double, 2> second_last_point;
 std::array<double, 2> target_point;
 
 std::array<double, 2>
-findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius) {
+OdomChassis::findIntersectionPoint(std::vector<std::array<double, 2>> path,
+                                   double radius) {
 	intersection_points.clear();
-	x1 = odom::global_x;
-	y1 = odom::global_y;
+	x1 = global_x;
+	y1 = global_y;
 
 	while (intersection_points.size() == 0) {
 		for (int i = path.size() - 1; i >= 0; i--) {
@@ -125,7 +125,7 @@ findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius) {
 	return target_point;
 }
 
-void followPath(std::vector<std::array<double, 2>> path) {
+void OdomChassis::followPath(std::vector<std::array<double, 2>> path) {
 	double max_speed = 80; // 100 max
 
 	double inner_radius = 12.0;
@@ -149,14 +149,14 @@ void followPath(std::vector<std::array<double, 2>> path) {
 		std::array<double, 2> ang_tracking_point =
 		    findIntersectionPoint(path, inner_radius);
 		if (last_segment) {
-			odom::move(path[path.size() - 1]);
+			move(path[path.size() - 1]);
 			break;
 		}
 		std::array<double, 2> vel_tracking_point =
 		    findIntersectionPoint(path, outer_radius);
 
-		double ang_error = odom::getAngleError(ang_tracking_point);
-		double vel_error = odom::getAngleError(vel_tracking_point);
+		double ang_error = getAngleError(ang_tracking_point);
+		double vel_error = getAngleError(vel_tracking_point);
 
 		double ang_derivative = ang_error - ang_prev_error;
 		double vel_derivative = vel_error - vel_prev_error;
@@ -195,17 +195,17 @@ void followPath(std::vector<std::array<double, 2>> path) {
 			right_speed -= diff;
 		}
 
-		left_speed = chassis::slew(left_speed, chassis::accel_step, &left_prev);
-		right_speed = chassis::slew(right_speed, chassis::accel_step, &right_prev);
+		left_speed = slew(left_speed, accel_step, &left_prev);
+		right_speed = slew(right_speed, accel_step, &right_prev);
 
 		left_prev = left_speed;
 		right_prev = right_speed;
 
-		chassis::leftMotors->moveVoltage(left_speed * 120);
-		chassis::rightMotors->moveVoltage(right_speed * 120);
+		leftMotors->moveVoltage(left_speed * 120);
+		rightMotors->moveVoltage(right_speed * 120);
 
 		delay(10);
 	}
 }
 
-} // namespace arms::purepursuit
+} // namespace arms::odom

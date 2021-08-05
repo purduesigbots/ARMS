@@ -46,6 +46,11 @@ public:
 	void holoThru(std::array<double, 2> point, double angle, double max = 80,
 	              double turnMax = 50);
 
+	std::array<double, 2>
+	findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
+
+	void followPath(std::vector<std::array<double, 2>> path);
+
 	void startTask();
 
 	OdomChassis(
