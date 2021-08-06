@@ -1,8 +1,8 @@
-#include "ARMS/odom.h"
+#include "ARMS/chassis.h"
 
 using namespace pros;
 
-namespace arms::odom {
+namespace arms::chassis {
 
 bool last_segment = false;
 double m, a, b, c;
@@ -206,4 +206,4 @@ void OdomChassis::followPath(std::vector<std::array<double, 2>> path) {
 	}
 }
 
-} // namespace arms::odom
+} // namespace arms::chassis

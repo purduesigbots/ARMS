@@ -1,8 +1,8 @@
-#include "ARMS/odom.h"
+#include "ARMS/chassis.h"
 
 using namespace pros;
 
-namespace arms::odom {
+namespace arms::chassis {
 
 void OdomChassis::startTask() {
 
@@ -211,4 +211,36 @@ OdomChassis::OdomChassis(std::initializer_list<okapi::Motor> leftMotorsList,
 	startTask();
 }
 
-} // namespace arms::odom
+Odom::Odom()
+    : debug(false), left_right_distance(0), middle_distance(0),
+      left_right_tpi(0), middle_tpi(0), exit_error(10), holonomic(false) {
+}
+
+Odom& Odom::withDebug(bool deb) {
+	debug = deb;
+	return *this;
+}
+
+Odom& Odom::withDistances(double left_right, double middle) {
+	left_right_distance = left_right;
+	middle_distance = middle;
+	return *this;
+}
+
+Odom& Odom::withTPI(double left_right, double middle) {
+	left_right_tpi = left_right;
+	middle_tpi = middle;
+	return *this;
+}
+
+Odom& Odom::withExitError(double err) {
+	exit_error = err;
+	return *this;
+}
+
+Odom& Odom::withHolonomic(bool holo) {
+	holonomic = holo;
+	return *this;
+}
+
+} // namespace arms::chassis
