@@ -331,6 +331,14 @@ public:
 	Odom& withExitError(double err);
 	Odom& withHolonomic(bool holo);
 
+	bool getDebug();
+	double getLeftRightDistance();
+	double getMiddleDistance();
+	double getLeftRightTPI();
+	double getMiddleTPI();
+	double getExitError();
+	bool getHolonomic();
+
 	Odom();
 };
 
@@ -352,7 +360,27 @@ protected:
 	int joystick_threshold;
 	pid::PID pid;
 
+	bool has_odom;
+	Odom odom;
+
 public:
+	ChassisBuilder& withMotors(std::initializer_list<okapi::Motor> leftMotors,
+	                           std::initializer_list<okapi::Motor> rightMotors);
+	ChassisBuilder& withGearset(int gs);
+	ChassisBuilder& withDistanceConstant(double dist);
+	ChassisBuilder& withDegreeConstant(double deg);
+	ChassisBuilder& withSettleTime(int time);
+	ChassisBuilder& withLinearSettleThreshold(double threshold);
+	ChassisBuilder& withAngularSettleThreshold(double threshold);
+	ChassisBuilder& withAccelStep(double accel);
+	ChassisBuilder& withArcStep(double arc);
+	ChassisBuilder& withIMU(int port);
+	ChassisBuilder& withEncoders(std::tuple<int, int, int> ports);
+	ChassisBuilder& withExpander(int port);
+	ChassisBuilder& withJoystickThreshold(int threshold);
+	ChassisBuilder& withPID(pid::PID p);
+	ChassisBuilder& withOdom(Odom o);
+
 	Chassis build();
 	OdomChassis buildOdom();
 

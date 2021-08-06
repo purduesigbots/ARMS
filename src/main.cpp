@@ -1,4 +1,5 @@
 #include "main.h"
+#include "ARMS/chassis.h"
 
 pros::Controller master(CONTROLLER_MASTER);
 
@@ -17,6 +18,14 @@ void initialize() {
 
 	arms::chassis::Odom odom =
 	    arms::chassis::Odom().withDistances(6.375, 5.75).withTPI(41.4, 41.4);
+
+	chassis = arms::chassis::ChassisBuilder()
+	              .withMotors({12, 13}, {-14, -15})
+	              .withDistanceConstant(273)
+	              .withIMU(8)
+	              .withPID(pid)
+	              .withOdom(odom)
+	              .buildOdom();
 
 	arms::selector::init();
 }

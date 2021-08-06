@@ -1,4 +1,5 @@
 #include "ARMS/chassis.h"
+#include <stdexcept>
 
 using namespace pros;
 
@@ -500,6 +501,101 @@ void Chassis::holonomic(double y, double x, double z) {
 	motorMove(frontRight, y - x - z, false);
 	motorMove(backLeft, y - x + z, false);
 	motorMove(backRight, y + x - z, false);
+}
+
+ChassisBuilder&
+ChassisBuilder::withMotors(std::initializer_list<okapi::Motor> leftMotors,
+                           std::initializer_list<okapi::Motor> rightMotors) {
+	leftMotorsList = leftMotors;
+	rightMotorsList = rightMotors;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withGearset(int gs) {
+	gearset = gs;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withDistanceConstant(double dist) {
+	distance_constant = dist;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withDegreeConstant(double deg) {
+	degree_constant = deg;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withSettleTime(int time) {
+	settle_time = time;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withLinearSettleThreshold(double threshold) {
+	settle_threshold_linear = threshold;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withAngularSettleThreshold(double threshold) {
+	settle_threshold_angular = threshold;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withAccelStep(double accel) {
+	accel_step = accel;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withArcStep(double arc) {
+	arc_step = arc;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withIMU(int port) {
+	imuPort = port;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withEncoders(std::tuple<int, int, int> ports) {
+	encoderPorts = ports;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withExpander(int port) {
+	expanderPort = port;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withJoystickThreshold(int threshold) {
+	joystick_threshold = threshold;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withPID(pid::PID p) {
+	pid = p;
+	return *this;
+}
+ChassisBuilder& ChassisBuilder::withOdom(Odom o) {
+	has_odom = true;
+	odom = o;
+	return *this;
+}
+
+Chassis ChassisBuilder::build() {
+	return Chassis(leftMotorsList, rightMotorsList, gearset, distance_constant,
+	               degree_constant, settle_time, settle_threshold_linear,
+	               settle_threshold_angular, accel_step, arc_step, imuPort,
+	               encoderPorts, expanderPort, joystick_threshold, pid);
+}
+
+OdomChassis ChassisBuilder::buildOdom() {
+	if (has_odom) {
+		return OdomChassis(leftMotorsList, rightMotorsList, gearset,
+		                   distance_constant, degree_constant, settle_time,
+		                   settle_threshold_linear, settle_threshold_angular,
+		                   accel_step, arc_step, imuPort, encoderPorts,
+		                   expanderPort, joystick_threshold, pid, odom.getDebug(),
+		                   odom.getLeftRightDistance(), odom.getMiddleDistance(),
+		                   odom.getLeftRightTPI(), odom.getMiddleTPI(),
+		                   odom.getHolonomic(), odom.getExitError());
+	} else {
+		throw std::runtime_error("Odometry has not been initialized.");
+	}
+}
+
+ChassisBuilder::ChassisBuilder()
+    : leftMotorsList({1, 2}), rightMotorsList({-3, -4}), gearset(200),
+      distance_constant(0), degree_constant(0), settle_time(8),
+      settle_threshold_linear(3), settle_threshold_angular(1), accel_step(8),
+      arc_step(2), imuPort(0), encoderPorts({0, 0, 0}), expanderPort(0),
+      joystick_threshold(10), has_odom(false), odom(Odom()) {
 }
 
 } // namespace arms::chassis

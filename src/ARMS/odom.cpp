@@ -243,4 +243,32 @@ Odom& Odom::withHolonomic(bool holo) {
 	return *this;
 }
 
+bool Odom::getDebug() {
+	return debug;
+}
+
+double Odom::getLeftRightDistance() {
+	return left_right_distance;
+}
+
+double Odom::getMiddleDistance() {
+	return middle_distance;
+}
+
+double Odom::getLeftRightTPI() {
+	return left_right_tpi;
+}
+
+double Odom::getMiddleTPI() {
+	return middle_tpi;
+}
+
+double Odom::getExitError() {
+	return exit_error;
+}
+
+bool Odom::getHolonomic() {
+	return holonomic;
+}
+
 } // namespace arms::chassis
