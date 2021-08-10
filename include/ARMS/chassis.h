@@ -49,8 +49,15 @@ protected:
 	pid::PID pid;
 
 public:
+	/**
+	 * Gets the values of the left and right encoders. If external encoders are
+	 * not defined, gets the values of the left and right IMEs.
+	 */
 	std::array<double, 2> getEncoders();
 
+	/**
+	 * Checks if a wheel is moving
+	 */
 	int wheelMoving(double sv, double* psv);
 
 	/**
@@ -195,22 +202,22 @@ public:
 	void scurve(bool mirror, int arc1, int mid, int arc2, int max);
 
 	/**
-	 * Preform a forward S shaped movement with a set length, and speed
+	 * Perform a forward S shaped movement with a set length, and speed
 	 */
 	void sLeft(int arc1, int mid, int arc2, int max = 100);
 
 	/**
-	 * Preform a forward S shaped movement with a set length, and speed
+	 * Perform a forward S shaped movement with a set length, and speed
 	 */
 	void sRight(int arc1, int mid, int arc2, int max = 100);
 
 	/**
-	 * Preform a backward S shaped movement with a set length, and speed
+	 * Perform a backward S shaped movement with a set length, and speed
 	 */
 	void _sLeft(int arc1, int mid, int arc2, int max = 100);
 
 	/**
-	 * Preform a backward S shaped movement with a set length, and speed
+	 * Perform a backward S shaped movement with a set length, and speed
 	 */
 	void _sRight(int arc1, int mid, int arc2, int max = 100);
 
@@ -229,12 +236,14 @@ public:
 	 */
 	void holonomic(double x, double y, double z);
 
+	/**
+	 * Start the asynchronous task for this chassis
+	 */
 	void startTask();
 
 	/**
-	 * initialize the chassis
+	 * A class to control a robot chassis
 	 */
-
 	Chassis(std::initializer_list<okapi::Motor> leftMotorsList = {LEFT_MOTORS},
 	        std::initializer_list<okapi::Motor> rightMotorsList = {RIGHT_MOTORS},
 	        int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
@@ -266,36 +275,83 @@ protected:
 	double prev_middle_pos;
 
 public:
+	/**
+	 * Resets odometry to the given point
+	 */
 	void resetOdom(std::array<double, 2> point = {0, 0});
 
+	/**
+	 * Resets odometry to the given point and heading
+	 */
 	void resetOdom(std::array<double, 2> point, double angle);
 
+	/**
+	 * Gets the difference between the current heading of the chassis and the
+	 * target heading
+	 */
 	double getAngleError(std::array<double, 2> point);
 
+	/**
+	 * Gets the distance between the current chassis position and the target
+	 * position
+	 */
 	double getDistanceError(std::array<double, 2> point);
 
+	/**
+	 * Begin an asynchronous chassis movement with odometry
+	 */
 	void moveAsync(std::array<double, 2> point, double max = 80);
 
+	/**
+	 * Begin an asynchronous holonomic chassis movement with odometry
+	 */
 	void holoAsync(std::array<double, 2> point, double angle, double max = 80,
 	               double turnMax = 50);
 
+	/**
+	 * Begin a blocking chassis movement with odometry
+	 */
 	void move(std::array<double, 2> point, double max = 80);
 
+	/**
+	 * Begin a blocking chassis movement with odometry but without using PID at
+	 * the end of the movement to slow down
+	 */
 	void moveThru(std::array<double, 2> point, double max = 80);
 
+	/**
+	 * Begin a blocking holonomic chassis movement with odometry
+	 */
 	void holo(std::array<double, 2> point, double angle, double max = 80,
 	          double turnMax = 50);
 
+	/**
+	 * Begin a blocking holonomic chassis movement with odometry but without using
+	 * PID at the end of the movement to slow down
+	 */
 	void holoThru(std::array<double, 2> point, double angle, double max = 80,
 	              double turnMax = 50);
 
+	/**
+	 * Find the intersection points between the given path and a circle with given
+	 * radius
+	 */
 	std::array<double, 2>
 	findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
 
+	/**
+	 * Follow a path using odometry
+	 */
 	void followPath(std::vector<std::array<double, 2>> path);
 
+	/**
+	 * Start the asynchronous task for this odometry chassis
+	 */
 	void startTask();
 
+	/**
+	 * A class to control a robot chassis with odometry
+	 */
 	OdomChassis(
 	    std::initializer_list<okapi::Motor> leftMotorsList = {LEFT_MOTORS},
 	    std::initializer_list<okapi::Motor> rightMotorsList = {RIGHT_MOTORS},
@@ -325,20 +381,69 @@ protected:
 	bool holonomic;
 
 public:
+	/**
+	 * Sets the debug value
+	 */
 	Odom& withDebug(bool deb);
+
+	/**
+	 * Sets the distance values
+	 */
 	Odom& withDistances(double left_right, double middle);
+
+	/**
+	 * Sets the TPI values
+	 */
 	Odom& withTPI(double left_right, double middle);
+
+	/**
+	 * Sets the exit error value
+	 */
 	Odom& withExitError(double err);
+
+	/**
+	 * Sets the holonomic value
+	 */
 	Odom& withHolonomic(bool holo);
 
+	/**
+	 * Gets the debug value
+	 */
 	bool getDebug();
+
+	/**
+	 * Gets the left/right distance value
+	 */
 	double getLeftRightDistance();
+
+	/**
+	 * Gets the middle distance value
+	 */
 	double getMiddleDistance();
+
+	/**
+	 * Gets the left/right TPI value
+	 */
 	double getLeftRightTPI();
+
+	/**
+	 * Gets the middle TPI value
+	 */
 	double getMiddleTPI();
+
+	/**
+	 * Gets the exit error value
+	 */
 	double getExitError();
+
+	/**
+	 * Gets the holonomic value
+	 */
 	bool getHolonomic();
 
+	/**
+	 * A class for holding odometry values
+	 */
 	Odom();
 };
 
@@ -364,26 +469,95 @@ protected:
 	Odom odom;
 
 public:
+	/**
+	 * Sets the motors
+	 */
 	ChassisBuilder& withMotors(std::initializer_list<okapi::Motor> leftMotors,
 	                           std::initializer_list<okapi::Motor> rightMotors);
+
+	/**
+	 * Sets the gearset
+	 */
 	ChassisBuilder& withGearset(int gs);
+
+	/**
+	 * Sets the distance constant
+	 */
 	ChassisBuilder& withDistanceConstant(double dist);
+
+	/**
+	 * Sets the degree constant
+	 */
 	ChassisBuilder& withDegreeConstant(double deg);
+
+	/**
+	 * Sets the settle time
+	 */
 	ChassisBuilder& withSettleTime(int time);
+
+	/**
+	 * Sets the linear settle threshold
+	 */
 	ChassisBuilder& withLinearSettleThreshold(double threshold);
+
+	/**
+	 * Sets the angular settle threshold
+	 */
 	ChassisBuilder& withAngularSettleThreshold(double threshold);
+
+	/**
+	 * Sets the acceleration slew step
+	 */
 	ChassisBuilder& withAccelStep(double accel);
+
+	/**
+	 * Sets the arc slew step
+	 */
 	ChassisBuilder& withArcStep(double arc);
+
+	/**
+	 * Sets the IMU port
+	 */
 	ChassisBuilder& withIMU(int port);
+
+	/**
+	 * Sets the encoder ports
+	 */
 	ChassisBuilder& withEncoders(std::tuple<int, int, int> ports);
+
+	/**
+	 * Sets the expander port
+	 */
 	ChassisBuilder& withExpander(int port);
+
+	/**
+	 * Sets the joystick threshold
+	 */
 	ChassisBuilder& withJoystickThreshold(int threshold);
+
+	/**
+	 * Sets the PID values
+	 */
 	ChassisBuilder& withPID(pid::PID p);
+
+	/**
+	 * Sets the Odom values
+	 */
 	ChassisBuilder& withOdom(Odom o);
 
+	/**
+	 * Builds a Chassis object
+	 */
 	Chassis build();
+
+	/**
+	 * Builds an OdomChassis object
+	 */
 	OdomChassis buildOdom();
 
+	/**
+	 * A builder for creating Chassis and OdomChassis objects
+	 */
 	ChassisBuilder();
 };
 

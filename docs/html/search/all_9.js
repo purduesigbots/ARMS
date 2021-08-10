@@ -1,0 +1,7 @@
+var searchData=
+[
+  ['motormove_38',['motorMove',['../classarms_1_1chassis_1_1_chassis.html#a0a12d90086c17f2327202d8dd1de6b41',1,'arms::chassis::Chassis::motorMove(std::shared_ptr&lt; okapi::Motor &gt; motor, double speed)'],['../classarms_1_1chassis_1_1_chassis.html#a326e31a70a41a96957d569d84f8b0a06',1,'arms::chassis::Chassis::motorMove(std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed)'],['../classarms_1_1chassis_1_1_chassis.html#a5ba275025b0ee782768b75695f708934',1,'arms::chassis::Chassis::motorMove(std::shared_ptr&lt; okapi::Motor &gt; motor, double speed, bool vel)'],['../classarms_1_1chassis_1_1_chassis.html#ac0c4f3ad780cf3122a67adaea328faaa',1,'arms::chassis::Chassis::motorMove(std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed, bool vel)']]],
+  ['move_39',['move',['../classarms_1_1chassis_1_1_chassis.html#ae2d74eba9c30f0169453dbbd1c83c4ed',1,'arms::chassis::Chassis::move()'],['../classarms_1_1chassis_1_1_odom_chassis.html#a9e0044d737f65ab6b398866f61a78480',1,'arms::chassis::OdomChassis::move()']]],
+  ['moveasync_40',['moveAsync',['../classarms_1_1chassis_1_1_chassis.html#ad889d9310ef515acecb0c70a4a12bf81',1,'arms::chassis::Chassis::moveAsync()'],['../classarms_1_1chassis_1_1_odom_chassis.html#a7bcdb45c7ae5c435779797f198624075',1,'arms::chassis::OdomChassis::moveAsync(std::array&lt; double, 2 &gt; point, double max=80)']]],
+  ['movethru_41',['moveThru',['../classarms_1_1chassis_1_1_odom_chassis.html#a836f68bdd84001fc9c318b7ca1e5dad6',1,'arms::chassis::OdomChassis']]]
+];
