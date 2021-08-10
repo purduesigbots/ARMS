@@ -87,116 +87,217 @@ Inheritance diagram for arms::chassis::OdomChassis:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a7661998999fcb3a9a6c4b0b916ed98c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7661998999fcb3a9a6c4b0b916ed98c1">resetOdom</a> (std::array&lt; double, 2 &gt; point={0, 0})</td></tr>
+<tr class="memitem:a7661998999fcb3a9a6c4b0b916ed98c1"><td class="memItemLeft" align="right" valign="top"><a id="a7661998999fcb3a9a6c4b0b916ed98c1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7661998999fcb3a9a6c4b0b916ed98c1">resetOdom</a> (std::array&lt; double, 2 &gt; point={0, 0})</td></tr>
+<tr class="memdesc:a7661998999fcb3a9a6c4b0b916ed98c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets odometry to the given point. <br /></td></tr>
 <tr class="separator:a7661998999fcb3a9a6c4b0b916ed98c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4367e8e490bdfe1317a53748b463a1da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a4367e8e490bdfe1317a53748b463a1da">resetOdom</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>)</td></tr>
+<tr class="memitem:a4367e8e490bdfe1317a53748b463a1da"><td class="memItemLeft" align="right" valign="top"><a id="a4367e8e490bdfe1317a53748b463a1da"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a4367e8e490bdfe1317a53748b463a1da">resetOdom</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>)</td></tr>
+<tr class="memdesc:a4367e8e490bdfe1317a53748b463a1da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets odometry to the given point and heading. <br /></td></tr>
 <tr class="separator:a4367e8e490bdfe1317a53748b463a1da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7e2543d8f2a29a9536d4612701dc12b1"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7e2543d8f2a29a9536d4612701dc12b1">getAngleError</a> (std::array&lt; double, 2 &gt; point)</td></tr>
+<tr class="memitem:a7e2543d8f2a29a9536d4612701dc12b1"><td class="memItemLeft" align="right" valign="top"><a id="a7e2543d8f2a29a9536d4612701dc12b1"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7e2543d8f2a29a9536d4612701dc12b1">getAngleError</a> (std::array&lt; double, 2 &gt; point)</td></tr>
+<tr class="memdesc:a7e2543d8f2a29a9536d4612701dc12b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the error between current chassis heading and the target heading. <br /></td></tr>
 <tr class="separator:a7e2543d8f2a29a9536d4612701dc12b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb643e4859c977fcc48e12caa2f49bf5"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#acb643e4859c977fcc48e12caa2f49bf5">getDistanceError</a> (std::array&lt; double, 2 &gt; point)</td></tr>
+<tr class="memitem:acb643e4859c977fcc48e12caa2f49bf5"><td class="memItemLeft" align="right" valign="top"><a id="acb643e4859c977fcc48e12caa2f49bf5"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#acb643e4859c977fcc48e12caa2f49bf5">getDistanceError</a> (std::array&lt; double, 2 &gt; point)</td></tr>
+<tr class="memdesc:acb643e4859c977fcc48e12caa2f49bf5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the distance between current chassis position and the target position. <br /></td></tr>
 <tr class="separator:acb643e4859c977fcc48e12caa2f49bf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7bcdb45c7ae5c435779797f198624075"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7bcdb45c7ae5c435779797f198624075">moveAsync</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memitem:a7bcdb45c7ae5c435779797f198624075"><td class="memItemLeft" align="right" valign="top"><a id="a7bcdb45c7ae5c435779797f198624075"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7bcdb45c7ae5c435779797f198624075">moveAsync</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memdesc:a7bcdb45c7ae5c435779797f198624075"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asynchronous chassis movement with odometry. <br /></td></tr>
 <tr class="separator:a7bcdb45c7ae5c435779797f198624075"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe7116178ca96db9541e2c9f49d457da"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#afe7116178ca96db9541e2c9f49d457da">holoAsync</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memitem:afe7116178ca96db9541e2c9f49d457da"><td class="memItemLeft" align="right" valign="top"><a id="afe7116178ca96db9541e2c9f49d457da"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#afe7116178ca96db9541e2c9f49d457da">holoAsync</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memdesc:afe7116178ca96db9541e2c9f49d457da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asynchronous holonomic chassis movement with odometry. <br /></td></tr>
 <tr class="separator:afe7116178ca96db9541e2c9f49d457da"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e0044d737f65ab6b398866f61a78480"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a9e0044d737f65ab6b398866f61a78480">move</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memitem:a9e0044d737f65ab6b398866f61a78480"><td class="memItemLeft" align="right" valign="top"><a id="a9e0044d737f65ab6b398866f61a78480"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a9e0044d737f65ab6b398866f61a78480">move</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memdesc:a9e0044d737f65ab6b398866f61a78480"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin a blocking chassis movement with odometry. <br /></td></tr>
 <tr class="separator:a9e0044d737f65ab6b398866f61a78480"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a836f68bdd84001fc9c318b7ca1e5dad6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a836f68bdd84001fc9c318b7ca1e5dad6">moveThru</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memitem:a836f68bdd84001fc9c318b7ca1e5dad6"><td class="memItemLeft" align="right" valign="top"><a id="a836f68bdd84001fc9c318b7ca1e5dad6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a836f68bdd84001fc9c318b7ca1e5dad6">moveThru</a> (std::array&lt; double, 2 &gt; point, double max=80)</td></tr>
+<tr class="memdesc:a836f68bdd84001fc9c318b7ca1e5dad6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin a blocking chassis movement with odometry without end PID. <br /></td></tr>
 <tr class="separator:a836f68bdd84001fc9c318b7ca1e5dad6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a822d4a73152610312624ff5b5f0c9899"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a822d4a73152610312624ff5b5f0c9899">holo</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memitem:a822d4a73152610312624ff5b5f0c9899"><td class="memItemLeft" align="right" valign="top"><a id="a822d4a73152610312624ff5b5f0c9899"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a822d4a73152610312624ff5b5f0c9899">holo</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memdesc:a822d4a73152610312624ff5b5f0c9899"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin a blocking holonomic chassis movement with odometry. <br /></td></tr>
 <tr class="separator:a822d4a73152610312624ff5b5f0c9899"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adef4c8e188e653ceca31cd9d3dc0be74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#adef4c8e188e653ceca31cd9d3dc0be74">holoThru</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memitem:adef4c8e188e653ceca31cd9d3dc0be74"><td class="memItemLeft" align="right" valign="top"><a id="adef4c8e188e653ceca31cd9d3dc0be74"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#adef4c8e188e653ceca31cd9d3dc0be74">holoThru</a> (std::array&lt; double, 2 &gt; point, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, double max=80, double turnMax=50)</td></tr>
+<tr class="memdesc:adef4c8e188e653ceca31cd9d3dc0be74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin a blocking holonomic chassis movement with odometry without end PID. <br /></td></tr>
 <tr class="separator:adef4c8e188e653ceca31cd9d3dc0be74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a225833fe79dcfa7eb55716da663046b5"><td class="memItemLeft" align="right" valign="top">std::array&lt; double, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a225833fe79dcfa7eb55716da663046b5">findIntersectionPoint</a> (std::vector&lt; std::array&lt; double, 2 &gt;&gt; path, double radius)</td></tr>
+<tr class="memitem:a225833fe79dcfa7eb55716da663046b5"><td class="memItemLeft" align="right" valign="top"><a id="a225833fe79dcfa7eb55716da663046b5"></a>
+std::array&lt; double, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a225833fe79dcfa7eb55716da663046b5">findIntersectionPoint</a> (std::vector&lt; std::array&lt; double, 2 &gt;&gt; path, double radius)</td></tr>
+<tr class="memdesc:a225833fe79dcfa7eb55716da663046b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Find the intersection points a path and a circle with given radius. <br /></td></tr>
 <tr class="separator:a225833fe79dcfa7eb55716da663046b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a067c4bd27c2d768067107efb4327300c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a067c4bd27c2d768067107efb4327300c">followPath</a> (std::vector&lt; std::array&lt; double, 2 &gt;&gt; path)</td></tr>
+<tr class="memitem:a067c4bd27c2d768067107efb4327300c"><td class="memItemLeft" align="right" valign="top"><a id="a067c4bd27c2d768067107efb4327300c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a067c4bd27c2d768067107efb4327300c">followPath</a> (std::vector&lt; std::array&lt; double, 2 &gt;&gt; path)</td></tr>
+<tr class="memdesc:a067c4bd27c2d768067107efb4327300c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Follow a path using odometry. <br /></td></tr>
 <tr class="separator:a067c4bd27c2d768067107efb4327300c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7926e3554c93ed6e3e4b56d83bc00616"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7926e3554c93ed6e3e4b56d83bc00616">startTask</a> ()</td></tr>
+<tr class="memitem:a7926e3554c93ed6e3e4b56d83bc00616"><td class="memItemLeft" align="right" valign="top"><a id="a7926e3554c93ed6e3e4b56d83bc00616"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a7926e3554c93ed6e3e4b56d83bc00616">startTask</a> ()</td></tr>
+<tr class="memdesc:a7926e3554c93ed6e3e4b56d83bc00616"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the asynchronous task for this odometry chassis. <br /></td></tr>
 <tr class="separator:a7926e3554c93ed6e3e4b56d83bc00616"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22820c304f1b0b72291ca0b99268b3e6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a22820c304f1b0b72291ca0b99268b3e6">OdomChassis</a> (std::initializer_list&lt; okapi::Motor &gt; leftMotorsList={LEFT_MOTORS}, std::initializer_list&lt; okapi::Motor &gt; rightMotorsList={RIGHT_MOTORS}, int gearset=GEARSET, double distance_constant=DISTANCE_CONSTANT, double degree_constant=DEGREE_CONSTANT, int settle_time=SETTLE_TIME, double settle_threshold_linear=SETTLE_THRESHOLD_LINEAR, double settle_threshold_angular=SETTLE_THRESHOLD_ANGULAR, double accel_step=ACCEL_STEP, double arc_step=ARC_STEP, int imuPort=IMU_PORT, std::tuple&lt; int, int, int &gt; encoderPorts={ENCODER_PORTS}, int expanderPort=EXPANDER_PORT, int joystick_threshold=JOYSTICK_THRESHOLD, <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a> pid=<a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>(), bool debug=ODOM_DEBUG, double left_right_distance=LEFT_RIGHT_DISTANCE, double middle_distance=MIDDLE_DISTANCE, double left_right_tpi=LEFT_RIGHT_TPI, double middle_tpi=MIDDLE_TPI, bool holonomic=HOLONOMIC, double exit_error=EXIT_ERROR)</td></tr>
+<tr class="memitem:a22820c304f1b0b72291ca0b99268b3e6"><td class="memItemLeft" align="right" valign="top"><a id="a22820c304f1b0b72291ca0b99268b3e6"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_odom_chassis.html#a22820c304f1b0b72291ca0b99268b3e6">OdomChassis</a> (std::initializer_list&lt; okapi::Motor &gt; leftMotorsList={LEFT_MOTORS}, std::initializer_list&lt; okapi::Motor &gt; rightMotorsList={RIGHT_MOTORS}, int gearset=GEARSET, double distance_constant=DISTANCE_CONSTANT, double degree_constant=DEGREE_CONSTANT, int settle_time=SETTLE_TIME, double settle_threshold_linear=SETTLE_THRESHOLD_LINEAR, double settle_threshold_angular=SETTLE_THRESHOLD_ANGULAR, double accel_step=ACCEL_STEP, double arc_step=ARC_STEP, int imuPort=IMU_PORT, std::tuple&lt; int, int, int &gt; encoderPorts={ENCODER_PORTS}, int expanderPort=EXPANDER_PORT, int joystick_threshold=JOYSTICK_THRESHOLD, <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a> pid=<a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>(), bool debug=ODOM_DEBUG, double left_right_distance=LEFT_RIGHT_DISTANCE, double middle_distance=MIDDLE_DISTANCE, double left_right_tpi=LEFT_RIGHT_TPI, double middle_tpi=MIDDLE_TPI, bool holonomic=HOLONOMIC, double exit_error=EXIT_ERROR)</td></tr>
+<tr class="memdesc:a22820c304f1b0b72291ca0b99268b3e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class to control a robot chassis with odometry. <br /></td></tr>
 <tr class="separator:a22820c304f1b0b72291ca0b99268b3e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classarms_1_1chassis_1_1_chassis"><td colspan="2" onclick="javascript:toggleInherit('pub_methods_classarms_1_1chassis_1_1_chassis')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classarms_1_1chassis_1_1_chassis.html">arms::chassis::Chassis</a></td></tr>
-<tr class="memitem:a1a905d67bd0b9a1b641f5ff0466f57c9 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">std::array&lt; double, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a1a905d67bd0b9a1b641f5ff0466f57c9">getEncoders</a> ()</td></tr>
+<tr class="memitem:a1a905d67bd0b9a1b641f5ff0466f57c9 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a1a905d67bd0b9a1b641f5ff0466f57c9"></a>
+std::array&lt; double, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a1a905d67bd0b9a1b641f5ff0466f57c9">getEncoders</a> ()</td></tr>
+<tr class="memdesc:a1a905d67bd0b9a1b641f5ff0466f57c9 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the values of the left and right encoders. <br /></td></tr>
 <tr class="separator:a1a905d67bd0b9a1b641f5ff0466f57c9 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3474ce915191ecc0a8134420bcb7861a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a3474ce915191ecc0a8134420bcb7861a">wheelMoving</a> (double sv, double *psv)</td></tr>
 <tr class="separator:a3474ce915191ecc0a8134420bcb7861a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a12d90086c17f2327202d8dd1de6b41 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a0a12d90086c17f2327202d8dd1de6b41">motorMove</a> (std::shared_ptr&lt; okapi::Motor &gt; motor, double speed)</td></tr>
 <tr class="separator:a0a12d90086c17f2327202d8dd1de6b41 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a326e31a70a41a96957d569d84f8b0a06 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a326e31a70a41a96957d569d84f8b0a06">motorMove</a> (std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed)</td></tr>
+<tr class="memitem:a326e31a70a41a96957d569d84f8b0a06 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a326e31a70a41a96957d569d84f8b0a06"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a326e31a70a41a96957d569d84f8b0a06">motorMove</a> (std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed)</td></tr>
+<tr class="memdesc:a326e31a70a41a96957d569d84f8b0a06 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the speed of target motor group. <br /></td></tr>
 <tr class="separator:a326e31a70a41a96957d569d84f8b0a06 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ba275025b0ee782768b75695f708934 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a5ba275025b0ee782768b75695f708934">motorMove</a> (std::shared_ptr&lt; okapi::Motor &gt; motor, double speed, bool vel)</td></tr>
+<tr class="memitem:a5ba275025b0ee782768b75695f708934 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a5ba275025b0ee782768b75695f708934"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a5ba275025b0ee782768b75695f708934">motorMove</a> (std::shared_ptr&lt; okapi::Motor &gt; motor, double speed, bool vel)</td></tr>
+<tr class="memdesc:a5ba275025b0ee782768b75695f708934 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the speed of target motor. <br /></td></tr>
 <tr class="separator:a5ba275025b0ee782768b75695f708934 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0c4f3ad780cf3122a67adaea328faaa inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ac0c4f3ad780cf3122a67adaea328faaa">motorMove</a> (std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed, bool vel)</td></tr>
+<tr class="memitem:ac0c4f3ad780cf3122a67adaea328faaa inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ac0c4f3ad780cf3122a67adaea328faaa"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ac0c4f3ad780cf3122a67adaea328faaa">motorMove</a> (std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed, bool vel)</td></tr>
+<tr class="memdesc:ac0c4f3ad780cf3122a67adaea328faaa inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the speed of target motor group. <br /></td></tr>
 <tr class="separator:ac0c4f3ad780cf3122a67adaea328faaa inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c694bf3fe29fbeaafea09da21a9484c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a9c694bf3fe29fbeaafea09da21a9484c">setBrakeMode</a> (okapi::AbstractMotor::brakeMode b)</td></tr>
+<tr class="memitem:a9c694bf3fe29fbeaafea09da21a9484c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a9c694bf3fe29fbeaafea09da21a9484c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a9c694bf3fe29fbeaafea09da21a9484c">setBrakeMode</a> (okapi::AbstractMotor::brakeMode b)</td></tr>
+<tr class="memdesc:a9c694bf3fe29fbeaafea09da21a9484c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the brake mode for all chassis motors. <br /></td></tr>
 <tr class="separator:a9c694bf3fe29fbeaafea09da21a9484c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf4dde05961ca3ee0b0d7c62666e579a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#acf4dde05961ca3ee0b0d7c62666e579a">resetAngle</a> (double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>=0)</td></tr>
+<tr class="memitem:acf4dde05961ca3ee0b0d7c62666e579a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="acf4dde05961ca3ee0b0d7c62666e579a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#acf4dde05961ca3ee0b0d7c62666e579a">resetAngle</a> (double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>=0)</td></tr>
+<tr class="memdesc:acf4dde05961ca3ee0b0d7c62666e579a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset imu if it is being used. <br /></td></tr>
 <tr class="separator:acf4dde05961ca3ee0b0d7c62666e579a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae3cdff3b070a810525dac485b462f3f6 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae3cdff3b070a810525dac485b462f3f6">reset</a> ()</td></tr>
+<tr class="memitem:ae3cdff3b070a810525dac485b462f3f6 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ae3cdff3b070a810525dac485b462f3f6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae3cdff3b070a810525dac485b462f3f6">reset</a> ()</td></tr>
+<tr class="memdesc:ae3cdff3b070a810525dac485b462f3f6 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the internal motor encoders for all chassis motors. <br /></td></tr>
 <tr class="separator:ae3cdff3b070a810525dac485b462f3f6 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43d2fbd6de462518ee7d78999fb7e835 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a43d2fbd6de462518ee7d78999fb7e835">position</a> (bool yDirection=false)</td></tr>
+<tr class="memitem:a43d2fbd6de462518ee7d78999fb7e835 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a43d2fbd6de462518ee7d78999fb7e835"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a43d2fbd6de462518ee7d78999fb7e835">position</a> (bool yDirection=false)</td></tr>
+<tr class="memdesc:a43d2fbd6de462518ee7d78999fb7e835 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the average position between the sides of the chassis. <br /></td></tr>
 <tr class="separator:a43d2fbd6de462518ee7d78999fb7e835 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af1040f60b094a0cef633c569a5a2e489 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a> ()</td></tr>
+<tr class="memitem:af1040f60b094a0cef633c569a5a2e489 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="af1040f60b094a0cef633c569a5a2e489"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a> ()</td></tr>
+<tr class="memdesc:af1040f60b094a0cef633c569a5a2e489 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the angle of the chassis in degrees. <br /></td></tr>
 <tr class="separator:af1040f60b094a0cef633c569a5a2e489 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0db015a3e542b1b3d1617546797e9c99 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a0db015a3e542b1b3d1617546797e9c99">difference</a> ()</td></tr>
+<tr class="memitem:a0db015a3e542b1b3d1617546797e9c99 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a0db015a3e542b1b3d1617546797e9c99"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a0db015a3e542b1b3d1617546797e9c99">difference</a> ()</td></tr>
+<tr class="memdesc:a0db015a3e542b1b3d1617546797e9c99 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the difference between the sides of the chassis. <br /></td></tr>
 <tr class="separator:a0db015a3e542b1b3d1617546797e9c99 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a287a3ec8dc6c6460a0bdc5fb13d1f0ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a287a3ec8dc6c6460a0bdc5fb13d1f0ed">limitSpeed</a> (double speed, double max)</td></tr>
+<tr class="memitem:a287a3ec8dc6c6460a0bdc5fb13d1f0ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a287a3ec8dc6c6460a0bdc5fb13d1f0ed"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a287a3ec8dc6c6460a0bdc5fb13d1f0ed">limitSpeed</a> (double speed, double max)</td></tr>
+<tr class="memdesc:a287a3ec8dc6c6460a0bdc5fb13d1f0ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reduce a speed. <br /></td></tr>
 <tr class="separator:a287a3ec8dc6c6460a0bdc5fb13d1f0ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abc0d5d89af9486c401cb3c3b715f5fbc inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#abc0d5d89af9486c401cb3c3b715f5fbc">slew</a> (double speed, double step, double *prev)</td></tr>
+<tr class="memitem:abc0d5d89af9486c401cb3c3b715f5fbc inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="abc0d5d89af9486c401cb3c3b715f5fbc"></a>
+double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#abc0d5d89af9486c401cb3c3b715f5fbc">slew</a> (double speed, double step, double *prev)</td></tr>
+<tr class="memdesc:abc0d5d89af9486c401cb3c3b715f5fbc inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a gradually accelerating speed towards the target input. <br /></td></tr>
 <tr class="separator:abc0d5d89af9486c401cb3c3b715f5fbc inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a04d2f285a0ea7db4ee666e5e3cfe02c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a04d2f285a0ea7db4ee666e5e3cfe02c1">settled</a> ()</td></tr>
+<tr class="memitem:a04d2f285a0ea7db4ee666e5e3cfe02c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a04d2f285a0ea7db4ee666e5e3cfe02c1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a04d2f285a0ea7db4ee666e5e3cfe02c1">settled</a> ()</td></tr>
+<tr class="memdesc:a04d2f285a0ea7db4ee666e5e3cfe02c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get a boolean that is true if the chassis motors are in motion. <br /></td></tr>
 <tr class="separator:a04d2f285a0ea7db4ee666e5e3cfe02c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab44772c1708bfb0d2e59e872ebe7428c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab44772c1708bfb0d2e59e872ebe7428c">waitUntilSettled</a> ()</td></tr>
+<tr class="memitem:ab44772c1708bfb0d2e59e872ebe7428c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ab44772c1708bfb0d2e59e872ebe7428c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab44772c1708bfb0d2e59e872ebe7428c">waitUntilSettled</a> ()</td></tr>
+<tr class="memdesc:ab44772c1708bfb0d2e59e872ebe7428c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Delay the program until the chassis motors come to rest. <br /></td></tr>
 <tr class="separator:ab44772c1708bfb0d2e59e872ebe7428c inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad889d9310ef515acecb0c70a4a12bf81 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad889d9310ef515acecb0c70a4a12bf81">moveAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:ad889d9310ef515acecb0c70a4a12bf81 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ad889d9310ef515acecb0c70a4a12bf81"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad889d9310ef515acecb0c70a4a12bf81">moveAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:ad889d9310ef515acecb0c70a4a12bf81 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asycronous chassis movement. <br /></td></tr>
 <tr class="separator:ad889d9310ef515acecb0c70a4a12bf81 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a01f33fa0d448a59acfad32048007828b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a01f33fa0d448a59acfad32048007828b">turnAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:a01f33fa0d448a59acfad32048007828b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a01f33fa0d448a59acfad32048007828b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a01f33fa0d448a59acfad32048007828b">turnAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:a01f33fa0d448a59acfad32048007828b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asycronous turn movement. <br /></td></tr>
 <tr class="separator:a01f33fa0d448a59acfad32048007828b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afde6a67c4f97c93ba814d2d6ca3d60b5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#afde6a67c4f97c93ba814d2d6ca3d60b5">turnAbsoluteAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:afde6a67c4f97c93ba814d2d6ca3d60b5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="afde6a67c4f97c93ba814d2d6ca3d60b5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#afde6a67c4f97c93ba814d2d6ca3d60b5">turnAbsoluteAsync</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:afde6a67c4f97c93ba814d2d6ca3d60b5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asycronous absolute turn movement (only works with IMU) <br /></td></tr>
 <tr class="separator:afde6a67c4f97c93ba814d2d6ca3d60b5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6cfe91e7ff652db5d5cd4714f994685b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6cfe91e7ff652db5d5cd4714f994685b">holoAsync</a> (double distance, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, int max=100)</td></tr>
+<tr class="memitem:a6cfe91e7ff652db5d5cd4714f994685b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a6cfe91e7ff652db5d5cd4714f994685b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6cfe91e7ff652db5d5cd4714f994685b">holoAsync</a> (double distance, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, int max=100)</td></tr>
+<tr class="memdesc:a6cfe91e7ff652db5d5cd4714f994685b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Begin an asycronous holonomic chassis movement. <br /></td></tr>
 <tr class="separator:a6cfe91e7ff652db5d5cd4714f994685b inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae2d74eba9c30f0169453dbbd1c83c4ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae2d74eba9c30f0169453dbbd1c83c4ed">move</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:ae2d74eba9c30f0169453dbbd1c83c4ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ae2d74eba9c30f0169453dbbd1c83c4ed"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae2d74eba9c30f0169453dbbd1c83c4ed">move</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:ae2d74eba9c30f0169453dbbd1c83c4ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a chassis movement and wait until settled. <br /></td></tr>
 <tr class="separator:ae2d74eba9c30f0169453dbbd1c83c4ed inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:affc2e2e8d6124d9e303eb708f7463a74 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#affc2e2e8d6124d9e303eb708f7463a74">turn</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:affc2e2e8d6124d9e303eb708f7463a74 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="affc2e2e8d6124d9e303eb708f7463a74"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#affc2e2e8d6124d9e303eb708f7463a74">turn</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:affc2e2e8d6124d9e303eb708f7463a74 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a turn movement and wait until settled. <br /></td></tr>
 <tr class="separator:affc2e2e8d6124d9e303eb708f7463a74 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e8edd1d8d56abf118a9afd786d24873 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6e8edd1d8d56abf118a9afd786d24873">turnAbsolute</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:a6e8edd1d8d56abf118a9afd786d24873 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a6e8edd1d8d56abf118a9afd786d24873"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6e8edd1d8d56abf118a9afd786d24873">turnAbsolute</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:a6e8edd1d8d56abf118a9afd786d24873 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform an absolute turn movement using IMU and wait until settled. <br /></td></tr>
 <tr class="separator:a6e8edd1d8d56abf118a9afd786d24873 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9e860643a842e2d5300d03e09d116d1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad9e860643a842e2d5300d03e09d116d1">holo</a> (double distance, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, int max=100)</td></tr>
+<tr class="memitem:ad9e860643a842e2d5300d03e09d116d1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ad9e860643a842e2d5300d03e09d116d1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad9e860643a842e2d5300d03e09d116d1">holo</a> (double distance, double <a class="el" href="classarms_1_1chassis_1_1_chassis.html#af1040f60b094a0cef633c569a5a2e489">angle</a>, int max=100)</td></tr>
+<tr class="memdesc:ad9e860643a842e2d5300d03e09d116d1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a holonomic movement and wait until settled. <br /></td></tr>
 <tr class="separator:ad9e860643a842e2d5300d03e09d116d1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a916e23a64abf4eb592f77884423cb594 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a916e23a64abf4eb592f77884423cb594">fast</a> (double sp, int max=100)</td></tr>
+<tr class="memitem:a916e23a64abf4eb592f77884423cb594 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a916e23a64abf4eb592f77884423cb594"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a916e23a64abf4eb592f77884423cb594">fast</a> (double sp, int max=100)</td></tr>
+<tr class="memdesc:a916e23a64abf4eb592f77884423cb594 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move a distance at a set voltage with no PID. <br /></td></tr>
 <tr class="separator:a916e23a64abf4eb592f77884423cb594 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4f6de643a1f244fcf41c9d590604efeb inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a4f6de643a1f244fcf41c9d590604efeb">voltage</a> (int t, int left_speed=100, int right_speed=101)</td></tr>
+<tr class="memitem:a4f6de643a1f244fcf41c9d590604efeb inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a4f6de643a1f244fcf41c9d590604efeb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a4f6de643a1f244fcf41c9d590604efeb">voltage</a> (int t, int left_speed=100, int right_speed=101)</td></tr>
+<tr class="memdesc:a4f6de643a1f244fcf41c9d590604efeb inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move for a duration at a set voltage with no PID. <br /></td></tr>
 <tr class="separator:a4f6de643a1f244fcf41c9d590604efeb inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69dddd9f423d5f154123d41d98a4075f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a69dddd9f423d5f154123d41d98a4075f">velocity</a> (int t, int left_max=100, int right_max=101)</td></tr>
+<tr class="memitem:a69dddd9f423d5f154123d41d98a4075f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a69dddd9f423d5f154123d41d98a4075f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a69dddd9f423d5f154123d41d98a4075f">velocity</a> (int t, int left_max=100, int right_max=101)</td></tr>
+<tr class="memdesc:a69dddd9f423d5f154123d41d98a4075f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move for a duration at a set velocity using internal PID. <br /></td></tr>
 <tr class="separator:a69dddd9f423d5f154123d41d98a4075f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af39de4efbc34d382e306dab347585339 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="af39de4efbc34d382e306dab347585339"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>arc</b> (bool mirror, int arc_length, double rad, int max, int type)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#af39de4efbc34d382e306dab347585339">arc</a> (bool mirror, int arc_length, double rad, int max, int type)</td></tr>
+<tr class="memdesc:af39de4efbc34d382e306dab347585339 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move in an arc of given length and radius. <br /></td></tr>
 <tr class="separator:af39de4efbc34d382e306dab347585339 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae74e1fb6f5e26a599ee754d8c1ddd00f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae74e1fb6f5e26a599ee754d8c1ddd00f">arcLeft</a> (int length, double rad, int max=100, int type=0)</td></tr>
+<tr class="memitem:ae74e1fb6f5e26a599ee754d8c1ddd00f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ae74e1fb6f5e26a599ee754d8c1ddd00f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ae74e1fb6f5e26a599ee754d8c1ddd00f">arcLeft</a> (int length, double rad, int max=100, int type=0)</td></tr>
+<tr class="memdesc:ae74e1fb6f5e26a599ee754d8c1ddd00f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move the robot in an arc with a set length, radius, and speed. <br /></td></tr>
 <tr class="separator:ae74e1fb6f5e26a599ee754d8c1ddd00f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20efc954e1e68f243ff783f61531a338 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a20efc954e1e68f243ff783f61531a338">arcRight</a> (int length, double rad, int max=100, int type=0)</td></tr>
+<tr class="memitem:a20efc954e1e68f243ff783f61531a338 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a20efc954e1e68f243ff783f61531a338"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a20efc954e1e68f243ff783f61531a338">arcRight</a> (int length, double rad, int max=100, int type=0)</td></tr>
+<tr class="memdesc:a20efc954e1e68f243ff783f61531a338 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move the robot in an arc with a set length, radius, and speed. <br /></td></tr>
 <tr class="separator:a20efc954e1e68f243ff783f61531a338 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad835478659aa531a08595e58791f6f2f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ad835478659aa531a08595e58791f6f2f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>scurve</b> (bool mirror, int arc1, int mid, int arc2, int max)</td></tr>
 <tr class="separator:ad835478659aa531a08595e58791f6f2f inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a749debbfa1ce988e69d10fcbb6b63a6a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a749debbfa1ce988e69d10fcbb6b63a6a">sLeft</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memitem:a749debbfa1ce988e69d10fcbb6b63a6a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a749debbfa1ce988e69d10fcbb6b63a6a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a749debbfa1ce988e69d10fcbb6b63a6a">sLeft</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memdesc:a749debbfa1ce988e69d10fcbb6b63a6a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a forward S shaped movement with a set length, and speed. <br /></td></tr>
 <tr class="separator:a749debbfa1ce988e69d10fcbb6b63a6a inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abcfd38c9e35bdd20262a6339b03a0240 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#abcfd38c9e35bdd20262a6339b03a0240">sRight</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memitem:abcfd38c9e35bdd20262a6339b03a0240 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="abcfd38c9e35bdd20262a6339b03a0240"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#abcfd38c9e35bdd20262a6339b03a0240">sRight</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memdesc:abcfd38c9e35bdd20262a6339b03a0240 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a forward S shaped movement with a set length, and speed. <br /></td></tr>
 <tr class="separator:abcfd38c9e35bdd20262a6339b03a0240 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab3616149511ed506d93d2cfe506b52ad inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab3616149511ed506d93d2cfe506b52ad">_sLeft</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memitem:ab3616149511ed506d93d2cfe506b52ad inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ab3616149511ed506d93d2cfe506b52ad"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab3616149511ed506d93d2cfe506b52ad">_sLeft</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memdesc:ab3616149511ed506d93d2cfe506b52ad inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a backward S shaped movement with a set length, and speed. <br /></td></tr>
 <tr class="separator:ab3616149511ed506d93d2cfe506b52ad inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6d38e914306fc2066d176fb86ee50f8 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab6d38e914306fc2066d176fb86ee50f8">_sRight</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memitem:ab6d38e914306fc2066d176fb86ee50f8 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ab6d38e914306fc2066d176fb86ee50f8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ab6d38e914306fc2066d176fb86ee50f8">_sRight</a> (int arc1, int mid, int arc2, int max=100)</td></tr>
+<tr class="memdesc:ab6d38e914306fc2066d176fb86ee50f8 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform a backward S shaped movement with a set length, and speed. <br /></td></tr>
 <tr class="separator:ab6d38e914306fc2066d176fb86ee50f8 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a12da2e274db0ffb3517518582f91d7c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a12da2e274db0ffb3517518582f91d7c1">tank</a> (double left, double right)</td></tr>
+<tr class="memitem:a12da2e274db0ffb3517518582f91d7c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a12da2e274db0ffb3517518582f91d7c1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a12da2e274db0ffb3517518582f91d7c1">tank</a> (double left, double right)</td></tr>
+<tr class="memdesc:a12da2e274db0ffb3517518582f91d7c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a voltage to each motor on a scale of -100 to 100. <br /></td></tr>
 <tr class="separator:a12da2e274db0ffb3517518582f91d7c1 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1373d1e189b7327a254b8510a3df6a7 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad1373d1e189b7327a254b8510a3df6a7">arcade</a> (double vertical, double horizontal)</td></tr>
+<tr class="memitem:ad1373d1e189b7327a254b8510a3df6a7 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="ad1373d1e189b7327a254b8510a3df6a7"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#ad1373d1e189b7327a254b8510a3df6a7">arcade</a> (double vertical, double horizontal)</td></tr>
+<tr class="memdesc:ad1373d1e189b7327a254b8510a3df6a7 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a voltage to each motor on a scale of -100 to 100. <br /></td></tr>
 <tr class="separator:ad1373d1e189b7327a254b8510a3df6a7 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c29a2cf22c39cf412b02c2a21b0fbef inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6c29a2cf22c39cf412b02c2a21b0fbef">holonomic</a> (double x, double y, double z)</td></tr>
+<tr class="memitem:a6c29a2cf22c39cf412b02c2a21b0fbef inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a6c29a2cf22c39cf412b02c2a21b0fbef"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a6c29a2cf22c39cf412b02c2a21b0fbef">holonomic</a> (double x, double y, double z)</td></tr>
+<tr class="memdesc:a6c29a2cf22c39cf412b02c2a21b0fbef inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assign a voltage to each motor on a scale of -100 to 100. <br /></td></tr>
 <tr class="separator:a6c29a2cf22c39cf412b02c2a21b0fbef inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af00fc8997b30955948be5ebd6abb9bc5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#af00fc8997b30955948be5ebd6abb9bc5">startTask</a> ()</td></tr>
+<tr class="memitem:af00fc8997b30955948be5ebd6abb9bc5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="af00fc8997b30955948be5ebd6abb9bc5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#af00fc8997b30955948be5ebd6abb9bc5">startTask</a> ()</td></tr>
+<tr class="memdesc:af00fc8997b30955948be5ebd6abb9bc5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">Start the asynchronous task for this chassis. <br /></td></tr>
 <tr class="separator:af00fc8997b30955948be5ebd6abb9bc5 inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8315ea4847690d615cf9eee33f98a9cf inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a8315ea4847690d615cf9eee33f98a9cf">Chassis</a> (std::initializer_list&lt; okapi::Motor &gt; leftMotorsList={LEFT_MOTORS}, std::initializer_list&lt; okapi::Motor &gt; rightMotorsList={RIGHT_MOTORS}, int gearset=GEARSET, double distance_constant=DISTANCE_CONSTANT, double degree_constant=DEGREE_CONSTANT, int settle_time=SETTLE_TIME, double settle_threshold_linear=SETTLE_THRESHOLD_LINEAR, double settle_threshold_angular=SETTLE_THRESHOLD_ANGULAR, double accel_step=ACCEL_STEP, double arc_step=ARC_STEP, int imuPort=IMU_PORT, std::tuple&lt; int, int, int &gt; encoderPorts={ENCODER_PORTS}, int expanderPort=EXPANDER_PORT, int joystick_threshold=JOYSTICK_THRESHOLD, <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a> pid=<a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>())</td></tr>
+<tr class="memitem:a8315ea4847690d615cf9eee33f98a9cf inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memItemLeft" align="right" valign="top"><a id="a8315ea4847690d615cf9eee33f98a9cf"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a8315ea4847690d615cf9eee33f98a9cf">Chassis</a> (std::initializer_list&lt; okapi::Motor &gt; leftMotorsList={LEFT_MOTORS}, std::initializer_list&lt; okapi::Motor &gt; rightMotorsList={RIGHT_MOTORS}, int gearset=GEARSET, double distance_constant=DISTANCE_CONSTANT, double degree_constant=DEGREE_CONSTANT, int settle_time=SETTLE_TIME, double settle_threshold_linear=SETTLE_THRESHOLD_LINEAR, double settle_threshold_angular=SETTLE_THRESHOLD_ANGULAR, double accel_step=ACCEL_STEP, double arc_step=ARC_STEP, int imuPort=IMU_PORT, std::tuple&lt; int, int, int &gt; encoderPorts={ENCODER_PORTS}, int expanderPort=EXPANDER_PORT, int joystick_threshold=JOYSTICK_THRESHOLD, <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a> pid=<a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>())</td></tr>
+<tr class="memdesc:a8315ea4847690d615cf9eee33f98a9cf inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="mdescLeft">&#160;</td><td class="mdescRight">A class to control a robot chassis. <br /></td></tr>
 <tr class="separator:a8315ea4847690d615cf9eee33f98a9cf inherit pub_methods_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pro-attribs"></a>
@@ -329,519 +430,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>joystick_threshold</b>
 <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pid</b></td></tr>
 <tr class="separator:ab96205b0c169060ddbf4b45cefbe5737 inherit pro_attribs_classarms_1_1chassis_1_1_chassis"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="a22820c304f1b0b72291ca0b99268b3e6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22820c304f1b0b72291ca0b99268b3e6">&#9670;&nbsp;</a></span>OdomChassis()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">arms::chassis::OdomChassis::OdomChassis </td>
-          <td>(</td>
-          <td class="paramtype">std::initializer_list&lt; okapi::Motor &gt;&#160;</td>
-          <td class="paramname"><em>leftMotorsList</em> = <code>{LEFT_MOTORS}</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::initializer_list&lt; okapi::Motor &gt;&#160;</td>
-          <td class="paramname"><em>rightMotorsList</em> = <code>{RIGHT_MOTORS}</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>gearset</em> = <code>GEARSET</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>distance_constant</em> = <code>DISTANCE_CONSTANT</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>degree_constant</em> = <code>DEGREE_CONSTANT</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>settle_time</em> = <code>SETTLE_TIME</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>settle_threshold_linear</em> = <code>SETTLE_THRESHOLD_LINEAR</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>settle_threshold_angular</em> = <code>SETTLE_THRESHOLD_ANGULAR</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>accel_step</em> = <code>ACCEL_STEP</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>arc_step</em> = <code>ARC_STEP</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>imuPort</em> = <code>IMU_PORT</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::tuple&lt; int, int, int &gt;&#160;</td>
-          <td class="paramname"><em>encoderPorts</em> = <code>{ENCODER_PORTS}</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>expanderPort</em> = <code>EXPANDER_PORT</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>joystick_threshold</em> = <code>JOYSTICK_THRESHOLD</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>&#160;</td>
-          <td class="paramname"><em>pid</em> = <code><a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>()</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>debug</em> = <code>ODOM_DEBUG</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>left_right_distance</em> = <code>LEFT_RIGHT_DISTANCE</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>middle_distance</em> = <code>MIDDLE_DISTANCE</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>left_right_tpi</em> = <code>LEFT_RIGHT_TPI</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>middle_tpi</em> = <code>MIDDLE_TPI</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>holonomic</em> = <code>HOLONOMIC</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>exit_error</em> = <code>EXIT_ERROR</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>A class to control a robot chassis with odometry </p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a225833fe79dcfa7eb55716da663046b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a225833fe79dcfa7eb55716da663046b5">&#9670;&nbsp;</a></span>findIntersectionPoint()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::array&lt;double, 2&gt; arms::chassis::OdomChassis::findIntersectionPoint </td>
-          <td>(</td>
-          <td class="paramtype">std::vector&lt; std::array&lt; double, 2 &gt;&gt;&#160;</td>
-          <td class="paramname"><em>path</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>radius</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Find the intersection points between the given path and a circle with given radius </p>
-
-</div>
-</div>
-<a id="a067c4bd27c2d768067107efb4327300c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a067c4bd27c2d768067107efb4327300c">&#9670;&nbsp;</a></span>followPath()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::followPath </td>
-          <td>(</td>
-          <td class="paramtype">std::vector&lt; std::array&lt; double, 2 &gt;&gt;&#160;</td>
-          <td class="paramname"><em>path</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Follow a path using odometry </p>
-
-</div>
-</div>
-<a id="a7e2543d8f2a29a9536d4612701dc12b1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7e2543d8f2a29a9536d4612701dc12b1">&#9670;&nbsp;</a></span>getAngleError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double arms::chassis::OdomChassis::getAngleError </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Gets the difference between the current heading of the chassis and the target heading </p>
-
-</div>
-</div>
-<a id="acb643e4859c977fcc48e12caa2f49bf5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acb643e4859c977fcc48e12caa2f49bf5">&#9670;&nbsp;</a></span>getDistanceError()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">double arms::chassis::OdomChassis::getDistanceError </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Gets the distance between the current chassis position and the target position </p>
-
-</div>
-</div>
-<a id="a822d4a73152610312624ff5b5f0c9899"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a822d4a73152610312624ff5b5f0c9899">&#9670;&nbsp;</a></span>holo()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::holo </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>angle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>turnMax</em> = <code>50</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin a blocking holonomic chassis movement with odometry </p>
-
-</div>
-</div>
-<a id="afe7116178ca96db9541e2c9f49d457da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afe7116178ca96db9541e2c9f49d457da">&#9670;&nbsp;</a></span>holoAsync()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::holoAsync </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>angle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>turnMax</em> = <code>50</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin an asynchronous holonomic chassis movement with odometry </p>
-
-</div>
-</div>
-<a id="adef4c8e188e653ceca31cd9d3dc0be74"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adef4c8e188e653ceca31cd9d3dc0be74">&#9670;&nbsp;</a></span>holoThru()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::holoThru </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>angle</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>turnMax</em> = <code>50</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin a blocking holonomic chassis movement with odometry but without using PID at the end of the movement to slow down </p>
-
-</div>
-</div>
-<a id="a9e0044d737f65ab6b398866f61a78480"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9e0044d737f65ab6b398866f61a78480">&#9670;&nbsp;</a></span>move()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::move </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin a blocking chassis movement with odometry </p>
-
-</div>
-</div>
-<a id="a7bcdb45c7ae5c435779797f198624075"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7bcdb45c7ae5c435779797f198624075">&#9670;&nbsp;</a></span>moveAsync()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::moveAsync </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin an asynchronous chassis movement with odometry </p>
-
-</div>
-</div>
-<a id="a836f68bdd84001fc9c318b7ca1e5dad6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a836f68bdd84001fc9c318b7ca1e5dad6">&#9670;&nbsp;</a></span>moveThru()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::moveThru </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>max</em> = <code>80</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Begin a blocking chassis movement with odometry but without using PID at the end of the movement to slow down </p>
-
-</div>
-</div>
-<a id="a4367e8e490bdfe1317a53748b463a1da"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4367e8e490bdfe1317a53748b463a1da">&#9670;&nbsp;</a></span>resetOdom() <span class="overload">[1/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::resetOdom </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>angle</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Resets odometry to the given point and heading </p>
-
-</div>
-</div>
-<a id="a7661998999fcb3a9a6c4b0b916ed98c1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7661998999fcb3a9a6c4b0b916ed98c1">&#9670;&nbsp;</a></span>resetOdom() <span class="overload">[2/2]</span></h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::resetOdom </td>
-          <td>(</td>
-          <td class="paramtype">std::array&lt; double, 2 &gt;&#160;</td>
-          <td class="paramname"><em>point</em> = <code>{0,&#160;0}</code></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Resets odometry to the given point </p>
-
-</div>
-</div>
-<a id="a7926e3554c93ed6e3e4b56d83bc00616"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7926e3554c93ed6e3e4b56d83bc00616">&#9670;&nbsp;</a></span>startTask()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::OdomChassis::startTask </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Start the asynchronous task for this odometry chassis </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/ARMS/<a class="el" href="chassis_8h_source.html">chassis.h</a></li>
 </ul>

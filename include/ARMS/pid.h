@@ -45,98 +45,62 @@ protected:
 	double min_error;
 
 public:
-	/**
-	 * Gets the PID mode
-	 */
+	/// Gets the PID mode
 	int getMode();
 
-	/**
-	 * Sets the PID mode
-	 */
+	/// Sets the PID mode
 	void setMode(int newMode);
 
-	/**
-	 * Gets the point target
-	 */
+	/// Gets the point target
 	std::array<double, 2> getPointTarget();
 
-	/**
-	 * Sets the point target
-	 */
+	/// Sets the point target
 	void setPointTarget(std::array<double, 2> newTarget);
 
-	/**
-	 * Gets the linear target
-	 */
+	/// Gets the linear target
 	double getLinearTarget();
 
-	/**
-	 * Sets the linear target
-	 */
+	/// Sets the linear target
 	void setLinearTarget(double newTarget);
 
-	/**
-	 * Gets the angular target
-	 */
+	/// Gets the angular target
 	double getAngularTarget();
 
-	/**
-	 * Sets the angular target
-	 */
+	/// Sets the angular target
 	void setAngularTarget(double newTarget);
 
-	/**
-	 * Gets the vector angle
-	 */
+	/// Gets the vector angle
 	double getVectorAngle();
 
-	/**
-	 * Sets the vector angle
-	 */
+	/// Sets the vector angle
 	void setVectorAngle(double newAngle);
 
-	/**
-	 * Gets the difference kP value
-	 */
+	/// Gets the difference kP value
 	double getDifKP();
 
-	/**
-	 * Gets the arc kP value
-	 */
+	/// Gets the arc kP value
 	double getArcKP();
 
-	/**
-	 * Returns speed using the given error and PID values
-	 */
+	/// Returns speed using the given error and PID values
 	double pid(double error, double* pe, double* in, double kp, double ki,
 	           double kd);
 
-	/**
-	 * Returns speed using the given target, setpoint, and PID values
-	 */
+	/// Returns speed using the given target, setpoint, and PID values
 	double pid(double target, double sv, double* pe, double* in, double kp,
 	           double ki, double kd);
 
-	/**
-	 * Returns chassis motor speeds using PID for linear motions
-	 */
+	/// Returns chassis motor speeds using PID for linear motions
 	std::array<double, 2> linear(double sv_x, double sv_y, double maxSpeed,
 	                             double difference);
 
-	/**
-	 * Returns chassis motor speeds using PID for angular motions
-	 */
+	/// Returns chassis motor speeds using PID for angular motions
 	std::array<double, 2> angular(double angle);
 
-	/**
-	 * Returns chassis motor speeds using PID for odometry motions
-	 */
+	/// Returns chassis motor speeds using PID for odometry motions
 	std::array<double, 2> odom(double maxSpeed, double g_x, double g_y,
 	                           double heading, double heading_degrees);
 
-	/**
-	 * A class that uses PID loops to control chassis movement
-	 */
+	/// A class that uses PID loops to control chassis movement
 	PID(bool debug = false, double linearKP = 0, double linearKI = 0,
 	    double linearKD = 0, double angularKP = 0, double angularKI = 0,
 	    double angularKD = 0, double linear_pointKP = 0,
@@ -166,49 +130,31 @@ protected:
 	double min_error;
 
 public:
-	/**
-	 * A builder to make PID objects
-	 */
+	/// A builder to make PID objects
 	PIDBuilder();
 
-	/**
-	 * Sets the linear PID values
-	 */
+	/// Sets the linear PID values
 	PIDBuilder& withLinearPID(double kP, double kI, double kD);
 
-	/**
-	 * Sets the angular PID values
-	 */
+	/// Sets the angular PID values
 	PIDBuilder& withAngularPID(double kP, double kI, double kD);
 
-	/**
-	 * Sets the linear point PID values for odometry
-	 */
+	/// Sets the linear point PID values for odometry
 	PIDBuilder& withLinearPointPID(double kP, double kI, double kD);
 
-	/**
-	 * Sets the angular point PID values for odometry
-	 */
+	/// Sets the angular point PID values for odometry
 	PIDBuilder& withAngularPointPID(double kP, double kI, double kD);
 
-	/**
-	 * Sets the arc kP value
-	 */
+	/// Sets the arc kP value
 	PIDBuilder& withArcKP(double kP);
 
-	/**
-	 * Sets the difference kP value
-	 */
+	/// Sets the difference kP value
 	PIDBuilder& withDifKP(double kP);
 
-	/**
-	 * Sets the minimum error value
-	 */
+	/// Sets the minimum error value
 	PIDBuilder& withMinError(double m);
 
-	/**
-	 * Builds a PID object
-	 */
+	/// Builds a PID object
 	PID build();
 };
 

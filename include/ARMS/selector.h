@@ -9,9 +9,7 @@ namespace arms::selector {
 extern int auton;
 const char* b[] = {AUTONS, ""};
 
-/**
- * Initializes auton selector
- */
+/// Initializes auton selector
 void init(int hue = HUE, int default_auton = DEFAULT, const char** autons = b);
 
 } // namespace arms::selector
