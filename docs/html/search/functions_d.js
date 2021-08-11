@@ -3,7 +3,7 @@ var searchData=
   ['setangulartarget_160',['setAngularTarget',['../classarms_1_1pid_1_1_p_i_d.html#af41bb63367101feeaa5b9e8899e0ffd0',1,'arms::pid::PID']]],
   ['setbrakemode_161',['setBrakeMode',['../classarms_1_1chassis_1_1_chassis.html#a9c694bf3fe29fbeaafea09da21a9484c',1,'arms::chassis::Chassis']]],
   ['setlineartarget_162',['setLinearTarget',['../classarms_1_1pid_1_1_p_i_d.html#a7d428327b397bbf322db1e3c037f88d3',1,'arms::pid::PID']]],
-  ['setmode_163',['setMode',['../classarms_1_1pid_1_1_p_i_d.html#ac57c4dac6eaac3727db32340bb03aca3',1,'arms::pid::PID']]],
+  ['setmode_163',['setMode',['../classarms_1_1pid_1_1_p_i_d.html#af51f6102282f59889fc603b28b39978d',1,'arms::pid::PID']]],
   ['setpointtarget_164',['setPointTarget',['../classarms_1_1pid_1_1_p_i_d.html#a0d47a02fbc0af2d3005dcce343a70561',1,'arms::pid::PID']]],
   ['settled_165',['settled',['../classarms_1_1chassis_1_1_chassis.html#a04d2f285a0ea7db4ee666e5e3cfe02c1',1,'arms::chassis::Chassis']]],
   ['setvectorangle_166',['setVectorAngle',['../classarms_1_1pid_1_1_p_i_d.html#ab1fd9a9683fbf50e5ffeb0ef6bdfbb5c',1,'arms::pid::PID']]],

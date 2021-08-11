@@ -14,7 +14,7 @@ var searchData=
   ['getlineartarget_134',['getLinearTarget',['../classarms_1_1pid_1_1_p_i_d.html#a17cb5a507e22252f5ddd3c3c8639be1b',1,'arms::pid::PID']]],
   ['getmiddledistance_135',['getMiddleDistance',['../classarms_1_1chassis_1_1_odom.html#ae5496afcc1cefd4c40f2d19c003e7b7f',1,'arms::chassis::Odom']]],
   ['getmiddletpi_136',['getMiddleTPI',['../classarms_1_1chassis_1_1_odom.html#aac0233e6617cb40125752c1e3ad66776',1,'arms::chassis::Odom']]],
-  ['getmode_137',['getMode',['../classarms_1_1pid_1_1_p_i_d.html#a65423c5a41e7c6bd70d241d15ae45362',1,'arms::pid::PID']]],
+  ['getmode_137',['getMode',['../classarms_1_1pid_1_1_p_i_d.html#af02574ee2c8987f0ac96186d53cf5828',1,'arms::pid::PID']]],
   ['getpointtarget_138',['getPointTarget',['../classarms_1_1pid_1_1_p_i_d.html#ad3ad3b0df00480c618800b0c969c839d',1,'arms::pid::PID']]],
   ['getvectorangle_139',['getVectorAngle',['../classarms_1_1pid_1_1_p_i_d.html#a73e7ea5605bcbd19b69927a5090e426e',1,'arms::pid::PID']]]
 ];

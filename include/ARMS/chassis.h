@@ -52,14 +52,10 @@ public:
 	/// Gets the values of the left and right encoders.
 	std::array<double, 2> getEncoders();
 
-	/**
-	 * Checks if a wheel is moving
-	 */
+	/// Checks if a wheel is moving
 	int wheelMoving(double sv, double* psv);
 
-	/**
-	 * Set the speed of target motor
-	 */
+	/// Set the speed of target motor
 	void motorMove(std::shared_ptr<okapi::Motor> motor, double speed);
 
 	/// Set the speed of target motor group

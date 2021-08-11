@@ -6,17 +6,19 @@
 
 namespace arms::pid {
 
-// pid mode enums
-#define ODOM_HOLO_THRU 5
-#define ODOM_HOLO 4
-#define ODOM 3
-#define ANGULAR 2
-#define LINEAR 1
-#define DISABLE 0
+/// Enum used to define PID mode
+enum class PIDMode {
+	ODOM_HOLO_THRU,
+	ODOM_HOLO,
+	ODOM,
+	ANGULAR,
+	LINEAR,
+	DISABLE
+};
 
 class PID {
 protected:
-	int mode;
+	PIDMode mode;
 	bool debug;
 
 	double linearKP;
@@ -46,10 +48,10 @@ protected:
 
 public:
 	/// Gets the PID mode
-	int getMode();
+	PIDMode getMode();
 
 	/// Sets the PID mode
-	void setMode(int newMode);
+	void setMode(PIDMode newMode);
 
 	/// Gets the point target
 	std::array<double, 2> getPointTarget();

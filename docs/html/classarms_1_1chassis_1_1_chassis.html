@@ -91,9 +91,13 @@ Public Member Functions</h2></td></tr>
 std::array&lt; double, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a1a905d67bd0b9a1b641f5ff0466f57c9">getEncoders</a> ()</td></tr>
 <tr class="memdesc:a1a905d67bd0b9a1b641f5ff0466f57c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Gets the values of the left and right encoders. <br /></td></tr>
 <tr class="separator:a1a905d67bd0b9a1b641f5ff0466f57c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3474ce915191ecc0a8134420bcb7861a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a3474ce915191ecc0a8134420bcb7861a">wheelMoving</a> (double sv, double *psv)</td></tr>
+<tr class="memitem:a3474ce915191ecc0a8134420bcb7861a"><td class="memItemLeft" align="right" valign="top"><a id="a3474ce915191ecc0a8134420bcb7861a"></a>
+int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a3474ce915191ecc0a8134420bcb7861a">wheelMoving</a> (double sv, double *psv)</td></tr>
+<tr class="memdesc:a3474ce915191ecc0a8134420bcb7861a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if a wheel is moving. <br /></td></tr>
 <tr class="separator:a3474ce915191ecc0a8134420bcb7861a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a12d90086c17f2327202d8dd1de6b41"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a0a12d90086c17f2327202d8dd1de6b41">motorMove</a> (std::shared_ptr&lt; okapi::Motor &gt; motor, double speed)</td></tr>
+<tr class="memitem:a0a12d90086c17f2327202d8dd1de6b41"><td class="memItemLeft" align="right" valign="top"><a id="a0a12d90086c17f2327202d8dd1de6b41"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a0a12d90086c17f2327202d8dd1de6b41">motorMove</a> (std::shared_ptr&lt; okapi::Motor &gt; motor, double speed)</td></tr>
+<tr class="memdesc:a0a12d90086c17f2327202d8dd1de6b41"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the speed of target motor. <br /></td></tr>
 <tr class="separator:a0a12d90086c17f2327202d8dd1de6b41"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a326e31a70a41a96957d569d84f8b0a06"><td class="memItemLeft" align="right" valign="top"><a id="a326e31a70a41a96957d569d84f8b0a06"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classarms_1_1chassis_1_1_chassis.html#a326e31a70a41a96957d569d84f8b0a06">motorMove</a> (std::shared_ptr&lt; okapi::MotorGroup &gt; motor, double speed)</td></tr>
@@ -339,65 +343,6 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>joystick_threshold</b>
 <a class="el" href="classarms_1_1pid_1_1_p_i_d.html">pid::PID</a>&#160;</td><td class="memItemRight" valign="bottom"><b>pid</b></td></tr>
 <tr class="separator:ab96205b0c169060ddbf4b45cefbe5737"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a0a12d90086c17f2327202d8dd1de6b41"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0a12d90086c17f2327202d8dd1de6b41">&#9670;&nbsp;</a></span>motorMove()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void arms::chassis::Chassis::motorMove </td>
-          <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; okapi::Motor &gt;&#160;</td>
-          <td class="paramname"><em>motor</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>speed</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Set the speed of target motor </p>
-
-</div>
-</div>
-<a id="a3474ce915191ecc0a8134420bcb7861a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3474ce915191ecc0a8134420bcb7861a">&#9670;&nbsp;</a></span>wheelMoving()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">int arms::chassis::Chassis::wheelMoving </td>
-          <td>(</td>
-          <td class="paramtype">double&#160;</td>
-          <td class="paramname"><em>sv</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double *&#160;</td>
-          <td class="paramname"><em>psv</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>Checks if a wheel is moving </p>
-
-</div>
-</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
 <li>include/ARMS/<a class="el" href="chassis_8h_source.html">chassis.h</a></li>
 </ul>

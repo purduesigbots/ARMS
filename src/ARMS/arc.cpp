@@ -7,7 +7,7 @@ namespace arms::chassis {
 void Chassis::arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
 	int time_step = 0;
-	pid.setMode(DISABLE);
+	pid.setMode(pid::PIDMode::DISABLE);
 	bool reversed = false;
 
 	// reverse the movement if the length is negative

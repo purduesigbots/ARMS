@@ -155,7 +155,7 @@ double Chassis::slew(double target_speed, double step, double* current_speed) {
 int Chassis::wheelMoving(double sv, double* psv) {
 	int isMoving = 0;
 	double thresh = settle_threshold_linear;
-	if (pid.getMode() == ANGULAR)
+	if (pid.getMode() == pid::PIDMode::ANGULAR)
 		thresh = settle_threshold_angular;
 
 	if (fabs(sv - *psv) > thresh)
@@ -203,7 +203,7 @@ void Chassis::waitUntilSettled() {
 /**************************************************/
 // autonomous functions
 void Chassis::moveAsync(double sp, int max) {
-	pid.setMode(LINEAR);
+	pid.setMode(pid::PIDMode::LINEAR);
 	sp *= distance_constant;
 	reset();
 	maxSpeed = max;
@@ -212,7 +212,7 @@ void Chassis::moveAsync(double sp, int max) {
 }
 
 void Chassis::turnAsync(double sp, int max) {
-	pid.setMode(ANGULAR);
+	pid.setMode(pid::PIDMode::ANGULAR);
 	reset();
 	sp += angle();
 	maxSpeed = max;
@@ -220,7 +220,7 @@ void Chassis::turnAsync(double sp, int max) {
 }
 
 void Chassis::turnAbsoluteAsync(double sp, int max) {
-	pid.setMode(ANGULAR);
+	pid.setMode(pid::PIDMode::ANGULAR);
 
 	// convert from absolute to relative set point
 	sp = sp - (int)angle() % 360;
@@ -240,7 +240,7 @@ void Chassis::holoAsync(double distance, double angle, int max) {
 	maxSpeed = max;
 	pid.setLinearTarget(distance);
 	pid.setVectorAngle(angle * M_PI / 180);
-	pid.setMode(LINEAR);
+	pid.setMode(pid::PIDMode::LINEAR);
 }
 
 void Chassis::move(double sp, int max) {
@@ -273,7 +273,7 @@ void Chassis::fast(double sp, int max) {
 	if (sp < 0)
 		max = -max;
 	reset();
-	pid.setMode(DISABLE);
+	pid.setMode(pid::PIDMode::DISABLE);
 
 	while (fabs(position()) < fabs(sp * distance_constant)) {
 		speed = slew(max, accel_step, &output_prev[0]);
@@ -287,14 +287,14 @@ void Chassis::fast(double sp, int max) {
 }
 
 void Chassis::voltage(int t, int left_speed, int right_speed) {
-	pid.setMode(DISABLE);
+	pid.setMode(pid::PIDMode::DISABLE);
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed == 101 ? left_speed : right_speed, false);
 	delay(t);
 }
 
 void Chassis::velocity(int t, int left_max, int right_max) {
-	pid.setMode(DISABLE);
+	pid.setMode(pid::PIDMode::DISABLE);
 	motorMove(leftMotors, left_max, true);
 	motorMove(rightMotors, right_max == 101 ? left_max : right_max, true);
 	delay(t);
@@ -326,12 +326,13 @@ void Chassis::startTask() {
 
 			std::array<double, 2> speeds = {0, 0}; // left, right
 
-			if (pid.getMode() == LINEAR) {
+			if (pid.getMode() == pid::PIDMode::LINEAR) {
 				speeds = pid.linear(position(), position(true), maxSpeed, difference());
-			} else if (pid.getMode() == ANGULAR) {
+			} else if (pid.getMode() == pid::PIDMode::ANGULAR) {
 				speeds = pid.angular(angle());
-			} else if (pid.getMode() == ODOM || pid.getMode() == ODOM_HOLO ||
-			           pid.getMode() == ODOM_HOLO_THRU) {
+			} else if (pid.getMode() == pid::PIDMode::ODOM ||
+			           pid.getMode() == pid::PIDMode::ODOM_HOLO ||
+			           pid.getMode() == pid::PIDMode::ODOM_HOLO_THRU) {
 				speeds =
 				    pid.odom(maxSpeed, global_x, global_y, heading, heading_degrees);
 			} else {
@@ -368,7 +369,7 @@ void Chassis::startTask() {
 					largestSpeed = rightSpeed;
 
 				double scalingFactor;
-				if (pid.getMode() == ODOM_HOLO_THRU)
+				if (pid.getMode() == pid::PIDMode::ODOM_HOLO_THRU)
 					scalingFactor = fabs(maxSpeed) / fabs(largestVector);
 				else
 					scalingFactor = fabs(largestSpeed) / fabs(largestVector);
@@ -468,7 +469,7 @@ Chassis::Chassis(std::initializer_list<okapi::Motor> leftMotorsList,
 /**************************************************/
 // operator control
 void Chassis::tank(double left_speed, double right_speed) {
-	pid.setMode(DISABLE); // turns off autonomous tasks
+	pid.setMode(pid::PIDMode::DISABLE); // turns off autonomous tasks
 
 	// apply thresholding
 	left_speed = (fabs(left_speed) > joystick_threshold ? left_speed : 0);
@@ -479,7 +480,7 @@ void Chassis::tank(double left_speed, double right_speed) {
 }
 
 void Chassis::arcade(double vertical, double horizontal) {
-	pid.setMode(DISABLE); // turns off autonomous task
+	pid.setMode(pid::PIDMode::DISABLE); // turns off autonomous task
 
 	// apply thresholding
 	vertical = (fabs(vertical) > joystick_threshold ? vertical : 0);
@@ -490,7 +491,7 @@ void Chassis::arcade(double vertical, double horizontal) {
 }
 
 void Chassis::holonomic(double y, double x, double z) {
-	pid.setMode(DISABLE); // turns off autonomous task
+	pid.setMode(pid::PIDMode::DISABLE); // turns off autonomous task
 
 	// apply thresholding
 	y = (fabs(y) > joystick_threshold ? y : 0);

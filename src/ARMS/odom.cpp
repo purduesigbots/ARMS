@@ -132,7 +132,7 @@ void OdomChassis::moveAsync(std::array<double, 2> point, double max) {
 
 	maxSpeed = max;
 	pid.setPointTarget(point);
-	pid.setMode(ODOM);
+	pid.setMode(pid::PIDMode::ODOM);
 }
 
 void OdomChassis::holoAsync(std::array<double, 2> point, double angle,
@@ -148,7 +148,7 @@ void OdomChassis::holoAsync(std::array<double, 2> point, double angle,
 	maxTurn = turnMax;
 	pid.setPointTarget(point);
 	pid.setAngularTarget(angle);
-	pid.setMode(ODOM_HOLO);
+	pid.setMode(pid::PIDMode::ODOM_HOLO);
 }
 
 void OdomChassis::move(std::array<double, 2> point, double max) {
@@ -174,7 +174,7 @@ void OdomChassis::holo(std::array<double, 2> point, double angle, double max,
 void OdomChassis::holoThru(std::array<double, 2> point, double angle,
                            double max, double turnMax) {
 	holoAsync(point, angle, max, turnMax);
-	pid.setMode(ODOM_HOLO_THRU);
+	pid.setMode(pid::PIDMode::ODOM_HOLO_THRU);
 	delay(450);
 	while (getDistanceError(point) > exit_error && !settled())
 		delay(10);

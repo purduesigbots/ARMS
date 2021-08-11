@@ -3,11 +3,11 @@
 
 namespace arms::pid {
 
-int PID::getMode() {
+PIDMode PID::getMode() {
 	return mode;
 }
 
-void PID::setMode(int newMode) {
+void PID::setMode(PIDMode newMode) {
 	mode = newMode;
 }
 
@@ -140,7 +140,7 @@ std::array<double, 2> PID::odom(double maxSpeed, double g_x, double g_y,
 	double ang_error = delta_theta; // angular
 
 	// if holonomic, angular error is relative to field, not to point
-	if (mode == ODOM_HOLO || mode == ODOM_HOLO_THRU) {
+	if (mode == PIDMode::ODOM_HOLO || mode == PIDMode::ODOM_HOLO_THRU) {
 		vectorAngle = ang_error;
 		ang_error = angularTarget - ((int)heading_degrees % 360);
 
@@ -167,7 +167,7 @@ std::array<double, 2> PID::odom(double maxSpeed, double g_x, double g_y,
 
 	// reverse if point is behind robot
 	int reverse = 1;
-	if (fabs(ang_error) > M_PI_2 && mode == ODOM) {
+	if (fabs(ang_error) > M_PI_2 && mode == PIDMode::ODOM) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		reverse = -1;
 	}
