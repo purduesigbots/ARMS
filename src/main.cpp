@@ -1,33 +1,30 @@
 #include "main.h"
-#include "ARMS/chassis.h"
 
 pros::Controller master(CONTROLLER_MASTER);
-
-arms::chassis::OdomChassis chassis;
+arms::chassis::Chassis chassis;
 
 void initialize() {
 	arms::pid::PID pid = arms::pid::PIDBuilder()
-	                         .withLinearPID(0.5, 4, 1.2)
-	                         .withAngularPID(0.5, 4, 1.2)
-	                         .withLinearPointPID(0.5, 4, 1.2)
-	                         .withAngularPID(0.5, 4, 1.2)
-	                         .withArcKP(0.5)
-	                         .withDifKP(0.5)
-	                         .withMinError(1)
+	                         .withLinearPID(0.1, 0, 2)
+	                         .withAngularPID(0, 0, 0)
+	                         .withLinearPointPID(0, 0, 0)
+	                         .withAngularPID(0, 0, 0)
+	                         .withArcKP(0)
+	                         .withDifKP(0)
+	                         .withMinError(5)
 	                         .build();
 
-	arms::chassis::Odom odom =
-	    arms::chassis::Odom().withDistances(6.375, 5.75).withTPI(41.4, 41.4);
-
 	chassis = arms::chassis::ChassisBuilder()
-	              .withMotors({12, 13}, {-14, -15})
-	              .withDistanceConstant(273)
-	              .withIMU(8)
+	              .withMotors({-1, -2}, {4, 5})
+	              .withGearset(1200)
+	              .withDistanceConstant(20)
+	              .withIMU(0)
 	              .withPID(pid)
-	              .withOdom(odom)
-	              .buildOdom();
+	              .build();
 
-	arms::selector::init();
+	chassis.startTask();
+
+	// arms::selector::init();
 }
 
 void disabled() {
@@ -37,7 +34,7 @@ void competition_initialize() {
 }
 
 void autonomous() {
-	chassis.move({24, 0});
+	chassis.move(72);
 }
 
 void opcontrol() {
