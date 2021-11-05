@@ -28,7 +28,7 @@ namespace arms::chassis {
 } // namespace arms::chassis
 
 namespace arms::odom {
-#define ODOM_DEBUG 1
+#define ODOM_DEBUG 0
 #define LEFT_RIGHT_DISTANCE 6.375 // only needed for non-imu setups
 #define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
 #define LEFT_RIGHT_TPI 41.4       // Ticks per inch
@@ -50,6 +50,7 @@ namespace arms::pid {
 #define ANGULAR_KD 3
 #define ARC_KP .05
 #define DIF_KP .5
+#define DIF_MAX 20
 
 // odom point constants
 #define LINEAR_POINT_KP 8

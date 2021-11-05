@@ -22,6 +22,8 @@ double angular_pointKI;
 double angular_pointKD;
 double arcKP;
 double difKP;
+double dif;
+double difMax;
 double min_error;
 
 // pid targets
@@ -76,15 +78,10 @@ std::array<double, 2> linear() {
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
 
 	// difference PID
-	double dif = chassis::difference() * difKP;
+	dif = chassis::difference() * difKP;
+	dif = chassis::limitSpeed(dif, difMax);
 
-	// prevent oscillations near target
-	if (dif > speed && speed > 0)
-		dif = speed;
-	else if (dif < -speed && speed < 0)
-		dif = -speed;
-
-	return {speed -= dif, speed += dif};
+	return {speed - dif, speed + dif};
 }
 
 std::array<double, 2> angular() {
@@ -181,8 +178,8 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
           double angularKP, double angularKI, double angularKD,
           double linear_pointKP, double linear_pointKI, double linear_pointKD,
           double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP,
-          double min_error) {
+          double angular_pointKD, double arcKP, double difKP, double min_error,
+          double difMax) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
@@ -200,6 +197,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
 	pid::min_error = min_error;
+	pid::difMax = difMax;
 }
 
 } // namespace arms::pid
