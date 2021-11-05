@@ -22,6 +22,8 @@ double angular_pointKI;
 double angular_pointKD;
 double arcKP;
 double difKP;
+double dif;
+double difMax;
 double min_error;
 
 // pid targets
@@ -76,15 +78,10 @@ std::array<double, 2> linear() {
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
 
 	// difference PID
-	double dif = chassis::difference() * difKP;
+	dif = chassis::difference() * difKP;
+	dif = chassis::limitSpeed(dif, difMax);
 
-	// prevent oscillations near target
-	if (dif > speed && speed > 0)
-		dif = speed;
-	else if (dif < -speed && speed < 0)
-		dif = -speed;
-
-	return {speed -= dif, speed += dif};
+	return {speed - dif, speed + dif};
 }
 
 std::array<double, 2> angular() {
@@ -98,8 +95,8 @@ std::array<double, 2> angular() {
 
 std::array<double, 2> odom() {
 	// previous sensor values
-	static double psv_left = 0;
-	static double psv_right = 0;
+	static double pe_lin = 0;
+	static double pe_ang = 0;
 
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
@@ -116,15 +113,11 @@ std::array<double, 2> odom() {
 			ang_error += 360;
 
 		// convert to radians
-		ang_error = ang_error * M_PI / 180;
+		ang_error *= -M_PI / 180;
 
 	} else if (lin_error < min_error) {
 		ang_error = 0; // prevent spinning
 	}
-
-	// previous error values
-	static double pe_lin = lin_error;
-	static double pe_ang = ang_error;
 
 	// integral values
 	static double in_lin;
@@ -143,15 +136,11 @@ std::array<double, 2> odom() {
 	double lin_speed = pid(lin_error, &pe_lin, &in_lin, linear_pointKP,
 	                       linear_pointKI, linear_pointKD);
 
-	// store previous previos error
-	pe_lin = lin_error;
-	pe_ang = ang_error;
-
 	lin_speed *= reverse; // apply reversal
 
 	// add speeds together
-	double left_speed = lin_speed + ang_speed;
-	double right_speed = lin_speed - ang_speed;
+	double left_speed = lin_speed - ang_speed;
+	double right_speed = lin_speed + ang_speed;
 
 	// speed scaling
 	if (left_speed > chassis::maxSpeed) {
@@ -173,7 +162,7 @@ std::array<double, 2> odom() {
 		left_speed -= diff;
 		right_speed -= diff;
 	}
-
+	printf("%.2f, %.2f\n", left_speed, right_speed);
 	return {left_speed, right_speed};
 }
 
@@ -181,8 +170,8 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
           double angularKP, double angularKI, double angularKD,
           double linear_pointKP, double linear_pointKI, double linear_pointKD,
           double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP,
-          double min_error) {
+          double angular_pointKD, double arcKP, double difKP, double min_error,
+          double difMax) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
@@ -200,6 +189,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
 	pid::min_error = min_error;
+	pid::difMax = difMax;
 }
 
 } // namespace arms::pid

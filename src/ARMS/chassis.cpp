@@ -485,6 +485,14 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
 
+	chassis::frontLeft->tarePosition();
+	chassis::backLeft->tarePosition();
+	chassis::frontRight->tarePosition();
+	chassis::backRight->tarePosition();
+
+	chassis::leftMotors->tarePosition();
+	chassis::rightMotors->tarePosition();
+
 	if (std::get<0>(encoderPorts) != 0) {
 		leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
 	}
