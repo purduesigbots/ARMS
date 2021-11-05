@@ -159,10 +159,16 @@ void holoAsync(std::array<double, 2> point, double angle, double max,
 	pid::mode = ODOM_HOLO;
 }
 
-void move(std::array<double, 2> point, double max) {
+void move(std::array<double, 2> point, double max, bool settle) {
 	moveAsync(point, max);
 	delay(450);
-	chassis::waitUntilSettled();
+	if (settle) {
+		chassis::waitUntilSettled();
+	} else {
+		while (getDistanceError(point) > exit_error) {
+			delay(10);
+		}
+	}
 }
 
 void moveThru(std::array<double, 2> point, double max) {
