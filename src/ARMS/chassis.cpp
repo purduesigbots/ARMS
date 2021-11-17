@@ -351,7 +351,7 @@ int chassisTask() {
 		} else if (pid::mode == ANGULAR) {
 			speeds = pid::angular();
 		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO ||
-		           pid::mode == ODOM_HOLO_THRU) {
+		           pid::mode == ODOM_HOLO_THRU || pid::mode == ODOM_THRU) {
 			speeds = pid::odom();
 		} else {
 			continue;

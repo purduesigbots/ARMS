@@ -173,6 +173,7 @@ void move(std::array<double, 2> point, double max, bool settle) {
 
 void moveThru(std::array<double, 2> point, double max) {
 	moveAsync(point, max);
+	pid::mode = ODOM_THRU;
 	delay(450);
 	while (getDistanceError(point) > exit_error)
 		delay(10);
