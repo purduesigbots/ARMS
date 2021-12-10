@@ -27,7 +27,7 @@ void moveAsync(std::array<double, 2> point, double max = 80);
 void holoAsync(std::array<double, 2> point, double angle, double max = 80,
                double turnMax = 50);
 
-void move(std::array<double, 2> point, double max = 80);
+void move(std::array<double, 2> point, double max = 80, bool settle = true);
 
 void moveThru(std::array<double, 2> point, double max = 80);
 

@@ -7,6 +7,7 @@
 namespace arms::pid {
 
 // pid mode enums
+#define ODOM_THRU 6
 #define ODOM_HOLO_THRU 5
 #define ODOM_HOLO 4
 #define ODOM 3
