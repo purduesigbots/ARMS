@@ -58,7 +58,7 @@ int odomTask() {
 
 		// calculate new heading
 		double delta_angle;
-		if (chassis::imu) {
+		if (chassis::imu || chassis::gyro) {
 			heading_degrees = chassis::angle();
 			heading = heading_degrees * M_PI / 180.0;
 			delta_angle = heading - prev_heading;

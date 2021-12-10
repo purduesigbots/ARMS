@@ -25,6 +25,7 @@ extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
 extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
 extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
+extern std::shared_ptr<pros::ADIGyro> gyro;
 
 /**
  * Set the speed of target motor
@@ -172,7 +173,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
           int expanderPort = EXPANDER_PORT,
-          int joystick_threshold = JOYSTICK_THRESHOLD);
+          int joystick_threshold = JOYSTICK_THRESHOLD, int gyroPort = 0);
 
 } // namespace arms::chassis
 

@@ -10,6 +10,7 @@ namespace arms::chassis {
 
 // imu
 std::shared_ptr<Imu> imu;
+std::shared_ptr<ADIGyro> gyro;
 
 // chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -78,8 +79,9 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 }
 
 void resetAngle(double angle) {
-	if (imu)
+	if (imu) {
 		imu->set_rotation(angle);
+	}
 }
 
 void reset() {
@@ -147,13 +149,15 @@ double position(bool yDirection) {
 double angle() {
 	if (imu) {
 		return imu->get_rotation();
+	} else if(gyro) {
+		return gyro->get_value() / 10;
 	} else {
 		return (getEncoders()[0] - getEncoders()[1]) / 2 / degree_constant;
 	}
 }
 
 double difference() {
-	if (imu) {
+	if (imu || gyro) {
 		return chassis::angle() - pid::angularTarget;
 	} else {
 		return (getEncoders()[0] - getEncoders()[1]);
@@ -449,7 +453,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort,
-          int joystick_threshold) {
+          int joystick_threshold, int gyroPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -503,6 +507,10 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 
 	if (std::get<2>(encoderPorts) != 0) {
 		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
+	}
+	
+	if(gyroPort != 0) {
+		gyro = std::make_shared<ADIGyro>(gyroPort);
 	}
 
 	Task chassis_task(chassisTask);
