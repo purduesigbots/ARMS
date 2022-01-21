@@ -114,6 +114,10 @@
 
 /*
 @@ LUA_32BITS enables Lua with 32-bit integers and 32-bit floats.
+**
+** This option was initially off (defined as 0) in the original code, but
+** it must be enabled because pros/vex/whatever does not allow long long integer
+** types. 
 */
 #define LUA_32BITS	1
 

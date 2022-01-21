@@ -10,4 +10,8 @@
 // the .hpp file wraps the headers in an extern "C" declaration
 #include "lua/lua.hpp"
 
+namespace arms::lua {
+    bool init();
+}
+
 #endif//_ARMS_LUA_H_
