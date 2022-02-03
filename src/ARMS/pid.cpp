@@ -125,7 +125,7 @@ std::array<double, 2> odom() {
 
 	// reverse if point is behind robot
 	int reverse = 1;
-	if (fabs(ang_error) > M_PI_2 && mode == ODOM) {
+	if (fabs(ang_error) > M_PI_2 && (mode == ODOM || mode == ODOM_THRU)) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		reverse = -1;
 	}
@@ -136,11 +136,11 @@ std::array<double, 2> odom() {
 	double lin_speed = pid(lin_error, &pe_lin, &in_lin, linear_pointKP,
 	                       linear_pointKI, linear_pointKD);
 
-	lin_speed *= reverse; // apply reversal
-
 	if (mode == ODOM_THRU) {
 		lin_speed = chassis::maxSpeed;
 	}
+
+  lin_speed *= reverse; // apply reversal
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
