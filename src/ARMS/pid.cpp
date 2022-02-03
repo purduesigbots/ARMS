@@ -31,6 +31,7 @@ double linearTarget = 0;
 double angularTarget = 0;
 double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
+std::array<double, 2> pointCircle{0, 0};
 
 double pid(double error, double* pe, double* in, double kp, double ki,
            double kd) {
@@ -98,6 +99,12 @@ std::array<double, 2> odom() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
+  if (pid::mode == ODOM_POSE) {
+    int side = (pointTarget[0] - odom::global_x) * sin (targetAngle) - (pointTarget[1] - odom::global_y) * cos (targetAngle) > 0 ? 1 : -1;
+    pointCircle = {pointTarget[0] - side * poseRadius * sin (targetAngle), pointTarget[1] + side * poseRadius * cos (targetAngle)}
+    std::array<double, 2> pointFocus = {pointCircle[0] + side * poseRadius * sin (odom::heading), pointCircle[1] - side * poseRadius * cos (odom::heading)};
+  }
+
 	double lin_error = odom::getDistanceError(pointTarget); // linear
 	double ang_error = odom::getAngleError(pointTarget);    // angular
 
@@ -138,7 +145,7 @@ std::array<double, 2> odom() {
 
 	lin_speed *= reverse; // apply reversal
 
-	if (mode == ODOM_THRU) {
+	if (mode == ODOM_THRU || mode == ODOM_POSE) {
 		lin_speed = chassis::maxSpeed;
 	}
 
@@ -175,7 +182,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
           double linear_pointKP, double linear_pointKI, double linear_pointKD,
           double angular_pointKP, double angular_pointKI,
           double angular_pointKD, double arcKP, double difKP, double min_error,
-          double difMax) {
+          double difMax, double pose_radius) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
@@ -194,6 +201,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
 	pid::difKP = difKP;
 	pid::min_error = min_error;
 	pid::difMax = difMax;
+  pid::pose_radius = pose_radius;
 }
 
 } // namespace arms::pid

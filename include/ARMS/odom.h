@@ -37,6 +37,8 @@ void holo(std::array<double, 2> point, double angle, double max = 80,
 void holoThru(std::array<double, 2> point, double angle, double max = 80,
               double turnMax = 50);
 
+void movePose(std::array<double, 2> point, double angle, double max = 80);
+
 void init(bool debug = ODOM_DEBUG,
           double left_right_distance = LEFT_RIGHT_DISTANCE,
           double middle_distance = MIDDLE_DISTANCE,

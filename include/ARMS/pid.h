@@ -7,6 +7,7 @@
 namespace arms::pid {
 
 // pid mode enums
+#define ODOM_POSE 7
 #define ODOM_THRU 6
 #define ODOM_HOLO_THRU 5
 #define ODOM_HOLO 4
@@ -21,6 +22,8 @@ extern double linearTarget;
 extern double angularTarget;
 extern double vectorAngle;
 extern std::array<double, 2> pointTarget;
+extern std::array<double, 2> pointCircle;
+extern double angleTarget;
 
 extern double arcKP; // needs to be exposed since arcs have not been integrated
                      // into new PID format
@@ -43,7 +46,7 @@ void init(bool debug = PID_DEBUG, double linearKP = LINEAR_KP,
           double angular_pointKI = ANGULAR_POINT_KI,
           double angular_pointKD = ANGULAR_POINT_KD, double arcKP = ARC_KP,
           double difKP = DIF_KP, double min_error = MIN_ERROR,
-          double difMax = DIF_MAX);
+          double difMax = DIF_MAX, double pose_radius = POSE_RADIUS);
 
 } // namespace arms::pid
 

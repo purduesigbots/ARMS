@@ -195,6 +195,27 @@ void holoThru(std::array<double, 2> point, double angle, double max,
 		delay(10);
 }
 
+void movePoseAsync(std::array<double, 2> point, double angle, double max) {
+	chassis::reset();
+	chassis::maxSpeed = max;
+	pid::pointTarget = point;
+	pid::mode = ODOM_POSE;
+	// start thread with poseWait
+}
+
+void movePose(std::array<double, 2> point, double angle, double max) {
+	movePoseAsync(point, angle, max);
+	pid::mode = ODOM_POSE
+	// add poseWait
+}
+
+void poseWait() {
+	delay(450);
+	while (getDistanceError(pid::pointCircle) > pid::pose_radius)
+		delay(10);
+	// add arc code
+}
+
 void init(bool debug, double left_right_distance, double middle_distance,
           double left_right_tpi, double middle_tpi, bool holonomic,
           double exit_error) {
