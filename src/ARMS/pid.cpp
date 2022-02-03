@@ -140,7 +140,7 @@ std::array<double, 2> odom() {
 		lin_speed = chassis::maxSpeed;
 	}
 
-  lin_speed *= reverse; // apply reversal
+	lin_speed *= reverse; // apply reversal
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
