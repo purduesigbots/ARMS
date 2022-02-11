@@ -59,7 +59,16 @@ int encoderType = ENCODER_ADI;
 
 /**************************************************/
 // encoder getter/setters
+//
+// There is likely a more elgant and future-proof way of adding
+// support for different types of rotation encoders. This was
+// the quick method.
+//
+// TODO: Refactor Encoder/Rotation code??
 
+
+// The ADI encoder API returns it's value in degrees, and the Rotation API
+// returns it's values in centiDegrees. This necessitates a conversion.
 double getLeftEncoderValue() {
 	if(encoderType == ENCODER_ROTATION)
 		return leftRotation->get_position() / 100;
