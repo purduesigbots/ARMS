@@ -166,7 +166,6 @@ std::array<double, 2> odom() {
 		left_speed -= diff;
 		right_speed -= diff;
 	}
-	printf("%.2f, %.2f\n", left_speed, right_speed);
 	return {left_speed, right_speed};
 }
 
