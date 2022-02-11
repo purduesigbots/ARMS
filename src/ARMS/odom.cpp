@@ -36,9 +36,9 @@ int odomTask() {
 		double middle_pos;
 
 		// get positions of each encoder
-		if (chassis::leftEncoder) {
-			left_pos = chassis::leftEncoder->get_value();
-			right_pos = chassis::rightEncoder->get_value();
+		if (chassis::hasLeftEncoder()) {
+			left_pos = chassis::getRightEncoderValue();
+			right_pos = chassis::getRightEncoderValue();
 		} else if (holonomic) {
 			left_pos = chassis::backLeft->getPosition();
 			right_pos = chassis::frontRight->getPosition();
@@ -48,8 +48,8 @@ int odomTask() {
 			right_pos = chassis::rightMotors->getPosition();
 		}
 
-		if (chassis::middleEncoder)
-			middle_pos = chassis::middleEncoder->get_value();
+		if (chassis::hasMiddleEncoder())
+			middle_pos = chassis::getMiddleEncoderValue();
 
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
@@ -203,7 +203,7 @@ void init(bool debug, double left_right_distance, double middle_distance,
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
-	if (chassis::leftEncoder)
+	if (chassis::hasLeftEncoder)
 		holonomic = false; // holonomic should only be used on non-encoder x-drives
 	odom::holonomic = holonomic;
 	odom::exit_error = exit_error;
