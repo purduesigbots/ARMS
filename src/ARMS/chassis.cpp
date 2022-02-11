@@ -66,67 +66,66 @@ int encoderType = ENCODER_ADI;
 //
 // TODO: Refactor Encoder/Rotation code??
 
-
 // The ADI encoder API returns it's value in degrees, and the Rotation API
 // returns it's values in centiDegrees. This necessitates a conversion.
 double getLeftEncoderValue() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return leftRotation->get_position() / 100;
 	else
 		return leftEncoder->get_value();
 }
 
 double getMiddleEncoderValue() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return middleRotation->get_position() / 100;
 	else
 		return middleEncoder->get_value();
 }
 
 double getRightEncoderValue() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return rightRotation->get_position() / 100;
 	else
 		return rightEncoder->get_value();
 }
 
 bool hasLeftEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return (bool)leftRotation;
 	else
 		return (bool)leftEncoder;
 }
 
 bool hasMiddleEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return (bool)middleRotation;
 	else
 		return (bool)middleEncoder;
 }
 
 bool hasRightEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		return (bool)rightRotation;
 	else
 		return (bool)rightEncoder;
 }
 
 void resetLeftEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		leftRotation->reset_position();
 	else
 		leftEncoder->reset();
 }
 
 void resetMiddleEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		middleRotation->reset_position();
 	else
 		middleEncoder->reset();
 }
 
 void resetRightEncoder() {
-	if(encoderType == ENCODER_ROTATION)
+	if (encoderType == ENCODER_ROTATION)
 		rightRotation->reset_position();
 	else
 		rightEncoder->reset();
@@ -528,8 +527,8 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 std::shared_ptr<Rotation> initRotation(int rotationPort) {
 	std::shared_ptr<Rotation> rotation;
 
-	int rotationPort2 = 
-		abs((rotationPort > 0) ? (abs(rotationPort) + 1) : rotationPort--);
+	int rotationPort2 =
+	    abs((rotationPort > 0) ? (abs(rotationPort) + 1) : rotationPort--);
 
 	rotation = std::make_shared<Rotation>(rotationPort);
 	rotation->set_reversed(rotationPort <= 0);
@@ -543,8 +542,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort,
-          int joystick_threshold,
-		  int encoder_type) {
+          int joystick_threshold, int encoder_type) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -590,7 +588,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 
 	chassis::encoderType = encoder_type;
 
-	if(encoder_type == ENCODER_ROTATION) {
+	if (encoder_type == ENCODER_ROTATION) {
 		if (std::get<0>(encoderPorts) != 0) {
 			leftRotation = initRotation(std::get<0>(encoderPorts));
 		}
@@ -603,8 +601,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 			middleRotation = initRotation(std::get<2>(encoderPorts));
 		}
 
-	}
-	else {
+	} else {
 		if (std::get<0>(encoderPorts) != 0) {
 			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
 		}
@@ -617,7 +614,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 			middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
 		}
 	}
-	
+
 	Task chassis_task(chassisTask);
 }
 
