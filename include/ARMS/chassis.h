@@ -1,7 +1,6 @@
 #ifndef _ARMS_CHASSIS_H_
 #define _ARMS_CHASSIS_H_
 
-#include "ARMS/config.h"
 #include "okapi/api.hpp"
 
 namespace arms::chassis {
@@ -162,18 +161,12 @@ void holonomic(double x, double y, double z);
 /**
  * initialize the chassis
  */
-void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
-          std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
-          int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
-          double degree_constant = DEGREE_CONSTANT,
-          int settle_time = SETTLE_TIME,
-          double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
-          double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
-          double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-          int imuPort = IMU_PORT,
-          std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
-          int expanderPort = EXPANDER_PORT,
-          int joystick_threshold = JOYSTICK_THRESHOLD);
+void init(std::initializer_list<okapi::Motor> leftMotors,
+          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+          double distance_constant, double degree_constant, int settle_time,
+          double settle_threshold_linear, double settle_threshold_angular,
+          double accel_step, double arc_step, int imuPort,
+          std::tuple<int, int, int> encoderPorts, int expanderPort);
 
 } // namespace arms::chassis
 

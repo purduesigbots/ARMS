@@ -1,7 +1,6 @@
 #ifndef _ARMS_ODOM_H_
 #define _ARMS_ODOM_H_
 
-#include "ARMS/config.h"
 #include <array>
 
 namespace arms::odom {
@@ -37,12 +36,9 @@ void holo(std::array<double, 2> point, double angle, double max = 80,
 void holoThru(std::array<double, 2> point, double angle, double max = 80,
               double turnMax = 50);
 
-void init(bool debug = ODOM_DEBUG,
-          double left_right_distance = LEFT_RIGHT_DISTANCE,
-          double middle_distance = MIDDLE_DISTANCE,
-          double left_right_tpi = LEFT_RIGHT_TPI,
-          double middle_tpi = MIDDLE_TPI, bool holonomic = HOLONOMIC,
-          double exit_error = EXIT_ERROR);
+void init(bool debug, double left_right_distance, double middle_distance,
+          double left_right_tpi, double middle_tpi, bool holonomic,
+          double exit_error);
 
 } // namespace arms::odom
 

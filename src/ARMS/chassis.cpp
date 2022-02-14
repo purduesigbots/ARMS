@@ -1,8 +1,5 @@
-#include "ARMS/chassis.h"
-#include "ARMS/config.h"
-#include "ARMS/odom.h"
-#include "ARMS/pid.h"
 #include "api.h"
+#include "arms/api.h"
 
 using namespace pros;
 
@@ -46,9 +43,6 @@ double maxTurn = 100;
 double maxAngular = 50; // holonomic odom only
 double output_prev[4] = {0, 0, 0, 0};
 bool useVelocity = false;
-
-// joystick threshold
-int joystick_threshold;
 
 /**************************************************/
 // basic control
@@ -448,8 +442,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
           double accel_step, double arc_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort,
-          int joystick_threshold) {
+          std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -459,7 +452,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_threshold_angular = settle_threshold_angular;
 	chassis::accel_step = accel_step;
 	chassis::arc_step = arc_step;
-	chassis::joystick_threshold = joystick_threshold;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -513,10 +505,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 void tank(double left_speed, double right_speed) {
 	pid::mode = DISABLE; // turns off autonomous tasks
 
-	// apply thresholding
-	left_speed = (fabs(left_speed) > joystick_threshold ? left_speed : 0);
-	right_speed = (fabs(right_speed) > joystick_threshold ? right_speed : 0);
-
 	motorMove(leftMotors, left_speed, false);
 	motorMove(rightMotors, right_speed, false);
 }
@@ -524,21 +512,12 @@ void tank(double left_speed, double right_speed) {
 void arcade(double vertical, double horizontal) {
 	pid::mode = DISABLE; // turns off autonomous task
 
-	// apply thresholding
-	vertical = (fabs(vertical) > joystick_threshold ? vertical : 0);
-	horizontal = (fabs(horizontal) > joystick_threshold ? horizontal : 0);
-
 	motorMove(leftMotors, vertical + horizontal, false);
 	motorMove(rightMotors, vertical - horizontal, false);
 }
 
 void holonomic(double y, double x, double z) {
 	pid::mode = DISABLE; // turns off autonomous task
-
-	// apply thresholding
-	y = (fabs(y) > joystick_threshold ? y : 0);
-	x = (fabs(x) > joystick_threshold ? x : 0);
-	z = (fabs(z) > joystick_threshold ? z : 0);
 
 	motorMove(frontLeft, y + x + z, false);
 	motorMove(frontRight, y - x - z, false);

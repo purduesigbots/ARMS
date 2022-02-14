@@ -1,7 +1,5 @@
-#include "ARMS/purepursuit.h"
-#include "ARMS/chassis.h"
-#include "ARMS/odom.h"
 #include "api.h"
+#include "arms/api.h"
 
 using namespace pros;
 

@@ -3,10 +3,7 @@
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
-	arms::chassis::init();
-	arms::odom::init();
-	arms::pid::init();
-	arms::selector::init();
+	arms::init();
 }
 
 void disabled() {

@@ -6,6 +6,7 @@
 
 #include "ARMS/api.h"
 #include "api.h"
+#include "arms_config.h"
 
 // subsystems
 using namespace pros;

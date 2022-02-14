@@ -1,8 +1,6 @@
-#include "ARMS/chassis.h"
-#include "ARMS/config.h"
-#include "ARMS/odom.h"
-#include "ARMS/pid.h"
 #include "api.h"
+#include "arms/api.h"
+
 using namespace pros;
 
 namespace arms::chassis {
@@ -74,7 +72,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		motorMove(leftMotors, 0, true);
 		motorMove(rightMotors, 0, true);
 	}
-	output_prev[0] = output_prev[1] = output_prev[2] = output_prev[3] = 0; // prevent weirdness
+	output_prev[0] = output_prev[1] = output_prev[2] = output_prev[3] =
+	    0; // prevent weirdness
 }
 
 void arcLeft(int arc_length, double rad, int max, int type) {
