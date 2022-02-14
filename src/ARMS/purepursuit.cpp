@@ -193,8 +193,8 @@ void followPath(std::vector<std::array<double, 2>> path) {
 			right_speed -= diff;
 		}
 
-		left_speed = chassis::slew(left_speed, chassis::accel_step, &left_prev);
-		right_speed = chassis::slew(right_speed, chassis::accel_step, &right_prev);
+		left_speed = chassis::slew(left_speed, chassis::slew_step, &left_prev);
+		right_speed = chassis::slew(right_speed, chassis::slew_step, &right_prev);
 
 		left_prev = left_speed;
 		right_prev = right_speed;

@@ -2,6 +2,10 @@
 
 namespace arms {
 
+// debug
+#define PID_DEBUG 0
+#define ODOM_DEBUG 0
+
 // Drivetrain configuration constants
 
 // negative numbers mean reversed motor
@@ -18,26 +22,20 @@ namespace arms {
 #define SETTLE_THRESHOLD_ANGULAR 1
 
 // slew control (autonomous only)
-#define ACCEL_STEP 8 // smaller number = more slew
-#define ARC_STEP 2   // acceleration for arcs
+#define SLEW_STEP 8 // smaller number = more slew
 
 // sensors
 #define IMU_PORT 0            // port 0 for disabled
-#define ENCODER_PORTS 0, 0, 0 // port 0 for disabled
-#define EXPANDER_PORT 0
+#define ENCODER_PORTS 0, 0, 0 // port 0 for disabled,
+#define EXPANDER_PORT 0       // port 0 for disabled
 
 // odometry
-#define ODOM_DEBUG 0
 #define LEFT_RIGHT_DISTANCE 6.375 // only needed for non-imu setups
 #define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
 #define LEFT_RIGHT_TPI 41.4       // Ticks per inch
 #define MIDDLE_TPI 41.4           // Ticks per inch
-#define SLEW_STEP 10              // point function slew
-#define HOLONOMIC 1               // holonomic chassis odom
-#define EXIT_ERROR 10 // exit distance for moveThru and holoThru movements
-
-// pid
-#define PID_DEBUG false
+#define X_DRIVE 0     // 45 degree offset for x drives without trackers
+#define EXIT_ERROR 10 // exit distance for movements
 
 // normal pid constants
 #define LINEAR_KP .3
@@ -46,9 +44,7 @@ namespace arms {
 #define ANGULAR_KP .8
 #define ANGULAR_KI 0
 #define ANGULAR_KD 3
-#define ARC_KP .05
 #define DIF_KP .5
-#define DIF_MAX 20
 
 // odom point constants
 #define LINEAR_POINT_KP 8
@@ -57,7 +53,10 @@ namespace arms {
 #define ANGULAR_POINT_KP 50
 #define ANGULAR_POINT_KI 0
 #define ANGULAR_POINT_KD 0
-#define MIN_ERROR 5 // minimum error, stops robot from spinning around point
+
+// arc movements
+#define ARC_KP .05
+#define ARC_SLEW_STEP 2 // smaller number = slower acceleration
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
@@ -68,19 +67,21 @@ namespace arms {
 void init() {
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
 	              DEGREE_CONSTANT, SETTLE_TIME, SETTLE_THRESHOLD_LINEAR,
-	              SETTLE_THRESHOLD_ANGULAR, ACCEL_STEP, ARC_STEP, IMU_PORT,
+	              SETTLE_THRESHOLD_ANGULAR, SLEW_STEP, ARC_SLEW_STEP, IMU_PORT,
 	              {ENCODER_PORTS}, EXPANDER_PORT);
 
 	odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, LEFT_RIGHT_TPI,
-	           MIDDLE_TPI, HOLONOMIC, EXIT_ERROR);
+	           MIDDLE_TPI, X_DRIVE, EXIT_ERROR);
 
 	pid::init(PID_DEBUG, LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI,
 	          ANGULAR_KD, LINEAR_POINT_KP, LINEAR_POINT_KI, LINEAR_POINT_KD,
 	          ANGULAR_POINT_KP, ANGULAR_POINT_KI, ANGULAR_POINT_KD, ARC_KP,
-	          DIF_KP, MIN_ERROR, DIF_MAX);
+	          DIF_KP);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
+
+	pros::delay(200); // delay while PID and odom initialize
 }
 
 } // namespace arms

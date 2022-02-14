@@ -11,7 +11,7 @@ double middle_distance;
 double left_right_tpi;
 double middle_tpi;
 double exit_error;
-bool holonomic;
+bool x_drive;
 
 // odom tracking values
 double global_x;
@@ -37,7 +37,7 @@ int odomTask() {
 		if (chassis::leftEncoder) {
 			left_pos = chassis::leftEncoder->get_value();
 			right_pos = chassis::rightEncoder->get_value();
-		} else if (holonomic) {
+		} else if (x_drive) {
 			left_pos = chassis::backLeft->getPosition();
 			right_pos = chassis::frontRight->getPosition();
 			middle_pos = chassis::backRight->getPosition();
@@ -89,7 +89,7 @@ int odomTask() {
 		double p = heading - delta_angle / 2.0; // global angle
 
 		// account for holonomic rotation
-		if (holonomic)
+		if (x_drive)
 			p -= M_PI / 4;
 
 		// convert to absolute displacement
@@ -194,7 +194,7 @@ void holoThru(std::array<double, 2> point, double angle, double max,
 }
 
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi, bool holonomic,
+          double left_right_tpi, double middle_tpi, bool x_drive,
           double exit_error) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
@@ -202,8 +202,8 @@ void init(bool debug, double left_right_distance, double middle_distance,
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
 	if (chassis::leftEncoder)
-		holonomic = false; // holonomic should only be used on non-encoder x-drives
-	odom::holonomic = holonomic;
+		x_drive = false; // Only should be used in the absense of tracker wheels
+	odom::x_drive = x_drive;
 	odom::exit_error = exit_error;
 	delay(1500);
 	Task odom_task(odomTask);

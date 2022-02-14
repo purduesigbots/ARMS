@@ -3,6 +3,8 @@
 
 namespace arms::chassis {
 
+extern double arc_slew_step;
+
 /**
  * Move the robot in an arc with a set length, radius, and speed
  */

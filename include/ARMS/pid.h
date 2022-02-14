@@ -35,8 +35,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
           double angularKP, double angularKI, double angularKD,
           double linear_pointKP, double linear_pointKI, double linear_pointKD,
           double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP, double min_error,
-          double difMax);
+          double angular_pointKD, double arcKP, double difKP);
 
 } // namespace arms::pid
 

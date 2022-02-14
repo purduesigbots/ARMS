@@ -34,8 +34,7 @@ double settle_threshold_linear;
 double settle_threshold_angular;
 
 // slew control (autonomous only)
-double accel_step; // smaller number = more slew
-double arc_step;   // acceleration for arcs
+double slew_step; // smaller number = more slew
 
 // chassis variables
 double maxSpeed = 100;
@@ -307,7 +306,7 @@ void fast(double sp, int max) {
 	pid::mode = DISABLE;
 
 	while (fabs(position()) < fabs(sp * distance_constant)) {
-		speed = slew(max, accel_step, &output_prev[0]);
+		speed = slew(max, slew_step, &output_prev[0]);
 		output_prev[1] = output_prev[2] = output_prev[3] = output_prev[0];
 		// differential PID
 		double dif = difference() * pid::difKP;
@@ -403,7 +402,7 @@ int chassisTask() {
 		}
 
 		for (int i = 0; i < 4; i++) {
-			output[i] = slew(output[i], accel_step, &output_prev[i]);
+			output[i] = slew(output[i], slew_step, &output_prev[i]);
 		}
 
 		if (pid::vectorAngle != 0) {
@@ -441,7 +440,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
-          double accel_step, double arc_step, int imuPort,
+          double slew_tep, double arc_slew_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort) {
 
 	// assign constants
@@ -450,8 +449,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_time = settle_time;
 	chassis::settle_threshold_linear = settle_threshold_linear;
 	chassis::settle_threshold_angular = settle_threshold_angular;
-	chassis::accel_step = accel_step;
-	chassis::arc_step = arc_step;
+	chassis::slew_step = slew_step;
+	chassis::arc_slew_step = arc_slew_step;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -462,6 +461,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	// initialize imu
 	if (imuPort != 0) {
 		imu = std::make_shared<Imu>(imuPort);
+		delay(2000); // wait for IMU intialization
 		imu->reset();
 	}
 

@@ -6,12 +6,12 @@
 namespace arms::chassis {
 
 extern bool useVelocity;
-extern double accel_step;
 extern double distance_constant;
 extern double width;
 extern double maxSpeed;
 extern double maxTurn;
 extern double output_prev[4];
+extern double slew_step;
 
 extern std::shared_ptr<okapi::Motor> frontLeft;
 extern std::shared_ptr<okapi::Motor> frontRight;
@@ -165,7 +165,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, int settle_time,
           double settle_threshold_linear, double settle_threshold_angular,
-          double accel_step, double arc_step, int imuPort,
+          double slew_step, double arc_slew_step, int imuPort,
           std::tuple<int, int, int> encoderPorts, int expanderPort);
 
 } // namespace arms::chassis

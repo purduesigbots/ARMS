@@ -5,7 +5,8 @@ using namespace pros;
 
 namespace arms::chassis {
 
-double prev = 0; // previous chassis speed
+double arc_slew_step; // acceleration for arcs
+double prev = 0;      // previous chassis speed
 
 void arc(bool mirror, int arc_length, double rad, int max, int type) {
 	reset();
@@ -45,7 +46,7 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = slew(speed, accel_step, &prev); // slew
+		speed = slew(speed, arc_slew_step, &prev); // slew
 
 		if (reversed)
 			speed = -speed;

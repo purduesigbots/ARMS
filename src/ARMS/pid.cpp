@@ -22,8 +22,6 @@ double angular_pointKD;
 double arcKP;
 double difKP;
 double dif;
-double difMax;
-double min_error;
 
 // pid targets
 double linearTarget = 0;
@@ -78,7 +76,6 @@ std::array<double, 2> linear() {
 
 	// difference PID
 	dif = chassis::difference() * difKP;
-	dif = chassis::limitSpeed(dif, difMax);
 
 	return {speed - dif, speed + dif};
 }
@@ -113,9 +110,6 @@ std::array<double, 2> odom() {
 
 		// convert to radians
 		ang_error *= -M_PI / 180;
-
-	} else if (lin_error < min_error) {
-		ang_error = 0; // prevent spinning
 	}
 
 	// integral values
@@ -172,8 +166,7 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
           double angularKP, double angularKI, double angularKD,
           double linear_pointKP, double linear_pointKI, double linear_pointKD,
           double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP, double min_error,
-          double difMax) {
+          double angular_pointKD, double arcKP, double difKP) {
 
 	pid::debug = debug;
 	pid::linearKP = linearKP;
@@ -190,8 +183,6 @@ void init(bool debug, double linearKP, double linearKI, double linearKD,
 	pid::angular_pointKD = angular_pointKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
-	pid::min_error = min_error;
-	pid::difMax = difMax;
 }
 
 } // namespace arms::pid
