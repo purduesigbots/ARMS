@@ -18,7 +18,7 @@ std::shared_ptr<ADIEncoder> rightEncoder;
 std::shared_ptr<ADIEncoder> middleEncoder;
 
 // distance constants
-double distance_constant; // ticks per foot
+double distance_constant; // ticks per inch
 double degree_constant;   // ticks per degree
 
 // slew control (autonomous only)
@@ -161,66 +161,66 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double sp, double max, std::array<double, 2> pid, double exit_error,
-          bool thru, bool blocking) {
+void move(double target, double max, bool thru, bool blocking, double exit_error,
+          std::array<double, 2> pid) {
 	reset();
 	pid::mode = LINEAR;
-	pid::linearTarget = sp;
+	pid::linearTarget = target;
 	maxSpeed = max;
-	pid::linearKP = pid[0];
-	pid::linearKD = pid[1];
+  pid::linearKP = pid[0];
+  pid::linearKD = pid[1];
 	pid::thru = thru;
 	if (blocking)
-		waitUntilFinished();
+		waitUntilFinished(exit_error);
 }
 
 // odometry movement
-void move(std::array<double, 2> sp, double max,
-          std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
-          double exit_error, bool thru, bool direction, bool blocking) {
+void move(std::array<double, 2> target, double max, bool thru, bool blocking,
+          bool direction, double exit_error, std::array<double, 2> linear_pid,
+          std::array<double, 2> angular_pid) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = sp;
+	pid::pointTarget = target;
 	maxSpeed = max;
-	pid::linearKP = linear_pid[0];
-	pid::linearKD = linear_pid[1];
-	pid::angularKP = angular_pid[0];
-	pid::angularKD = angular_pid[1];
+  pid::linearKP = linear_pid[0];
+  pid::linearKD = linear_pid[1];
+  pid::angularKP = angular_pid[0];
+  pid::angularKD = angular_pid[1];
+  pid::thru = thru;
 	if (blocking)
-		waitUntilFinished();
+		waitUntilFinished(exit_error);
 }
 
 // rotational movement
-void turn(double sp, int max, std::array<double, 2> pid, double exit_error,
-          bool absolute, bool blocking) {
+void turn(double target, int max, bool absolute, bool blocking, double exit_error,
+          std::array<double, 2> pid) {
 	reset();
 	pid::mode = ANGULAR;
 
 	if (absolute) {
 		// convert from absolute to relative set point
-		sp = sp - (int)angle() % 360;
+		target -= (int)angle() % 360;
 
 		// make sure all turns take most efficient route
-		if (sp > 180)
-			sp -= 360;
-		else if (sp < -180)
-			sp += 360;
+		if (target > 180)
+			target -= 360;
+		else if (target < -180)
+			target += 360;
 	}
 
-	sp += angle();
-	pid::angularTarget = sp;
+	pid::angularTarget = target;
 	maxSpeed = max;
-	pid::angularKP = pid[0];
-	pid::angularKD = pid[1];
+  pid::angularKP = pid[0];
+  pid::angularKD = pid[1];
 	if (blocking)
-		waitUntilFinished();
+		waitUntilFinished(exit_error);
 }
 
 // odometry turn to to point
-void turn(std::array<double, 2> sp, int max, std::array<double, 2> pid,
-          double exit_error, bool blocking) {
-	double angle_error = odom::getAngleError(sp);
-	turn(angle_error, max, pid, exit_error, true, blocking);
+void turn(std::array<double, 2> target, int max, bool blocking,
+          double exit_error, std::array<double, 2> pid) {
+	double angle_error = odom::getAngleError(target);
+	turn(angle_error, max, true, blocking, exit_error, pid);
 }
 
 /**************************************************/

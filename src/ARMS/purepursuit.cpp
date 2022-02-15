@@ -144,7 +144,7 @@ void followPath(std::vector<std::array<double, 2>> path) {
 		std::array<double, 2> ang_tracking_point =
 		    findIntersectionPoint(path, inner_radius);
 		if (last_segment) {
-			chassis::move(path[path.size() - 1], 80, {0, 0}, {0, 0});
+			chassis::move(path[path.size() - 1], 80);
 			break;
 		}
 		std::array<double, 2> vel_tracking_point =

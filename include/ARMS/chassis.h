@@ -74,28 +74,31 @@ void waitUntilFinished(double exit_error = 0);
 /**
  * Perform a linear chassis movement
  */
-void move(double sp, double max, std::array<double, 2> pid,
-          double exit_error = 0, bool thru = false, bool blocking = true);
+void move(double target, double max, bool thru = false, bool blocking = false,
+          double exit_error = 0,
+          std::array<double, 2> pid = {0, 0});
 
 /**
  * Perform an odom chassis movement
  */
-void move(std::array<double, 2> sp, double max,
-          std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
-          double exit_error = 0, bool thru = false, bool direction = 1,
-          bool blocking = true);
+void move(std::array<double, 2> target, double max, bool thru = false,
+          bool blocking = false, bool direction = 1, double exit_error = 0,
+          std::array<double, 2> linear_pid = {0, 0},
+          std::array<double, 2> angular_pid = {0, 0});
 
 /**
  * Perform a turn movement
  */
-void turn(double sp, int max, std::array<double, 2> pid, double exit_error = 0,
-          bool absolute = false, bool blocking = true);
+void turn(double target, int max, bool absolute = false, bool blocking = true,
+          double exit_error = 0,
+          std::array<double, 2> pid = {0, 0});
 
 /**
  * Turn to face a point
  */
-void turn(std::array<double, 2> sp, int max, std::array<double, 2> pid,
-          double exit_error = 0, bool blocking = true);
+void turn(std::array<double, 2> target, int max, bool blocking = true,
+          double exit_error = 0,
+          std::array<double, 2> pid  = {0, 0});
 
 /**
  * Assign a power to the left and right motors
