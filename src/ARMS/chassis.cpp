@@ -137,38 +137,57 @@ double slew(double target_speed, double step, double* current_speed) {
 
 /**************************************************/
 // conditional waiting
-void waitUntilAtDistance() {
-	while (fabs(position() - pid::linearTarget) > exit_error)
-		delay(10);
-}
-
-void waitUntilAtAngle() {
-	while (fabs(angle() - pid::angularTarget) > exit_error)
-		delay(10);
-}
-
-void waitUntilAtTarget() {
-	while (odom::getDistanceError(pid::pointTarget) > exit_error)
-		delay(10);
+void waitUntilFinished() {
+	switch (pid::mode) {
+	case LINEAR:
+		while (fabs(position() - pid::linearTarget) > exit_error)
+			delay(10);
+		break;
+	case ANGULAR:
+		while (fabs(angle() - pid::angularTarget) > exit_error)
+			delay(10);
+		break;
+	case ODOM:
+	case ODOM_THRU:
+		while (odom::getDistanceError(pid::pointTarget) > exit_error)
+			delay(10);
+		break;
+	}
 }
 
 /**************************************************/
 // autonomous functions
-void moveAsync(double sp, int max) {
+
+// linear movement
+void move(double sp, double max, std::array<double, 2> pid, double exit_error,
+          bool thru, bool blocking) {
 	pid::mode = LINEAR;
-	reset();
-	maxSpeed = max;
+	pid::kP = pid[0];
+	pid::kD = pid[1];
 	pid::linearTarget = sp;
-}
-
-void moveAsync(std::array<double, 2> sp, double max) {
-	pid::mode = ODOM;
-	reset();
 	maxSpeed = max;
-	pid::pointTarget = point;
+	reset();
+	if (blocking)
+		waitUntilFinished();
 }
 
-void turnAsync(double sp, int max) {
+// odometry movement
+void move(std::array<double, 2> sp, double max,
+          std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
+          double exit_error, bool thru, bool reverse, bool blocking) {
+	pid::mode = ODOM;
+	pid::linearKP = linear_pid[0];
+	pid::linearKD = linear_pid[1];
+	pid::angularKP = angular_pid[0];
+	pid::angularKD = angular_pid[1];
+	pid::pointTarget = point;
+	maxSpeed = max;
+	reset();
+	if (blocking)
+		waitUntilFinished();
+}
+
+void turnAsync(double sp, int max, double angle_kp, double exit_error) {
 	pid::mode = ANGULAR;
 	reset();
 	sp += angle();
@@ -189,12 +208,6 @@ void turnAbsoluteAsync(double sp, int max) {
 		sp += 360;
 
 	turnAsync(sp, max);
-}
-
-void move(double sp, double max, double linear_kp, double angle_kp,
-          double exit_error) {
-	moveAsync(sp, max);
-	waitUntilAtDistance();
 }
 
 void move(std::array<double, 2> sp, double max, double linear_kp,
@@ -236,7 +249,7 @@ int chassisTask() {
 			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
 			speeds = pid::angular();
-		} else if (pid::mode == ODOM || pid::mode == ODOM_THRU) {
+		} else if (pid::mode == ODOM) {
 			speeds = pid::odom();
 		} else {
 			continue;

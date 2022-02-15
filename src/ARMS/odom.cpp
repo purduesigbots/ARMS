@@ -73,7 +73,7 @@ int odomTask() {
 		prev_middle_pos = middle_pos;
 		prev_heading = heading;
 
-		// calculate local displacemente
+		// calculate local displacement
 		double local_x;
 		double local_y;
 

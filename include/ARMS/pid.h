@@ -6,8 +6,6 @@
 namespace arms::pid {
 
 // pid mode enums
-#define ODOM_THRU 5
-#define THRU 4
 #define ODOM 3
 #define ANGULAR 2
 #define LINEAR 1
@@ -15,13 +13,18 @@ namespace arms::pid {
 
 extern int mode;
 
+extern double linearKP;
+extern double linearKD;
+extern double angularKP;
+extern double angularKD;
+extern double arcKP; // needs to be exposed for arcs
+
 extern double linearTarget;
 extern double angularTarget;
-extern double vectorAngle;
 extern std::array<double, 2> pointTarget;
 
-extern double arcKP; // needs to be exposed since arcs have not been integrated
-                     // into new PID format
+extern bool reverse;
+extern bool thru;
 
 std::array<double, 2> linear();
 std::array<double, 2> angular();

@@ -6,22 +6,25 @@ namespace arms::pid {
 int mode = DISABLE;
 
 // pid constants
-double kP;
-double kD;
+double linearKP;
+double linearKD;
+double angularKP;
+double angularKD;
 
 double defaultLinearKP;
 double defaultLinearKD;
 double defaultAngularKP;
 double defaultAngularKD;
 
-bool reverse;
 double arcKP;
 double difKP;
+
+bool reverse;
+bool thru;
 
 // pid targets
 double linearTarget = 0;
 double angularTarget = 0;
-double vectorAngle = 0;
 std::array<double, 2> pointTarget{0, 0};
 
 double pid(double error, double* pe, double kp, double kd) {
@@ -42,18 +45,22 @@ std::array<double, 2> linear() {
 	static double pe = 0; // previous error
 
 	// apply defaults
-	if (kP == 0)
-		kP = defaultLinearKP;
-	if (kD == 0)
-		kD = defaultLinearKP;
+	if (linearKP == 0)
+		linearKP = defaultLinearKP;
+	if (linearKD == 0)
+		linearKD = defaultLinearKP;
 
 	double sv = chassis::distance();
-	double speed = pid(linearTarget, sv, &pe, kP, kD);
+	double speed = pid(linearTarget, sv, &pe, linearKP, linearKD);
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
 
 	// difference PID
 	std::array<double, 2> encoders = chassis::getEncoders();
 	dif = (encoders[0] - encoders[1]) * difKP;
+
+	// disable PID for thru movement
+	if (thru)
+		speed = chassis::maxSpeed;
 
 	return {speed - dif, speed + dif};
 }
@@ -62,13 +69,13 @@ std::array<double, 2> angular() {
 	static double pe = 0; // previous error
 
 	// apply defaults
-	if (kP == 0)
-		kP = defaultAngularKP;
-	if (kD == 0)
-		kD = defaultAngularKP;
+	if (angularKP == 0)
+		angularKP = defaultAngularKP;
+	if (angularKD == 0)
+		angularKD = defaultAngularKP;
 
 	double sv = chassis::angle();
-	double speed = pid(angularTarget, sv, &pe, kP, kD);
+	double speed = pid(angularTarget, sv, &pe, angularKP, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
@@ -82,17 +89,17 @@ std::array<double, 2> odom() {
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// calculate linear
-	if (kP == 0)
-		kP = defaultLinearKP;
-	if (kD == 0)
-		kD = defaultLinearKP;
+	if (linearKP == 0)
+		linearKP = defaultLinearKP;
+	if (linearKD == 0)
+		linearKD = defaultLinearKP;
 	double lin_speed = pid(lin_error, &pe_lin, linearKP, linearKD);
 
 	// calculate angular
-	if (kP == 0)
-		kP = defaultAngularKP;
-	if (kD == 0)
-		kD = defaultAngularKP;
+	if (angularKP == 0)
+		angularKP = defaultAngularKP;
+	if (angularKD == 0)
+		angularKD = defaultAngularKP;
 	double ang_speed = pid(ang_error, &pe_ang, angularKP, angularKD);
 
 	// apply reversal
@@ -104,6 +111,10 @@ std::array<double, 2> odom() {
 	// limit speeds
 	lin_speed = limitSpeed(lin_speed, chassis::maxSpeed);
 	ang_speed = limitSpeed(ang_speed, chassis::maxSpeed);
+
+	// disable PID for thru movement
+	if (thru)
+		lin_speed = chassis::maxSpeed;
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
