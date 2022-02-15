@@ -6,21 +6,15 @@
 namespace arms::chassis {
 
 extern bool useVelocity;
-extern double distance_constant;
-extern double width;
 extern double maxSpeed;
-extern double maxTurn;
-extern double output_prev[4];
-extern double slew_step;
+extern double leftPrev;
+extern double rightPrev;
 
-extern std::shared_ptr<okapi::Motor> frontLeft;
-extern std::shared_ptr<okapi::Motor> frontRight;
-extern std::shared_ptr<okapi::Motor> backLeft;
-extern std::shared_ptr<okapi::Motor> backRight;
-
+// motors
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
+// sensors
 extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
 extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
 extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
@@ -53,19 +47,19 @@ void resetAngle(double angle = 0);
 void reset();
 
 /**
- * Get the average position between the sides of the chassis
+ * Return the raw encoder values
  */
-double position(bool yDirection = false);
+std::array<double, 2> getEncoders();
+
+/**
+ * Return the distance traveled by the chassis
+ */
+double distance();
 
 /**
  * Get the angle of the chassis in degrees
  */
 double angle();
-
-/**
- * Get the difference between the sides of the chassis
- */
-double difference();
 
 /**
  * Reduce a speed
@@ -76,16 +70,6 @@ double limitSpeed(double speed, double max);
  * Get a gradually accelerating speed towards the target input
  */
 double slew(double speed, double step, double* prev);
-
-/**
- * Get a boolean that is true if the chassis motors are in motion
- */
-bool settled();
-
-/**
- * Delay the program until the chassis motors come to rest
- */
-void waitUntilSettled();
 
 /**
  * Begin an asycronous chassis movement
@@ -103,45 +87,30 @@ void turnAsync(double sp, int max = 100);
 void turnAbsoluteAsync(double sp, int max = 100);
 
 /**
- * Begin an asycronous holonomic chassis movement
+ * Perform a chassis movement
  */
-void holoAsync(double distance, double angle, int max = 100);
+void move(std::array<double, 1> point, double max = 100, double linear_kp = 0,
+          double angle_kp = 0, double exit_error = 0, bool reverse = 1);
+void move(std::array<double, 2> point, double max = 100, double linear_kp = 0,
+          double angle_kp = 0, double exit_error = 0, bool reverse = 1);
 
 /**
- * Perform a chassis movement and wait until settled
- */
-void move(double sp, int max = 100);
-
-/**
- * Perform a turn movement and wait until settled
+ * Perform a turn movement
  */
 void turn(double sp, int max = 100);
 
 /**
- * Perform an absolute turn movement and wait until settled (only works with
- * IMU)
+ * Perform an absolute turn movement
  */
 void turnAbsolute(double sp, int max = 100);
 
 /**
- * Perform a holonomic movement and wait until settled
+ * Perform a chassis movement with no PID
  */
-void holo(double distance, double angle, int max = 100);
-
-/**
- * Move a distance at a set voltage with no PID
- */
-void fast(double sp, int max = 100);
-
-/**
- * Move for a duration at a set voltage with no PID
- */
-void voltage(int t, int left_speed = 100, int right_speed = 101);
-
-/**
- * Move for a duration at a set velocity using internal PID
- */
-void velocity(int t, int left_max = 100, int right_max = 101);
+void moveThru(std::array<double, 1> point, double max = 100,
+              double exit_error = 0);
+void moveThru(std::array<double, 2> point, double max = 100,
+              double exit_error = 0);
 
 /**
  * Assign a voltage to each motor on a scale of -100 to 100

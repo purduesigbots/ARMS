@@ -11,7 +11,6 @@ double middle_distance;
 double left_right_tpi;
 double middle_tpi;
 double exit_error;
-bool x_drive;
 
 // odom tracking values
 double global_x;
@@ -27,6 +26,7 @@ int odomTask() {
 
 	global_x = 0;
 	global_y = 0;
+	heading = 0;
 
 	while (true) {
 		double left_pos;
@@ -140,72 +140,14 @@ double getDistanceError(std::array<double, 2> point) {
 	return sqrt(x * x + y * y);
 }
 
-void moveAsync(std::array<double, 2> point, double max) {
-	chassis::reset();
-	chassis::maxSpeed = max;
-	pid::pointTarget = point;
-	pid::mode = ODOM;
-}
-
-void holoAsync(std::array<double, 2> point, double angle, double max,
-               double turnMax) {
-	chassis::reset();
-	chassis::maxSpeed = max;
-	chassis::maxTurn = turnMax;
-	pid::pointTarget = point;
-	pid::angularTarget = angle;
-	pid::mode = ODOM_HOLO;
-}
-
-void move(std::array<double, 2> point, double max, bool settle) {
-	moveAsync(point, max);
-	delay(450);
-	if (settle) {
-		chassis::waitUntilSettled();
-	} else {
-		while (getDistanceError(point) > exit_error) {
-			delay(10);
-		}
-	}
-}
-
-void moveThru(std::array<double, 2> point, double max) {
-	moveAsync(point, max);
-	pid::mode = ODOM_THRU;
-	delay(450);
-	while (getDistanceError(point) > exit_error)
-		delay(10);
-}
-
-void holo(std::array<double, 2> point, double angle, double max,
-          double turnMax) {
-	holoAsync(point, angle, max, turnMax);
-	delay(450);
-	chassis::waitUntilSettled();
-}
-
-void holoThru(std::array<double, 2> point, double angle, double max,
-              double turnMax) {
-	holoAsync(point, angle, max, turnMax);
-	pid::mode = ODOM_HOLO_THRU;
-	delay(450);
-	while (getDistanceError(point) > exit_error && !chassis::settled())
-		delay(10);
-}
-
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi, bool x_drive,
-          double exit_error) {
+          double left_right_tpi, double middle_tpi, double exit_error) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
-	if (chassis::leftEncoder)
-		x_drive = false; // Only should be used in the absense of tracker wheels
-	odom::x_drive = x_drive;
 	odom::exit_error = exit_error;
-	delay(1500);
 	Task odom_task(odomTask);
 }
 

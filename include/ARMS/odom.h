@@ -21,6 +21,8 @@ double getAngleError(std::array<double, 2> point);
 
 double getDistanceError(std::array<double, 2> point);
 
+void waitUntilAtTarget();
+
 void moveAsync(std::array<double, 2> point, double max = 80);
 
 void holoAsync(std::array<double, 2> point, double angle, double max = 80,

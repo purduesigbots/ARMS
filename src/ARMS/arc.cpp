@@ -73,8 +73,9 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		motorMove(leftMotors, 0, true);
 		motorMove(rightMotors, 0, true);
 	}
-	output_prev[0] = output_prev[1] = output_prev[2] = output_prev[3] =
-	    0; // prevent weirdness
+
+	// prevent weirdness
+	leftPrev = rightPrev = 0;
 }
 
 void arcLeft(int arc_length, double rad, int max, int type) {

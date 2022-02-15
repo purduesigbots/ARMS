@@ -3,7 +3,6 @@
 namespace arms {
 
 // debug
-#define PID_DEBUG 0
 #define ODOM_DEBUG 0
 
 // Drivetrain configuration constants
@@ -15,11 +14,6 @@ namespace arms {
 
 #define DISTANCE_CONSTANT 273 // ticks per distance unit
 #define DEGREE_CONSTANT 2.3   // ticks per degree
-
-// chassis settling constants
-#define SETTLE_TIME 8
-#define SETTLE_THRESHOLD_LINEAR 3
-#define SETTLE_THRESHOLD_ANGULAR 1
 
 // slew control (autonomous only)
 #define SLEW_STEP 8 // smaller number = more slew
@@ -34,25 +28,14 @@ namespace arms {
 #define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
 #define LEFT_RIGHT_TPI 41.4       // Ticks per inch
 #define MIDDLE_TPI 41.4           // Ticks per inch
-#define X_DRIVE 0     // 45 degree offset for x drives without trackers
-#define EXIT_ERROR 10 // exit distance for movements
+#define EXIT_ERROR 10             // exit distance for movements
 
 // normal pid constants
 #define LINEAR_KP .3
-#define LINEAR_KI 0
 #define LINEAR_KD .5
 #define ANGULAR_KP .8
-#define ANGULAR_KI 0
 #define ANGULAR_KD 3
 #define DIF_KP .5
-
-// odom point constants
-#define LINEAR_POINT_KP 8
-#define LINEAR_POINT_KI 0
-#define LINEAR_POINT_KD 0
-#define ANGULAR_POINT_KP 50
-#define ANGULAR_POINT_KI 0
-#define ANGULAR_POINT_KD 0
 
 // arc movements
 #define ARC_KP .05
@@ -71,12 +54,9 @@ void init() {
 	              {ENCODER_PORTS}, EXPANDER_PORT);
 
 	odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, LEFT_RIGHT_TPI,
-	           MIDDLE_TPI, X_DRIVE, EXIT_ERROR);
+	           MIDDLE_TPI, EXIT_ERROR);
 
-	pid::init(PID_DEBUG, LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI,
-	          ANGULAR_KD, LINEAR_POINT_KP, LINEAR_POINT_KI, LINEAR_POINT_KD,
-	          ANGULAR_POINT_KP, ANGULAR_POINT_KI, ANGULAR_POINT_KD, ARC_KP,
-	          DIF_KP);
+	pid::init(LINEAR_KP, LINEAR_KD, ANGULAR_KP, ANGULAR_KD, ARC_KP, DIF_KP);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
