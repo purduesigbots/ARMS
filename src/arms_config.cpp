@@ -24,10 +24,10 @@ namespace arms {
 
 // odometry
 #define LEFT_RIGHT_DISTANCE 6.375 // only needed for non-imu setups
-#define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
-#define LEFT_RIGHT_TPI 41.4       // Ticks per inch
-#define MIDDLE_TPI 41.4           // Ticks per inch
-#define EXIT_ERROR 1              // default exit distance for movements
+#define MIDDLE_DISTANCE 5.75 // only needed if using middle tracker
+#define LEFT_RIGHT_TPI 41.4 // Ticks per inch
+#define MIDDLE_TPI 41.4 // Ticks per inch
+#define EXIT_ERROR 1 // default exit distance for movements
 
 // default pid constants
 #define LINEAR_KP .3
