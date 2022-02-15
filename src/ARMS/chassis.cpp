@@ -29,15 +29,14 @@ double maxSpeed = 100;
 double exit_error = 0;
 double leftPrev = 0;
 double rightPrev = 0;
-bool useVelocity = false;
 
 /**************************************************/
 // basic control
 
 // move motor group
 void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
-               bool vel = useVelocity) {
-	if (vel)
+               bool velocity) {
+	if (velocity)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
 	else
 		motor->moveVoltage(speed * 120);
@@ -136,6 +135,8 @@ double slew(double target_speed, double step, double* current_speed) {
 }
 
 /**************************************************/
+// autonomous functions
+
 // conditional waiting
 void waitUntilFinished() {
 	switch (pid::mode) {
@@ -155,9 +156,6 @@ void waitUntilFinished() {
 	}
 }
 
-/**************************************************/
-// autonomous functions
-
 // linear movement
 void move(double sp, double max, std::array<double, 2> pid, double exit_error,
           bool thru, bool blocking) {
@@ -174,7 +172,7 @@ void move(double sp, double max, std::array<double, 2> pid, double exit_error,
 // odometry movement
 void move(std::array<double, 2> sp, double max,
           std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
-          double exit_error, bool thru, bool reverse, bool blocking) {
+          double exit_error, bool thru, bool direction, bool blocking) {
 	pid::mode = ODOM;
 	pid::linearKP = linear_pid[0];
 	pid::linearKD = linear_pid[1];
@@ -187,15 +185,19 @@ void move(std::array<double, 2> sp, double max,
 		waitUntilFinished();
 }
 
-void turnAsync(double sp, int max, double angle_kp, double exit_error) {
+// turning
+void turn(double sp, int max, std::array<double, 2>, double exit_error,
+          bool blocking) {
 	pid::mode = ANGULAR;
-	reset();
 	sp += angle();
-	maxSpeed = max;
 	pid::angularTarget = sp;
+	reset();
+	maxSpeed = max;
+	if (blocking)
+		waitUntilFinished();
 }
 
-void turnAbsoluteAsync(double sp, int max) {
+void turnAbsolute(double sp, int max) {
 	pid::mode = ANGULAR;
 
 	// convert from absolute to relative set point
@@ -208,33 +210,6 @@ void turnAbsoluteAsync(double sp, int max) {
 		sp += 360;
 
 	turnAsync(sp, max);
-}
-
-void move(std::array<double, 2> sp, double max, double linear_kp,
-          double angle_kp, double exit_error, bool reverse) {
-	moveAsync(sp, max);
-	waitUntilAtTarget();
-}
-
-void turn(double sp, int max) {
-	turnAsync(sp, max);
-	waitUntilAtAngle();
-}
-
-void turnAbsolute(double sp, int max) {
-	turnAbsoluteAsync(sp, max);
-	waitUntilAtAngle();
-}
-
-void moveThru(std::array<double, 1> sp, double max) {
-	moveAsync(sp, max);
-	waitUntilAtDistance();
-}
-
-void moveThru(std::array<double, 2> sp, double max, double exit_error,
-              int reverse) {
-	moveAsync(sp, max, exit_error, reverse);
-	waitUntilAtTarget();
 }
 
 /**************************************************/
@@ -339,27 +314,18 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 
 /**************************************************/
 // operator control
-void tank(double left_speed, double right_speed) {
+void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
 
-	motorMove(leftMotors, left_speed, false);
-	motorMove(rightMotors, right_speed, false);
+	motorMove(leftMotors, left_speed, velocity);
+	motorMove(rightMotors, right_speed, velocity);
 }
 
-void arcade(double vertical, double horizontal) {
+void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
 
-	motorMove(leftMotors, vertical + horizontal, false);
-	motorMove(rightMotors, vertical - horizontal, false);
-}
-
-void holonomic(double y, double x, double z) {
-	pid::mode = DISABLE; // turns off autonomous task
-
-	motorMove(frontLeft, y + x + z, false);
-	motorMove(frontRight, y - x - z, false);
-	motorMove(backLeft, y - x + z, false);
-	motorMove(backRight, y + x - z, false);
+	motorMove(leftMotors, vertical + horizontal, velocity);
+	motorMove(rightMotors, vertical - horizontal, velocity);
 }
 
 } // namespace arms::chassis

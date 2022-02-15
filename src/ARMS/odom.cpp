@@ -37,10 +37,6 @@ int odomTask() {
 		if (chassis::leftEncoder) {
 			left_pos = chassis::leftEncoder->get_value();
 			right_pos = chassis::rightEncoder->get_value();
-		} else if (x_drive) {
-			left_pos = chassis::backLeft->getPosition();
-			right_pos = chassis::frontRight->getPosition();
-			middle_pos = chassis::backRight->getPosition();
 		} else {
 			left_pos = chassis::leftMotors->getPosition();
 			right_pos = chassis::rightMotors->getPosition();
@@ -87,10 +83,6 @@ int odomTask() {
 		}
 
 		double p = heading - delta_angle / 2.0; // global angle
-
-		// account for holonomic rotation
-		if (x_drive)
-			p -= M_PI / 4;
 
 		// convert to absolute displacement
 		global_y += cos(p) * local_y - sin(p) * local_x;

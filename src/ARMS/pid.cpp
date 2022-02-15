@@ -19,7 +19,7 @@ double defaultAngularKD;
 double arcKP;
 double difKP;
 
-bool reverse;
+int direction;
 bool thru;
 
 // pid targets
@@ -102,8 +102,8 @@ std::array<double, 2> odom() {
 		angularKD = defaultAngularKP;
 	double ang_speed = pid(ang_error, &pe_ang, angularKP, angularKD);
 
-	// apply reversal
-	if (reverse) {
+	// apply direction
+	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		lin_speed = -lin_speed;
 	}

@@ -23,7 +23,7 @@ extern double linearTarget;
 extern double angularTarget;
 extern std::array<double, 2> pointTarget;
 
-extern bool reverse;
+extern int direction;
 extern bool thru;
 
 std::array<double, 2> linear();

@@ -5,7 +5,6 @@
 
 namespace arms::chassis {
 
-extern bool useVelocity;
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
@@ -24,12 +23,6 @@ extern std::shared_ptr<pros::Imu> imu;
  * Set the speed of target motor
  */
 void motorMove(std::shared_ptr<okapi::Motor> motor, double speed, bool vel);
-
-/**
- * Set the speed of target motor group
- */
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
-               bool vel);
 
 /**
  * Set the brake mode for all chassis motors
@@ -72,27 +65,17 @@ double limitSpeed(double speed, double max);
 double slew(double speed, double step, double* prev);
 
 /**
- * Begin an asycronous chassis movement
+ * Perform a linear chassis movement
  */
-void moveAsync(double sp, int max = 100);
+void move(double sp, double max, std::array<double, 2> pid, double exit_error,
+          bool thru, bool blocking);
 
 /**
- * Begin an asycronous turn movement
+ * Perform an odom chassis movement
  */
-void turnAsync(double sp, int max = 100);
-
-/**
- * Begin an asycronous absolute turn movement (only works with IMU)
- */
-void turnAbsoluteAsync(double sp, int max = 100);
-
-/**
- * Perform a chassis movement
- */
-void move(std::array<double, 1> point, double max = 100, double linear_kp = 0,
-          double angle_kp = 0, double exit_error = 0, bool reverse = 1);
-void move(std::array<double, 2> point, double max = 100, double linear_kp = 0,
-          double angle_kp = 0, double exit_error = 0, bool reverse = 1);
+void move(std::array<double, 2> sp, double max,
+          std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
+          double exit_error, bool thru, bool direction, bool blocking);
 
 /**
  * Perform a turn movement
@@ -105,27 +88,14 @@ void turn(double sp, int max = 100);
 void turnAbsolute(double sp, int max = 100);
 
 /**
- * Perform a chassis movement with no PID
+ * Assign a power to the left and right motors
  */
-void moveThru(std::array<double, 1> point, double max = 100,
-              double exit_error = 0);
-void moveThru(std::array<double, 2> point, double max = 100,
-              double exit_error = 0);
+void tank(double left, double right, bool velocity = false);
 
 /**
- * Assign a voltage to each motor on a scale of -100 to 100
+ * Assign a vertical and horizontal power to the motors
  */
-void tank(double left, double right);
-
-/**
- * Assign a voltage to each motor on a scale of -100 to 100
- */
-void arcade(double vertical, double horizontal);
-
-/**
- * Assign a voltage to each motor on a scale of -100 to 100
- */
-void holonomic(double x, double y, double z);
+void arcade(double vertical, double horizontal, bool velocity = false);
 
 /**
  * initialize the chassis
