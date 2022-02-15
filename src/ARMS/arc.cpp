@@ -46,7 +46,8 @@ void arc(bool mirror, int arc_length, double rad, int max, int type) {
 		if (speed < 0)
 			speed = 0;
 
-		speed = slew(speed, arc_slew_step, &prev); // slew
+		speed = slew(speed, arc_slew_step, prev); // slew
+		prev = speed;
 
 		if (reversed)
 			speed = -speed;
@@ -89,7 +90,8 @@ void scurve(bool mirror, int arc1, int mid, int arc2, int max) {
 	arc(mirror, arc1, 1, max, 1);
 
 	// middle movement
-	velocity(mid, max);
+	tank(max, max, true);
+	delay(mid);
 
 	// final arc
 	arc(!mirror, arc2, 1, max, 2);

@@ -8,6 +8,7 @@ namespace arms::chassis {
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
+extern double slew_step;
 
 // motors
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
@@ -22,7 +23,8 @@ extern std::shared_ptr<pros::Imu> imu;
 /**
  * Set the speed of target motor
  */
-void motorMove(std::shared_ptr<okapi::Motor> motor, double speed, bool vel);
+void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
+               bool vel);
 
 /**
  * Set the brake mode for all chassis motors
@@ -62,7 +64,12 @@ double limitSpeed(double speed, double max);
 /**
  * Get a gradually accelerating speed towards the target input
  */
-double slew(double speed, double step, double* prev);
+double slew(double speed, double step, double prev);
+
+/**
+ * Wait for the chassis to complete the current movement
+ */
+void waitUntilFinished(double exit_error = 0);
 
 /**
  * Perform a linear chassis movement
@@ -85,6 +92,12 @@ void turn(double sp, int max, std::array<double, 2> pid, double exit_error = 0,
           bool absolute = false, bool blocking = true);
 
 /**
+ * Turn to face a point
+ */
+void turn(std::array<double, 2> sp, int max, std::array<double, 2> pid,
+          double exit_error = 0, bool blocking = true);
+
+/**
  * Assign a power to the left and right motors
  */
 void tank(double left, double right, bool velocity = false);
@@ -99,10 +112,10 @@ void arcade(double vertical, double horizontal, bool velocity = false);
  */
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, int settle_time,
-          double settle_threshold_linear, double settle_threshold_angular,
-          double slew_step, double arc_slew_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort);
+          double distance_constant, double degree_constant, double slew_step,
+          double arc_slew_step, int imuPort,
+          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          double exit_error);
 
 } // namespace arms::chassis
 

@@ -24,9 +24,11 @@ double degree_constant;   // ticks per degree
 // slew control (autonomous only)
 double slew_step; // smaller number = more slew
 
+// default exit error
+double default_exit_error;
+
 // chassis variables
 double maxSpeed = 100;
-double exit_error = 0;
 double leftPrev = 0;
 double rightPrev = 0;
 
@@ -138,10 +140,13 @@ double slew(double target_speed, double step, double current_speed) {
 // autonomous functions
 
 // conditional waiting
-void waitUntilFinished() {
+void waitUntilFinished(double exit_error) {
+	if (exit_error == 0)
+		exit_error = default_exit_error;
+
 	switch (pid::mode) {
 	case LINEAR:
-		while (fabs(position() - pid::linearTarget) > exit_error)
+		while (fabs(distance() - pid::linearTarget) > exit_error)
 			delay(10);
 		break;
 	case ANGULAR:
@@ -149,7 +154,6 @@ void waitUntilFinished() {
 			delay(10);
 		break;
 	case ODOM:
-	case ODOM_THRU:
 		while (odom::getDistanceError(pid::pointTarget) > exit_error)
 			delay(10);
 		break;
@@ -163,11 +167,9 @@ void move(double sp, double max, std::array<double, 2> pid, double exit_error,
 	pid::mode = LINEAR;
 	pid::linearTarget = sp;
 	maxSpeed = max;
-	pid::kP = pid[0];
-	pid::kD = pid[1];
-	pid::exit_error = exit_error;
+	pid::linearKP = pid[0];
+	pid::linearKD = pid[1];
 	pid::thru = thru;
-	pid::blocking = blocking;
 	if (blocking)
 		waitUntilFinished();
 }
@@ -178,13 +180,12 @@ void move(std::array<double, 2> sp, double max,
           double exit_error, bool thru, bool direction, bool blocking) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = point;
+	pid::pointTarget = sp;
 	maxSpeed = max;
 	pid::linearKP = linear_pid[0];
 	pid::linearKD = linear_pid[1];
 	pid::angularKP = angular_pid[0];
 	pid::angularKD = angular_pid[1];
-	pid::exit_error = exit_error;
 	if (blocking)
 		waitUntilFinished();
 }
@@ -211,9 +212,15 @@ void turn(double sp, int max, std::array<double, 2> pid, double exit_error,
 	maxSpeed = max;
 	pid::angularKP = pid[0];
 	pid::angularKD = pid[1];
-	pid::exit_error = exit_error;
 	if (blocking)
 		waitUntilFinished();
+}
+
+// odometry turn to to point
+void turn(std::array<double, 2> sp, int max, std::array<double, 2> pid,
+          double exit_error, bool blocking) {
+	double angle_error = odom::getAngleError(sp);
+	turn(angle_error, max, pid, exit_error, true, blocking);
 }
 
 /**************************************************/
@@ -234,20 +241,17 @@ int chassisTask() {
 			continue;
 		}
 
-		double leftSpeed = speeds[0];
-		double rightSpeed = speeds[1];
-
 		// speed limiting
-		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
-		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
+		speeds[0] = limitSpeed(speeds[0], maxSpeed);
+		speeds[1] = limitSpeed(speeds[1], maxSpeed);
 
 		// slew
-		leftSpeed = slew(leftSpeed, slew_step, );
-		rightSpeed = slew(rightSpeed, slew_step, rightPrev);
+		speeds[0] = slew(speeds[0], slew_step, leftPrev);
+		speeds[1] = slew(speeds[1], slew_step, rightPrev);
 
 		// output
-		motorMove(leftMotors, leftSpeed);
-		motorMove(rightMotors, rightSpeed);
+		motorMove(leftMotors, speeds[0], false);
+		motorMove(rightMotors, speeds[1], false);
 	}
 }
 
@@ -274,16 +278,17 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, int settle_time,
-          double settle_threshold_linear, double settle_threshold_angular,
-          double slew_tep, double arc_slew_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort) {
+          double distance_constant, double degree_constant, double slew_tep,
+          double arc_slew_step, int imuPort,
+          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          double exit_error) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
 	chassis::slew_step = slew_step;
 	chassis::arc_slew_step = arc_slew_step;
+	chassis::default_exit_error = exit_error;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);

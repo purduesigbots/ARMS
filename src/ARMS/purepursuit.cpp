@@ -140,14 +140,11 @@ void followPath(std::vector<std::array<double, 2>> path) {
 	double ang_prev_error = 0;
 	double vel_prev_error = 0;
 
-	double left_prev = 0;
-	double right_prev = 0;
-
 	while (1) {
 		std::array<double, 2> ang_tracking_point =
 		    findIntersectionPoint(path, inner_radius);
 		if (last_segment) {
-			odom::move(path[path.size() - 1]);
+			chassis::move(path[path.size() - 1], 80, {0, 0}, {0, 0});
 			break;
 		}
 		std::array<double, 2> vel_tracking_point =
@@ -193,11 +190,10 @@ void followPath(std::vector<std::array<double, 2>> path) {
 			right_speed -= diff;
 		}
 
-		left_speed = chassis::slew(left_speed, chassis::slew_step, &left_prev);
-		right_speed = chassis::slew(right_speed, chassis::slew_step, &right_prev);
-
-		left_prev = left_speed;
-		right_prev = right_speed;
+		left_speed =
+		    chassis::slew(left_speed, chassis::slew_step, chassis::leftPrev);
+		right_speed =
+		    chassis::slew(right_speed, chassis::slew_step, chassis::rightPrev);
 
 		chassis::leftMotors->moveVoltage(left_speed * 120);
 		chassis::rightMotors->moveVoltage(right_speed * 120);

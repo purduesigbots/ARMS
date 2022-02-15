@@ -13,7 +13,6 @@ void competition_initialize() {
 }
 
 void autonomous() {
-	arms::odom::move({24, 0});
 }
 
 void opcontrol() {

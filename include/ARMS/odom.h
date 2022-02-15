@@ -21,26 +21,8 @@ double getAngleError(std::array<double, 2> point);
 
 double getDistanceError(std::array<double, 2> point);
 
-void waitUntilAtTarget();
-
-void moveAsync(std::array<double, 2> point, double max = 80);
-
-void holoAsync(std::array<double, 2> point, double angle, double max = 80,
-               double turnMax = 50);
-
-void move(std::array<double, 2> point, double max = 80, bool settle = true);
-
-void moveThru(std::array<double, 2> point, double max = 80);
-
-void holo(std::array<double, 2> point, double angle, double max = 80,
-          double turnMax = 50);
-
-void holoThru(std::array<double, 2> point, double angle, double max = 80,
-              double turnMax = 50);
-
 void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi, bool holonomic,
-          double exit_error);
+          double left_right_tpi, double middle_tpi);
 
 } // namespace arms::odom
 

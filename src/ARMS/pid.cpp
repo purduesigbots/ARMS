@@ -56,7 +56,7 @@ std::array<double, 2> linear() {
 
 	// difference PID
 	std::array<double, 2> encoders = chassis::getEncoders();
-	dif = (encoders[0] - encoders[1]) * difKP;
+	double dif = (encoders[0] - encoders[1]) * difKP;
 
 	// disable PID for thru movement
 	if (thru)
@@ -109,8 +109,8 @@ std::array<double, 2> odom() {
 	}
 
 	// limit speeds
-	lin_speed = limitSpeed(lin_speed, chassis::maxSpeed);
-	ang_speed = limitSpeed(ang_speed, chassis::maxSpeed);
+	lin_speed = chassis::limitSpeed(lin_speed, chassis::maxSpeed);
+	ang_speed = chassis::limitSpeed(ang_speed, chassis::maxSpeed);
 
 	// disable PID for thru movement
 	if (thru)
@@ -123,8 +123,8 @@ std::array<double, 2> odom() {
 	return {left_speed, right_speed};
 }
 
-void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double arcKP, double difKP) {
+void init(double linearKP, double linearKD, double angularKP, double angularKD,
+          double arcKP, double difKP) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::defaultLinearKD = linearKD;
