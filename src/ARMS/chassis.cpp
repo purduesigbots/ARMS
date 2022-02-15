@@ -161,14 +161,14 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double target, double max, bool thru, bool blocking, double exit_error,
-          std::array<double, 2> pid) {
+void move(double target, double max, bool thru, bool blocking,
+          double exit_error, std::array<double, 2> pid) {
 	reset();
 	pid::mode = LINEAR;
 	pid::linearTarget = target;
 	maxSpeed = max;
-  pid::linearKP = pid[0];
-  pid::linearKD = pid[1];
+	pid::linearKP = pid[0];
+	pid::linearKD = pid[1];
 	pid::thru = thru;
 	if (blocking)
 		waitUntilFinished(exit_error);
@@ -182,18 +182,18 @@ void move(std::array<double, 2> target, double max, bool thru, bool blocking,
 	pid::mode = ODOM;
 	pid::pointTarget = target;
 	maxSpeed = max;
-  pid::linearKP = linear_pid[0];
-  pid::linearKD = linear_pid[1];
-  pid::angularKP = angular_pid[0];
-  pid::angularKD = angular_pid[1];
-  pid::thru = thru;
+	pid::linearKP = linear_pid[0];
+	pid::linearKD = linear_pid[1];
+	pid::angularKP = angular_pid[0];
+	pid::angularKD = angular_pid[1];
+	pid::thru = thru;
 	if (blocking)
 		waitUntilFinished(exit_error);
 }
 
 // rotational movement
-void turn(double target, int max, bool absolute, bool blocking, double exit_error,
-          std::array<double, 2> pid) {
+void turn(double target, int max, bool absolute, bool blocking,
+          double exit_error, std::array<double, 2> pid) {
 	reset();
 	pid::mode = ANGULAR;
 
@@ -210,8 +210,8 @@ void turn(double target, int max, bool absolute, bool blocking, double exit_erro
 
 	pid::angularTarget = target;
 	maxSpeed = max;
-  pid::angularKP = pid[0];
-  pid::angularKD = pid[1];
+	pid::angularKP = pid[0];
+	pid::angularKD = pid[1];
 	if (blocking)
 		waitUntilFinished(exit_error);
 }
