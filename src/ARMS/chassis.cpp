@@ -119,19 +119,19 @@ double limitSpeed(double speed, double max) {
 	return speed;
 }
 
-double slew(double target_speed, double step, double* current_speed) {
+double slew(double target_speed, double step, double current_speed) {
 
-	if (fabs(*current_speed) > fabs(target_speed))
+	if (fabs(current_speed) > fabs(target_speed))
 		step = 200;
 
-	if (target_speed > *current_speed + step)
-		*current_speed += step;
-	else if (target_speed < *current_speed - step)
-		*current_speed -= step;
+	if (target_speed > current_speed + step)
+		current_speed += step;
+	else if (target_speed < current_speed - step)
+		current_speed -= step;
 	else
-		*current_speed = target_speed;
+		current_speed = target_speed;
 
-	return *current_speed;
+	return current_speed;
 }
 
 /**************************************************/
@@ -159,12 +159,15 @@ void waitUntilFinished() {
 // linear movement
 void move(double sp, double max, std::array<double, 2> pid, double exit_error,
           bool thru, bool blocking) {
+	reset();
 	pid::mode = LINEAR;
-	pid::kP = pid[0];
-	pid::kD = pid[1];
 	pid::linearTarget = sp;
 	maxSpeed = max;
-	reset();
+	pid::kP = pid[0];
+	pid::kD = pid[1];
+	pid::exit_error = exit_error;
+	pid::thru = thru;
+	pid::blocking = blocking;
 	if (blocking)
 		waitUntilFinished();
 }
@@ -173,43 +176,44 @@ void move(double sp, double max, std::array<double, 2> pid, double exit_error,
 void move(std::array<double, 2> sp, double max,
           std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
           double exit_error, bool thru, bool direction, bool blocking) {
+	reset();
 	pid::mode = ODOM;
+	pid::pointTarget = point;
+	maxSpeed = max;
 	pid::linearKP = linear_pid[0];
 	pid::linearKD = linear_pid[1];
 	pid::angularKP = angular_pid[0];
 	pid::angularKD = angular_pid[1];
-	pid::pointTarget = point;
-	maxSpeed = max;
-	reset();
+	pid::exit_error = exit_error;
 	if (blocking)
 		waitUntilFinished();
 }
 
-// turning
-void turn(double sp, int max, std::array<double, 2>, double exit_error,
-          bool blocking) {
+// rotational movement
+void turn(double sp, int max, std::array<double, 2> pid, double exit_error,
+          bool absolute, bool blocking) {
+	reset();
 	pid::mode = ANGULAR;
+
+	if (absolute) {
+		// convert from absolute to relative set point
+		sp = sp - (int)angle() % 360;
+
+		// make sure all turns take most efficient route
+		if (sp > 180)
+			sp -= 360;
+		else if (sp < -180)
+			sp += 360;
+	}
+
 	sp += angle();
 	pid::angularTarget = sp;
-	reset();
 	maxSpeed = max;
+	pid::angularKP = pid[0];
+	pid::angularKD = pid[1];
+	pid::exit_error = exit_error;
 	if (blocking)
 		waitUntilFinished();
-}
-
-void turnAbsolute(double sp, int max) {
-	pid::mode = ANGULAR;
-
-	// convert from absolute to relative set point
-	sp = sp - (int)angle() % 360;
-
-	// make sure all turns take most efficient route
-	if (sp > 180)
-		sp -= 360;
-	else if (sp < -180)
-		sp += 360;
-
-	turnAsync(sp, max);
 }
 
 /**************************************************/
@@ -238,8 +242,8 @@ int chassisTask() {
 		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
 
 		// slew
-		leftSpeed = slew(leftSpeed, slew_step, &leftPrev);
-		rightSpeed = slew(rightSpeed, slew_step, &rightPrev);
+		leftSpeed = slew(leftSpeed, slew_step, );
+		rightSpeed = slew(rightSpeed, slew_step, rightPrev);
 
 		// output
 		motorMove(leftMotors, leftSpeed);

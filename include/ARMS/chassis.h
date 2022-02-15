@@ -67,25 +67,22 @@ double slew(double speed, double step, double* prev);
 /**
  * Perform a linear chassis movement
  */
-void move(double sp, double max, std::array<double, 2> pid, double exit_error,
-          bool thru, bool blocking);
+void move(double sp, double max, std::array<double, 2> pid,
+          double exit_error = 0, bool thru = false, bool blocking = true);
 
 /**
  * Perform an odom chassis movement
  */
 void move(std::array<double, 2> sp, double max,
           std::array<double, 2> linear_pid, std::array<double, 2> angular_pid,
-          double exit_error, bool thru, bool direction, bool blocking);
+          double exit_error = 0, bool thru = false, bool direction = 1,
+          bool blocking = true);
 
 /**
  * Perform a turn movement
  */
-void turn(double sp, int max = 100);
-
-/**
- * Perform an absolute turn movement
- */
-void turnAbsolute(double sp, int max = 100);
+void turn(double sp, int max, std::array<double, 2> pid, double exit_error = 0,
+          bool absolute = false, bool blocking = true);
 
 /**
  * Assign a power to the left and right motors

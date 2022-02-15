@@ -28,7 +28,7 @@ namespace arms {
 #define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
 #define LEFT_RIGHT_TPI 41.4       // Ticks per inch
 #define MIDDLE_TPI 41.4           // Ticks per inch
-#define EXIT_ERROR 10             // exit distance for movements
+#define EXIT_ERROR 1              // exit distance for movements
 
 // normal pid constants
 #define LINEAR_KP .3
