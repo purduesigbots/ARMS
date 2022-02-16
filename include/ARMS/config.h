@@ -35,8 +35,10 @@ namespace arms {
 
 // default pid constants
 #define LINEAR_KP .3
+#define LINEAR_KI 0
 #define LINEAR_KD .5
 #define ANGULAR_KP .8
+#define ANGULAR_KI 0
 #define ANGULAR_KD 3
 #define DIF_KP .5      // Keep the robot driving straight
 #define FEEDFORWARD 10 // Minimum power to keep the chassis moving
@@ -61,8 +63,8 @@ inline void init() {
 		           MIDDLE_TPI);
 	}
 
-	pid::init(LINEAR_KP, LINEAR_KD, ANGULAR_KP, ANGULAR_KD, ARC_KP, DIF_KP,
-	          FEEDFORWARD);
+	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
+	          ARC_KP, DIF_KP, FEEDFORWARD);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);

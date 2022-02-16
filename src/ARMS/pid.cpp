@@ -7,13 +7,17 @@ int mode = DISABLE;
 
 // pid constants
 double linearKP;
-double linearKD;
 double angularKP;
+double linearKI;
+double linearKD;
+double angularKI;
 double angularKD;
 
 double defaultLinearKP;
+double defaultLinearKI;
 double defaultLinearKD;
 double defaultAngularKP;
+double defaultAngularKI;
 double defaultAngularKD;
 
 double arcKP;
@@ -28,31 +32,44 @@ double linearTarget = 0;
 double angularTarget = 0;
 std::array<double, 2> pointTarget{0, 0};
 
-double pid(double error, double* pe, double kp, double kd) {
+double pid(double error, double* pe, double* in, double kp, double ki,
+           double kd) {
+
 	double derivative = error - *pe;
-	double speed = error * kp + derivative * kd;
+	if ((*pe > 0 && error < 0) || (*pe < 0 && error > 0))
+		*in = 0; // remove integral at zero error
+	double speed = error * kp + *in * ki + derivative * kd;
+
+	// scale back integral if over max windup
+	if (fabs(speed) < 100) {
+		*in += error;
+	}
 
 	*pe = error;
 
 	return speed;
 }
 
-double pid(double target, double sv, double* pe, double kp, double kd) {
+double pid(double target, double sv, double* pe, double* in, double kp,
+           double ki, double kd) {
 	double error = target - sv;
-	return pid(error, pe, kp, kd);
+	return pid(error, pe, in, kp, ki, kd);
 }
 
 std::array<double, 2> linear() {
 	static double pe = 0; // previous error
+	static double in = 0; // integral
 
 	// apply defaults
-	if (linearKP == 0)
+	if (linearKP == PID_DEFAULT)
 		linearKP = defaultLinearKP;
-	if (linearKD == 0)
+	if (linearKI == PID_DEFAULT)
+		linearKI = defaultLinearKI;
+	if (linearKD == PID_DEFAULT)
 		linearKD = defaultLinearKP;
 
 	double sv = chassis::distance();
-	double speed = pid(linearTarget, sv, &pe, linearKP, linearKD);
+	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
 
 	if (abs(speed) < feedforward)
@@ -71,14 +88,17 @@ std::array<double, 2> linear() {
 
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
+	static double in = 0; // integral
 
 	// apply defaults
-	if (angularKP == 0)
+	if (angularKP == PID_DEFAULT)
 		angularKP = defaultAngularKP;
-	if (angularKD == 0)
+	if (angularKI == PID_DEFAULT)
+		angularKI = defaultAngularKI;
+	if (angularKD == PID_DEFAULT)
 		angularKD = defaultAngularKP;
 
-	double speed = pid(angularTarget, &pe, angularKP, angularKD);
+	double speed = pid(angularTarget, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
@@ -87,23 +107,33 @@ std::array<double, 2> odom() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
+	// integral values
+	static double in_lin;
+	static double in_ang;
+
 	// get current error
 	double lin_error = odom::getDistanceError(pointTarget);
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// calculate linear
-	if (linearKP == 0)
+	if (linearKP == PID_DEFAULT)
 		linearKP = defaultLinearKP;
-	if (linearKD == 0)
+	if (linearKI == PID_DEFAULT)
+		linearKI = defaultLinearKI;
+	if (linearKD == PID_DEFAULT)
 		linearKD = defaultLinearKP;
-	double lin_speed = pid(lin_error, &pe_lin, linearKP, linearKD);
+	double lin_speed =
+	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
 	// calculate angular
-	if (angularKP == 0)
+	if (angularKP == PID_DEFAULT)
 		angularKP = defaultAngularKP;
-	if (angularKD == 0)
+	if (angularKI == PID_DEFAULT)
+		angularKI = defaultAngularKI;
+	if (angularKD == PID_DEFAULT)
 		angularKD = defaultAngularKP;
-	double ang_speed = pid(ang_error, &pe_ang, angularKP, angularKD);
+	double ang_speed =
+	    pid(ang_error, &pe_ang, &in_ang, angularKP, angularKI, angularKD);
 
 	// apply direction
 	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
@@ -126,12 +156,15 @@ std::array<double, 2> odom() {
 	return {left_speed, right_speed};
 }
 
-void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double arcKP, double difKP, double feedforward) {
+void init(double linearKP, double linearKI, double linearKD, double angularKP,
+          double angularKI, double angularKD, double arcKP, double difKP,
+          double feedforward) {
 
 	pid::defaultLinearKP = linearKP;
+	pid::defaultLinearKI = linearKI;
 	pid::defaultLinearKD = linearKD;
 	pid::defaultAngularKP = angularKP;
+	pid::defaultAngularKI = angularKI;
 	pid::defaultAngularKD = angularKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;

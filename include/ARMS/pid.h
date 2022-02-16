@@ -11,11 +11,15 @@ namespace arms::pid {
 #define LINEAR 1
 #define DISABLE 0
 
+#define PID_DEFAULT -1 // pid constant default
+
 extern int mode;
 
 extern double linearKP;
+extern double linearKI;
 extern double linearKD;
 extern double angularKP;
+extern double angularKI;
 extern double angularKD;
 extern double arcKP; // needs to be exposed for arcs
 
@@ -30,8 +34,9 @@ std::array<double, 2> linear();
 std::array<double, 2> angular();
 std::array<double, 2> odom();
 
-void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double arcKP, double difKP, double feedforward);
+void init(double linearKP, double linearKI, double linearKD, double angularKP,
+          double angularKI, double angularKD, double arcKP, double difKP,
+          double feedforward);
 
 } // namespace arms::pid
 
