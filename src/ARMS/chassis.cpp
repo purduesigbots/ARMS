@@ -174,11 +174,11 @@ void move(double dist, double max, double exitError, double kp, flags_t flags) {
 }
 
 // odometry movement
-void move(Vec2 target, double max, double exit_error, double lp,  double ap, 
-		  flags_t flags) {
+void move(Vec2 target, double max, double exit_error, double lp, double ap,
+          flags_t flags) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = target.std();	//TODO: Update PID to use Vec2
+	pid::pointTarget = target.std(); // TODO: Update PID to use Vec2
 	maxSpeed = max;
 	pid::linearKP = lp;
 	pid::angularKP = ap;
@@ -203,7 +203,6 @@ void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 		else if (target < -180)
 			target += 360;
 	}
-	
 
 	pid::angularTarget = target;
 	maxSpeed = max;
