@@ -18,6 +18,7 @@ double defaultAngularKD;
 
 double arcKP;
 double difKP;
+double feedforward;
 
 int direction;
 bool thru;
@@ -53,6 +54,9 @@ std::array<double, 2> linear() {
 	double sv = chassis::distance();
 	double speed = pid(linearTarget, sv, &pe, linearKP, linearKD);
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
+
+	if (abs(speed) < feedforward)
+		speed = feedforward * speed / fabs(speed);
 
 	// difference PID
 	std::array<double, 2> encoders = chassis::getEncoders();
@@ -123,7 +127,7 @@ std::array<double, 2> odom() {
 }
 
 void init(double linearKP, double linearKD, double angularKP, double angularKD,
-          double arcKP, double difKP) {
+          double arcKP, double difKP, double feedforward) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::defaultLinearKD = linearKD;
@@ -131,6 +135,7 @@ void init(double linearKP, double linearKD, double angularKP, double angularKD,
 	pid::defaultAngularKD = angularKD;
 	pid::arcKP = arcKP;
 	pid::difKP = difKP;
+	pid::feedforward = feedforward;
 }
 
 } // namespace arms::pid
