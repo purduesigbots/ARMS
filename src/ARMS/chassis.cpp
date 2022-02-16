@@ -187,11 +187,11 @@ void move(double target, flags_t flags) {
 }
 
 // odometry movement
-void move(Vec2 target, double max, double exit_error, double lp, double ap,
+void move(Point target, double max, double exit_error, double lp, double ap,
           flags_t flags) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = target.std(); // TODO: Update PID to use Vec2
+	pid::pointTarget = target.std(); // TODO: Update PID to use Point
 	maxSpeed = max;
 	pid::linearKP = lp;
 	pid::angularKP = ap;
@@ -201,15 +201,15 @@ void move(Vec2 target, double max, double exit_error, double lp, double ap,
 		waitUntilFinished(exit_error);
 }
 
-void move(Vec2 target, double max, double exit_error, flags_t flags) {
+void move(Point target, double max, double exit_error, flags_t flags) {
 	move(target, max, exit_error, PID_DEFAULT, PID_DEFAULT, flags);
 }
 
-void move(Vec2 target, double max, flags_t flags) {
+void move(Point target, double max, flags_t flags) {
 	move(target, max, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
 }
 
-void move(Vec2 target, flags_t flags) {
+void move(Point target, flags_t flags) {
 	move(target, 100.0, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
 }
 
@@ -250,20 +250,20 @@ void turn(double target, flags_t flags) {
 }
 
 // odometry turn to to point
-void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags) {
+void turn(Point target, int max, double exit_error, double ap, flags_t flags) {
 	double angle_error = odom::getAngleError(target.std());
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 
-void turn(Vec2 target, int max, double exit_error, flags_t flags) {
+void turn(Point target, int max, double exit_error, flags_t flags) {
 	turn(target, max, exit_error, PID_DEFAULT, flags);
 }
 
-void turn(Vec2 target, int max, flags_t flags) {
+void turn(Point target, int max, flags_t flags) {
 	turn(target, max, EXIT_ERROR, PID_DEFAULT, flags);
 }
 
-void turn(Vec2 target, flags_t flags) {
+void turn(Point target, flags_t flags) {
 	turn(target, 100, EXIT_ERROR, PID_DEFAULT, flags);
 }
 

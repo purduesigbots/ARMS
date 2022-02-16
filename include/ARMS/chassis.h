@@ -3,8 +3,6 @@
 
 #include "okapi/api.hpp"
 
-#include "ARMS/vec.h"
-
 namespace arms::chassis {
 
 enum MoveFlags {
@@ -93,11 +91,11 @@ void move(double target, flags_t flags);
 /**
  * Perform an odom chassis movement
  */
-void move(Vec2 target, double max, double exit_error, double lp, double ap, 
+void move(Point target, double max, double exit_error, double lp, double ap, 
 		  flags_t flags);
-void move(Vec2 target, double max, double exit_error, flags_t flags);
-void move(Vec2 target, double max, flags_t flags);
-void move(Vec2 target, flags_t flags);
+void move(Point target, double max, double exit_error, flags_t flags);
+void move(Point target, double max, flags_t flags);
+void move(Point target, flags_t flags);
 
 /**
  * Perform a turn movement
@@ -110,10 +108,10 @@ void turn(double target, flags_t flags);
 /**
  * Turn to face a point
  */
-void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags);
-void turn(Vec2 target, int max, double exit_error, flags_t flags);
-void turn(Vec2 target, int max, flags_t flags);
-void turn(Vec2 target, flags_t flags);
+void turn(Point target, int max, double exit_error, double ap, flags_t flags);
+void turn(Point target, int max, double exit_error, flags_t flags);
+void turn(Point target, int max, flags_t flags);
+void turn(Point target, flags_t flags);
 
 /**
  * Assign a power to the left and right motors
