@@ -1,5 +1,5 @@
-#ifndef _ARMS_POINT_ANGLE_H_
-#define _ARMS_POINT_ANGLE_H_
+#ifndef _ARMS_POSE_H_
+#define _ARMS_POSE_H_
 
 #include "ARMS/api.h"
 
@@ -10,10 +10,11 @@ namespace arms {
  * 
  * A union was chosen to represent the point so that a couple different names
  * can be used to access the same elements. For example:
- *      point.x, point.data[0], and point[0]
+ *      pose.x, pose.data[0], and pose[0]
  * refer to the same variable.
+ * The point part of the point angle can be acessed as point.p
  */
-union PointAngle
+union Pose
 {
     double& operator[](unsigned int index) {
         return data[index];
@@ -26,4 +27,4 @@ union PointAngle
 
 }//namespace arms
 
-#endif//_ARMS_POINT_ANGLE_H_
+#endif//_ARMS_POSE_H_

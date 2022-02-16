@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ARMS/point.h"
-#include "ARMS/pointangle.h"
+#include "ARMS/pose.h"
 #include "ARMS/arc.h"
 #include "ARMS/chassis.h"
 #include "ARMS/odom.h"
