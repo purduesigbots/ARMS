@@ -12,29 +12,29 @@ namespace arms {
 
 // unit constants
 #define DISTANCE_CONSTANT 273 // ticks per distance unit
-#define DEGREE_CONSTANT 2.3   // ticks per degree
+#define DEGREE_CONSTANT 2.3 // ticks per degree
 
 // slew control (autonomous only)
 #define SLEW_STEP 8 // smaller number = more slew
 
 // sensors
-#define IMU_PORT 0            // port 0 for disabled
+#define IMU_PORT 0 // port 0 for disabled
 #define ENCODER_PORTS 0, 0, 0 // port 0 for disabled,
-#define EXPANDER_PORT 0       // port 0 for disabled
+#define EXPANDER_PORT 0 // port 0 for disabled
 
 // odometry
 #define LEFT_RIGHT_DISTANCE 6.375 // only needed for non-imu setups
-#define MIDDLE_DISTANCE 5.75      // only needed if using middle tracker
-#define LEFT_RIGHT_TPI 41.4       // Ticks per inch
-#define MIDDLE_TPI 41.4           // Ticks per inch
-#define EXIT_ERROR 1              // default exit distance for movements
+#define MIDDLE_DISTANCE 5.75 // only needed if using middle tracker
+#define LEFT_RIGHT_TPI 41.4 // Ticks per inch
+#define MIDDLE_TPI 41.4 // Ticks per inch
+#define EXIT_ERROR 1 // default exit distance for movements
 
 // default pid constants
 #define LINEAR_KP .3
 #define LINEAR_KD .5
 #define ANGULAR_KP .8
 #define ANGULAR_KD 3
-#define DIF_KP .5      // Keep the robot driving straight
+#define DIF_KP .5 // Keep the robot driving straight
 #define FEEDFORWARD 10 // Minimum power to keep the chassis moving
 
 // arc movements
@@ -43,7 +43,7 @@ namespace arms {
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
-#define HUE 360   // Color of theme from 0-359(H part of HSV)
+#define HUE 360 // Color of theme from 0-359(H part of HSV)
 #define DEFAULT 1 // Default auton numbers
 
 // initializer
