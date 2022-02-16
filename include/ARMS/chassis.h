@@ -3,6 +3,8 @@
 
 #include "okapi/api.hpp"
 
+#include "ARMS/vec.h"
+
 namespace arms::chassis {
 
 enum MoveFlags {
@@ -83,12 +85,12 @@ void waitUntilFinished(double exit_error = 0);
 /**
  * Perform a linear chassis movement
  */
-void move(double dist, double max, double exitError, double kp, flags_t flags);
+void move(double target, double max, double exitError, double kp, flags_t flags);
 
 /**
  * Perform an odom chassis movement
  */
-void move(Vec2 target, double max, double exit_error, double lp,  double ap, 
+void move(Vec2 target, double max, double exit_error, double lp, double ap, 
 		  flags_t flags);
 
 /**

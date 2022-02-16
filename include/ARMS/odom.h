@@ -13,13 +13,13 @@ extern double prev_right_pos;
 extern double prev_left_pos;
 extern double prev_middle_pos;
 
-void reset(Vec2 point = {0, 0});
+void reset(std::array<double, 2> point = {0, 0});
 
-void reset(Vec2 point, double angle);
+void reset(std::array<double, 2> point, double angle);
 
-double getAngleError(Vec2 point);
+double getAngleError(std::array<double, 2> point);
 
-double getDistanceError(Vec2 point);
+double getDistanceError(std::array<double, 2> point);
 
 void init(bool debug, double left_right_distance, double middle_distance,
           double left_right_tpi, double middle_tpi);

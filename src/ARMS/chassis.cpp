@@ -161,10 +161,10 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double dist, double max, double exitError, double kp, flags_t flags) {
+void move(double target, double max, double exitError, double kp, flags_t flags) {
 	reset();
 	pid::mode = LINEAR;
-	pid::linearTarget = dist;
+	pid::linearTarget = target;
 	maxSpeed = max;
 	pid::linearKP = kp;
 	pid::thru = (flags & THRU);
@@ -214,7 +214,7 @@ void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 
 // odometry turn to to point
 void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags) {
-	double angle_error = odom::getAngleError(target);
+	double angle_error = odom::getAngleError(target.std());
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 

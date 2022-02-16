@@ -3,6 +3,8 @@
 
 using namespace pros;
 
+#if 0
+
 namespace arms::purepursuit {
 
 bool last_segment = false;
@@ -203,3 +205,4 @@ void followPath(std::vector<std::array<double, 2>> path) {
 }
 
 } // namespace arms::purepursuit
+#endif
