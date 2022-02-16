@@ -5,6 +5,15 @@
 
 namespace arms::chassis {
 
+enum MoveFlags {
+    ASYNC       = 0b0000'0001,
+    THRU        = 0b0000'0010,
+    BACKWARD    = 0b0000'0100,
+    ABSOLUTE    = 0b0000'1000,
+};
+
+typedef uint32_t flags_t;
+
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
@@ -74,32 +83,24 @@ void waitUntilFinished(double exit_error = 0);
 /**
  * Perform a linear chassis movement
  */
-void move(double target, double max, bool thru = false, bool blocking = false,
-          double exit_error = 0,
-          std::array<double, 2> pid = {0, 0});
+void move(double dist, double max, double exitError, double kp, flags_t flags);
 
 /**
  * Perform an odom chassis movement
  */
-void move(std::array<double, 2> target, double max, bool thru = false,
-          bool blocking = false, bool direction = 1, double exit_error = 0,
-          std::array<double, 2> linear_pid = {0, 0},
-          std::array<double, 2> angular_pid = {0, 0});
+void move(Vec2 target, double max, double exit_error, double lp,  double ap, 
+		  flags_t flags);
 
 /**
  * Perform a turn movement
  */
-void turn(double target, int max, bool absolute = false, bool blocking = true,
-          double exit_error = 0,
-          std::array<double, 2> pid = {0, 0});
+void turn(double target, int max, double exit_error, double ap, flags_t flags);
 
 /**
  * Turn to face a point
  */
-void turn(std::array<double, 2> target, int max, bool blocking = true,
-          double exit_error = 0,
-          std::array<double, 2> pid  = {0, 0});
-
+void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags);
+   
 /**
  * Assign a power to the left and right motors
  */

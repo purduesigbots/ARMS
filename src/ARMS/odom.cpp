@@ -94,19 +94,19 @@ int odomTask() {
 	}
 }
 
-void reset(std::array<double, 2> point) {
+void reset(Vec2 point) {
 	global_y = point[0];
 	global_x = point[1];
 }
 
-void reset(std::array<double, 2> point, double angle) {
+void reset(Vec2 point, double angle) {
 	reset({point[0], point[1]});
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
 	chassis::resetAngle(angle);
 }
 
-double getAngleError(std::array<double, 2> point) {
+double getAngleError(Vec2 point) {
 	double y = point[0];
 	double x = point[1];
 
@@ -122,7 +122,7 @@ double getAngleError(std::array<double, 2> point) {
 	return delta_theta;
 }
 
-double getDistanceError(std::array<double, 2> point) {
+double getDistanceError(Vec2 point) {
 	double y = point[0];
 	double x = point[1];
 
