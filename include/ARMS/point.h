@@ -6,7 +6,14 @@
 namespace arms {
 
 /**
- * Represents a 2D point or vector.
+ * This is a helper union that defines a 2d point or vector. It defines a
+ * set of operators that can be used to perform vector operations more 
+ * consisely.
+ * 
+ * A union was chosen to represent the point so that a couple different names
+ * can be used to access the same elements. For example:
+ *      point.x, point.data[0], and point[0]
+ * refer to the same variable.
  */
 union Point {
     Point operator-() {
