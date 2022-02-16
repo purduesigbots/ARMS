@@ -86,23 +86,35 @@ void waitUntilFinished(double exit_error = 0);
  * Perform a linear chassis movement
  */
 void move(double target, double max, double exitError, double kp, flags_t flags);
+void move(double target, double max, double exitError, flags_t flags);
+void move(double target, double max, flags_t flags);
+void move(double target, flags_t flags);
 
 /**
  * Perform an odom chassis movement
  */
 void move(Vec2 target, double max, double exit_error, double lp, double ap, 
 		  flags_t flags);
+void move(Vec2 target, double max, double exit_error, flags_t flags);
+void move(Vec2 target, double max, flags_t flags);
+void move(Vec2 target, flags_t flags);
 
 /**
  * Perform a turn movement
  */
 void turn(double target, int max, double exit_error, double ap, flags_t flags);
+void turn(double target, int max, double exit_error, flags_t flags);
+void turn(double target, int max, flags_t flags);
+void turn(double target, flags_t flags);
 
 /**
  * Turn to face a point
  */
 void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags);
-   
+void turn(Vec2 target, int max, double exit_error, flags_t flags);
+void turn(Vec2 target, int max, flags_t flags);
+void turn(Vec2 target, flags_t flags);
+
 /**
  * Assign a power to the left and right motors
  */

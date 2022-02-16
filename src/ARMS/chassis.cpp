@@ -174,6 +174,18 @@ void move(double target, double max, double exitError, double kp,
 		waitUntilFinished(exitError);
 }
 
+void move(double target, double max, double exitError, flags_t flags) {
+	move(target, max, exitError, PID_DEFAULT, flags);
+}
+
+void move(double target, double max, flags_t flags) {
+	move(target, max, EXIT_ERROR, PID_DEFAULT, flags);
+}
+
+void move(double target, flags_t flags) {
+	move(target, 100.0, EXIT_ERROR, PID_DEFAULT, flags);
+}
+
 // odometry movement
 void move(Vec2 target, double max, double exit_error, double lp, double ap,
           flags_t flags) {
@@ -187,6 +199,18 @@ void move(Vec2 target, double max, double exit_error, double lp, double ap,
 
 	if (!(flags & ASYNC))
 		waitUntilFinished(exit_error);
+}
+
+void move(Vec2 target, double max, double exit_error, flags_t flags) {
+	move(target, max, exit_error, PID_DEFAULT, PID_DEFAULT, flags);
+}
+
+void move(Vec2 target, double max, flags_t flags) {
+	move(target, max, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
+}
+
+void move(Vec2 target, flags_t flags) {
+	move(target, 100.0, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
 }
 
 // rotational movement
@@ -213,10 +237,34 @@ void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 		waitUntilFinished(exit_error);
 }
 
+void turn(double target, int max, double exit_error, flags_t flags) {
+	turn(target, max, exit_error, PID_DEFAULT, flags);
+}
+
+void turn(double target, int max, flags_t flags) {
+	turn(target, max, EXIT_ERROR PID_DEFAULT, flags);
+}
+
+void turn(double target, flags_t flags) {
+	turn(target, 100, EXIT_ERROR, PID_DEFAULT, flags);
+}
+
 // odometry turn to to point
 void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags) {
 	double angle_error = odom::getAngleError(target.std());
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
+}
+
+void turn(Vec2 target, int max, double exit_error, flags_t flags) {
+	turn(target, max, exit_error, PID_DEFAULT, flags);
+}
+
+void turn(Vec2 target, int max, flags_t flags) {
+	turn(target, max, EXIT_ERROR, PID_DEFAULT, flags);
+}
+
+void turn(Vec2 target, flags_t flags) {
+	turn(target, 100, EXIT_ERROR, PID_DEFAULT, flags);
 }
 
 /**************************************************/
