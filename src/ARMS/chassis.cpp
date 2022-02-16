@@ -161,43 +161,39 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double target, double max, bool thru, bool blocking,
-          double exit_error, std::array<double, 2> pid) {
+void move(double dist, double max, double exitError, double kp, flags_t flags) {
 	reset();
 	pid::mode = LINEAR;
-	pid::linearTarget = target;
+	pid::linearTarget = dist;
 	maxSpeed = max;
-	pid::linearKP = pid[0];
-	pid::linearKD = pid[1];
-	pid::thru = thru;
-	if (blocking)
-		waitUntilFinished(exit_error);
+	pid::linearKP = kp;
+	pid::thru = (flags & THRU);
+
+	if (!(flags & ASYNC))
+		waitUntilFinished(exitError);
 }
 
 // odometry movement
-void move(std::array<double, 2> target, double max, bool thru, bool blocking,
-          bool direction, double exit_error, std::array<double, 2> linear_pid,
-          std::array<double, 2> angular_pid) {
+void move(Vec2 target, double max, double exit_error, double lp,  double ap, 
+		  flags_t flags) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = target;
+	pid::pointTarget = target.std();	//TODO: Update PID to use Vec2
 	maxSpeed = max;
-	pid::linearKP = linear_pid[0];
-	pid::linearKD = linear_pid[1];
-	pid::angularKP = angular_pid[0];
-	pid::angularKD = angular_pid[1];
-	pid::thru = thru;
-	if (blocking)
+	pid::linearKP = lp;
+	pid::angularKP = ap;
+	pid::thru = (flags & THRU);
+
+	if (!(flags & ASYNC))
 		waitUntilFinished(exit_error);
 }
 
 // rotational movement
-void turn(double target, int max, bool absolute, bool blocking,
-          double exit_error, std::array<double, 2> pid) {
+void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 	reset();
 	pid::mode = ANGULAR;
 
-	if (absolute) {
+	if (flags & ABSOLUTE) {
 		// convert from absolute to relative set point
 		target -= (int)angle() % 360;
 
@@ -207,20 +203,20 @@ void turn(double target, int max, bool absolute, bool blocking,
 		else if (target < -180)
 			target += 360;
 	}
+	
 
 	pid::angularTarget = target;
 	maxSpeed = max;
-	pid::angularKP = pid[0];
-	pid::angularKD = pid[1];
-	if (blocking)
+	pid::angularKP = ap;
+
+	if (!(flags & ASYNC))
 		waitUntilFinished(exit_error);
 }
 
 // odometry turn to to point
-void turn(std::array<double, 2> target, int max, bool blocking,
-          double exit_error, std::array<double, 2> pid) {
+void turn(Vec2 target, int max, double exit_error, double ap, flags_t flags) {
 	double angle_error = odom::getAngleError(target);
-	turn(angle_error, max, true, blocking, exit_error, pid);
+	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 
 /**************************************************/

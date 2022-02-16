@@ -7,7 +7,6 @@ namespace arms {
  * Represents a 2D point or vector.
  */
 union Vec2 {
-
     Vec2 operator-() {
         return {-x, -y};
     }
@@ -50,6 +49,14 @@ union Vec2 {
 
     double& operator[](size_t index) {
         return data[index];
+    }
+
+    //This is a stop gap until the codebase is made to use Vec2 for bot
+    //coordinates
+    //
+    // TODO: Replace PID code to use this class
+    std::array<double, 2> std() { 
+        return {x, y};
     }
 
     struct { double x, y; };
