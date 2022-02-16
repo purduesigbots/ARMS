@@ -161,7 +161,8 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double target, double max, double exitError, double kp, flags_t flags) {
+void move(double target, double max, double exitError, double kp,
+          flags_t flags) {
 	reset();
 	pid::mode = LINEAR;
 	pid::linearTarget = target;
