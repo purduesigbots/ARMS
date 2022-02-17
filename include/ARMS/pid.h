@@ -22,7 +22,7 @@ extern double angularKD;
 
 extern double linearTarget;
 extern double angularTarget;
-extern std::array<double, 2> pointTarget;
+extern Point pointTarget;
 
 extern int direction;
 extern bool thru;

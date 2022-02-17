@@ -191,7 +191,7 @@ void move(Point target, double max, double exit_error, double lp, double ap,
           flags_t flags) {
 	reset();
 	pid::mode = ODOM;
-	pid::pointTarget = target.std(); // TODO: Update PID to use Point
+	pid::pointTarget = target;
 	maxSpeed = max;
 	pid::linearKP = lp;
 	pid::angularKP = ap;
@@ -251,7 +251,7 @@ void turn(double target, flags_t flags) {
 
 // odometry turn to to point
 void turn(Point target, int max, double exit_error, double ap, flags_t flags) {
-	double angle_error = odom::getAngleError(target.std());
+	double angle_error = odom::getAngleError(target);
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 

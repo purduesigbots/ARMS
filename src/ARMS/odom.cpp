@@ -94,21 +94,21 @@ int odomTask() {
 	}
 }
 
-void reset(std::array<double, 2> point) {
-	global_y = point[0];
-	global_x = point[1];
+void reset(Point point) {
+	global_x = point.x;
+	global_y = point.y;
 }
 
-void reset(std::array<double, 2> point, double angle) {
-	reset({point[0], point[1]});
+void reset(Point point, double angle) {
+	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
 	chassis::resetAngle(angle);
 }
 
-double getAngleError(std::array<double, 2> point) {
-	double y = point[0];
-	double x = point[1];
+double getAngleError(Point point) {
+	double x = point.x;
+	double y = point.y;
 
 	y -= global_y;
 	x -= global_x;
@@ -122,9 +122,9 @@ double getAngleError(std::array<double, 2> point) {
 	return delta_theta;
 }
 
-double getDistanceError(std::array<double, 2> point) {
-	double y = point[0];
-	double x = point[1];
+double getDistanceError(Point point) {
+	double x = point.x;
+	double y = point.y;
 
 	y -= global_y;
 	x -= global_x;

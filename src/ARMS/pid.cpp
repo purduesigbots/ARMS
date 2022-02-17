@@ -26,7 +26,7 @@ bool thru;
 // pid targets
 double linearTarget = 0;
 double angularTarget = 0;
-std::array<double, 2> pointTarget{0, 0};
+Point pointTarget{0, 0};
 
 double pid(double error, double* pe, double* in, double kp, double ki,
            double kd) {
