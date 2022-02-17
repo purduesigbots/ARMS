@@ -214,7 +214,8 @@ void move(Point target, flags_t flags) {
 }
 
 // rotational movement
-void turn(double target, int max, double exit_error, double ap, flags_t flags) {
+void turn(double target, double max, double exit_error, double ap,
+          flags_t flags) {
 	reset();
 	pid::mode = ANGULAR;
 
@@ -237,11 +238,11 @@ void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 		waitUntilFinished(exit_error);
 }
 
-void turn(double target, int max, double exit_error, flags_t flags) {
+void turn(double target, double max, double exit_error, flags_t flags) {
 	turn(target, max, exit_error, -1, flags);
 }
 
-void turn(double target, int max, flags_t flags) {
+void turn(double target, double max, flags_t flags) {
 	turn(target, max, default_exit_error, -1, flags);
 }
 
@@ -250,16 +251,17 @@ void turn(double target, flags_t flags) {
 }
 
 // odometry turn to to point
-void turn(Point target, int max, double exit_error, double ap, flags_t flags) {
+void turn(Point target, double max, double exit_error, double ap,
+          flags_t flags) {
 	double angle_error = odom::getAngleError(target);
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 
-void turn(Point target, int max, double exit_error, flags_t flags) {
+void turn(Point target, double max, double exit_error, flags_t flags) {
 	turn(target, max, exit_error, -1, flags);
 }
 
-void turn(Point target, int max, flags_t flags) {
+void turn(Point target, double max, flags_t flags) {
 	turn(target, max, default_exit_error, -1, flags);
 }
 
