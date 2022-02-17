@@ -22,10 +22,34 @@ extern std::shared_ptr<okapi::Motor> backRight;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
-extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
-extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
-extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
+
+//The different types of encoders that can be used by the chassis
+enum {
+    ENCODER_ADI,
+    ENCODER_ROTATION
+};
+
+/**
+ *  Functions to interact with the non-motor encoders on the chassis.
+ *  These should be used instead of accessing the encoders directly, as
+ *  the chassis has the ability to use either ADI or Rotation encoders
+ */
+
+/* Returns the position of the encoder in degrees*/
+double getLeftEncoderValue();
+double getMiddleEncoderValue();
+double getRightEncoderValue();
+
+/* Returns whether the specific encoder exists or not */
+bool hasLeftEncoder();
+bool hasMiddleEncoder();
+bool hasRightEncoder();
+
+/* Resets the positions of the respective encoder */
+void resetLeftEncoder();
+void resetMiddleEncoder();
+void resetRightEncoder();
 
 /**
  * Set the speed of target motor
@@ -173,7 +197,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
           int imuPort = IMU_PORT,
           std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
           int expanderPort = EXPANDER_PORT,
-          int joystick_threshold = JOYSTICK_THRESHOLD);
+          int joystick_threshold = JOYSTICK_THRESHOLD,
+          int encoder_type = ENCODER_ADI    //ADI For backards compat
+          );
 
 } // namespace arms::chassis
 
