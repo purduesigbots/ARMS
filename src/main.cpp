@@ -14,7 +14,7 @@ void competition_initialize() {
 
 void autonomous() {
 	using namespace arms::chassis;
-	move({12, 0}, 51);
+	move(24, 50, NONE);
 }
 
 void opcontrol() {
