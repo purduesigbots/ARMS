@@ -13,6 +13,8 @@ void competition_initialize() {
 }
 
 void autonomous() {
+	using namespace arms::chassis;
+	move({12, 0}, 51);
 }
 
 void opcontrol() {

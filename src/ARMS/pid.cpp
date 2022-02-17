@@ -1,4 +1,4 @@
-#include "ARMS/api.h"
+#include "ARMS/lib.h"
 #include "api.h"
 
 namespace arms::pid {
@@ -13,14 +13,10 @@ double linearKD;
 double angularKI;
 double angularKD;
 
+// kp defaults
 double defaultLinearKP;
-double defaultLinearKI;
-double defaultLinearKD;
 double defaultAngularKP;
-double defaultAngularKI;
-double defaultAngularKD;
 
-double arcKP;
 double difKP;
 double feedforward;
 
@@ -60,13 +56,8 @@ std::array<double, 2> linear() {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
 
-	// apply defaults
-	if (linearKP == PID_DEFAULT)
+	if (linearKP == -1)
 		linearKP = defaultLinearKP;
-	if (linearKI == PID_DEFAULT)
-		linearKI = defaultLinearKI;
-	if (linearKD == PID_DEFAULT)
-		linearKD = defaultLinearKP;
 
 	double sv = chassis::distance();
 	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
@@ -90,13 +81,8 @@ std::array<double, 2> angular() {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
 
-	// apply defaults
-	if (angularKP == PID_DEFAULT)
+	if (angularKP == -1)
 		angularKP = defaultAngularKP;
-	if (angularKI == PID_DEFAULT)
-		angularKI = defaultAngularKI;
-	if (angularKD == PID_DEFAULT)
-		angularKD = defaultAngularKP;
 
 	double speed = pid(angularTarget, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
@@ -115,23 +101,15 @@ std::array<double, 2> odom() {
 	double lin_error = odom::getDistanceError(pointTarget);
 	double ang_error = odom::getAngleError(pointTarget);
 
-	// calculate linear
-	if (linearKP == PID_DEFAULT)
+	// check for default kp
+	if (linearKP == -1)
 		linearKP = defaultLinearKP;
-	if (linearKI == PID_DEFAULT)
-		linearKI = defaultLinearKI;
-	if (linearKD == PID_DEFAULT)
-		linearKD = defaultLinearKP;
+	if (angularKP == -1)
+		angularKP = defaultAngularKP;
+
 	double lin_speed =
 	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
-	// calculate angular
-	if (angularKP == PID_DEFAULT)
-		angularKP = defaultAngularKP;
-	if (angularKI == PID_DEFAULT)
-		angularKI = defaultAngularKI;
-	if (angularKD == PID_DEFAULT)
-		angularKD = defaultAngularKP;
 	double ang_speed =
 	    pid(ang_error, &pe_ang, &in_ang, angularKP, angularKI, angularKD);
 
@@ -157,16 +135,15 @@ std::array<double, 2> odom() {
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double arcKP, double difKP,
+          double angularKI, double angularKD, double difKP,
           double feedforward) {
 
 	pid::defaultLinearKP = linearKP;
-	pid::defaultLinearKI = linearKI;
-	pid::defaultLinearKD = linearKD;
+	pid::linearKI = linearKI;
+	pid::linearKD = linearKD;
 	pid::defaultAngularKP = angularKP;
-	pid::defaultAngularKI = angularKI;
-	pid::defaultAngularKD = angularKD;
-	pid::arcKP = arcKP;
+	pid::angularKI = angularKI;
+	pid::angularKD = angularKD;
 	pid::difKP = difKP;
 	pid::feedforward = feedforward;
 }

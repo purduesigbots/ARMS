@@ -1,15 +1,16 @@
 #ifndef _ARMS_CHASSIS_H_
 #define _ARMS_CHASSIS_H_
 
+#include "ARMS/point.h"
 #include "okapi/api.hpp"
 
 namespace arms::chassis {
 
 enum MoveFlags {
-    ASYNC       = 0b0000'0001,
-    THRU        = 0b0000'0010,
-    BACKWARD    = 0b0000'0100,
-    ABSOLUTE    = 0b0000'1000,
+	ASYNC = 0b0000'0001,
+	THRU = 0b0000'0010,
+	BACKWARD = 0b0000'0100,
+	ABSOLUTE = 0b0000'1000,
 };
 
 typedef uint32_t flags_t;
@@ -78,12 +79,13 @@ double slew(double speed, double step, double prev);
 /**
  * Wait for the chassis to complete the current movement
  */
-void waitUntilFinished(double exit_error = 0);
+void waitUntilFinished(double exit_error);
 
 /**
  * Perform a linear chassis movement
  */
-void move(double target, double max, double exitError, double kp, flags_t flags);
+void move(double target, double max, double exitError, double kp,
+          flags_t flags);
 void move(double target, double max, double exitError, flags_t flags);
 void move(double target, double max, flags_t flags);
 void move(double target, flags_t flags);
@@ -91,8 +93,8 @@ void move(double target, flags_t flags);
 /**
  * Perform an odom chassis movement
  */
-void move(Point target, double max, double exit_error, double lp, double ap, 
-		  flags_t flags);
+void move(Point target, double max, double exit_error, double lp, double ap,
+          flags_t flags);
 void move(Point target, double max, double exit_error, flags_t flags);
 void move(Point target, double max, flags_t flags);
 void move(Point target, flags_t flags);
@@ -129,8 +131,7 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double arc_slew_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
           double exit_error);
 
 } // namespace arms::chassis

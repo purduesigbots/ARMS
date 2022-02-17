@@ -1,4 +1,4 @@
-#include "ARMS/api.h"
+#include "ARMS/lib.h"
 #include "api.h"
 
 using namespace pros;
@@ -161,7 +161,7 @@ void waitUntilFinished(double exit_error) {
 }
 
 // linear movement
-void move(double target, double max, double exitError, double kp,
+void move(double target, double max, double exit_error, double kp,
           flags_t flags) {
 	reset();
 	pid::mode = LINEAR;
@@ -171,19 +171,19 @@ void move(double target, double max, double exitError, double kp,
 	pid::thru = (flags & THRU);
 
 	if (!(flags & ASYNC))
-		waitUntilFinished(exitError);
+		waitUntilFinished(exit_error);
 }
 
-void move(double target, double max, double exitError, flags_t flags) {
-	move(target, max, exitError, PID_DEFAULT, flags);
+void move(double target, double max, double exit_error, flags_t flags) {
+	move(target, max, exit_error, -1, flags);
 }
 
 void move(double target, double max, flags_t flags) {
-	move(target, max, EXIT_ERROR, PID_DEFAULT, flags);
+	move(target, max, default_exit_error, -1, flags);
 }
 
 void move(double target, flags_t flags) {
-	move(target, 100.0, EXIT_ERROR, PID_DEFAULT, flags);
+	move(target, 100.0, default_exit_error, -1, flags);
 }
 
 // odometry movement
@@ -202,15 +202,15 @@ void move(Point target, double max, double exit_error, double lp, double ap,
 }
 
 void move(Point target, double max, double exit_error, flags_t flags) {
-	move(target, max, exit_error, PID_DEFAULT, PID_DEFAULT, flags);
+	move(target, max, exit_error, -1, -1, flags);
 }
 
 void move(Point target, double max, flags_t flags) {
-	move(target, max, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
+	move(target, max, default_exit_error, -1, -1, flags);
 }
 
 void move(Point target, flags_t flags) {
-	move(target, 100.0, EXIT_ERROR, PID_DEFAULT, PID_DEFAULT, flags);
+	move(target, 100.0, default_exit_error, -1, -1, flags);
 }
 
 // rotational movement
@@ -238,15 +238,15 @@ void turn(double target, int max, double exit_error, double ap, flags_t flags) {
 }
 
 void turn(double target, int max, double exit_error, flags_t flags) {
-	turn(target, max, exit_error, PID_DEFAULT, flags);
+	turn(target, max, exit_error, -1, flags);
 }
 
 void turn(double target, int max, flags_t flags) {
-	turn(target, max, EXIT_ERROR PID_DEFAULT, flags);
+	turn(target, max, default_exit_error, -1, flags);
 }
 
 void turn(double target, flags_t flags) {
-	turn(target, 100, EXIT_ERROR, PID_DEFAULT, flags);
+	turn(target, 100, default_exit_error, -1, flags);
 }
 
 // odometry turn to to point
@@ -256,15 +256,15 @@ void turn(Point target, int max, double exit_error, double ap, flags_t flags) {
 }
 
 void turn(Point target, int max, double exit_error, flags_t flags) {
-	turn(target, max, exit_error, PID_DEFAULT, flags);
+	turn(target, max, exit_error, -1, flags);
 }
 
 void turn(Point target, int max, flags_t flags) {
-	turn(target, max, EXIT_ERROR, PID_DEFAULT, flags);
+	turn(target, max, default_exit_error, -1, flags);
 }
 
 void turn(Point target, flags_t flags) {
-	turn(target, 100, EXIT_ERROR, PID_DEFAULT, flags);
+	turn(target, 100, default_exit_error, -1, flags);
 }
 
 /**************************************************/
@@ -322,16 +322,14 @@ std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double slew_tep,
-          double arc_slew_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort,
+          double distance_constant, double degree_constant, double slew_step,
+          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
           double exit_error) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
 	chassis::slew_step = slew_step;
-	chassis::arc_slew_step = arc_slew_step;
 	chassis::default_exit_error = exit_error;
 
 	// configure chassis motors
