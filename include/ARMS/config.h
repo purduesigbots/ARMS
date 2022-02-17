@@ -43,10 +43,6 @@ namespace arms {
 #define DIF_KP .5      // Keep the robot driving straight
 #define FEEDFORWARD 10 // Minimum power to keep the chassis moving
 
-// arc movements
-#define ARC_KP .05
-#define ARC_SLEW_STEP 2 // smaller number = slower acceleration
-
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
 #define HUE 360   // Color of theme from 0-359(H part of HSV)
