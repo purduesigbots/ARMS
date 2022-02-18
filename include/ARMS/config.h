@@ -49,6 +49,7 @@ namespace arms {
 
 // initializer
 inline void init() {
+
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
 	              DEGREE_CONSTANT, SLEW_STEP, IMU_PORT, {ENCODER_PORTS},
 	              EXPANDER_PORT, EXIT_ERROR);
