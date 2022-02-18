@@ -2,6 +2,7 @@
 #define _ARMS_POINT_H_
 
 #include <array>
+#include <cmath>
 
 namespace arms {
 
@@ -20,19 +21,19 @@ union Point {
         return {-x, -y};
     }
 
-    Point operator+(Point& o) {
+    Point operator+(const Point& o) {
         return {x + o.x, y + o.y};
     }
 
-    Point operator-(Point& o) {
+    Point operator-(const Point& o) {
         return {x - o.x, y - o.y};
     }
 
-    Point operator*(Point& o) {
+    Point operator*(const Point& o) {
         return {x * o.x, y * o.y};
     }
 
-    Point operator/(Point& o) {
+    Point operator/(const Point& o) {
         return {x / o.x, y / o.y};
     }
 
@@ -68,19 +69,26 @@ union Point {
         return {x, y};
     }
 
+    double length() {
+        if(x == 0.0 && y == 0.0)
+            return 0.0;
+        else
+            return std::sqrt(x * x + y * y);
+    }
+
     struct { double x, y; };
     double data[2];
 };
 
-inline Point operator*(double s, Point& v) {
+inline Point operator*(double s, const Point& v) {
     return {s * v.x, s * v.y};
 }
 
-inline Point operator*(Point& v, double s) {
+inline Point operator*(const Point& v, double s) {
     return {s * v.x, s * v.y};
 }
 
-inline Point operator/(Point& v, double s) {
+inline Point operator/(const Point& v, double s) {
     return {v.x / s, v.y / s};
 }
 
@@ -96,6 +104,14 @@ inline Point& operator/=(Point& v, double s) {
 
 inline double dot(Point& a, Point& b) {
     return a.x * b.x + a.y * b.y;
+}
+
+inline Point normalize(Point& a) {
+    return a / a.length();
+}
+
+inline Point normalize(Point&& a) {
+    return a / a.length();
 }
 
 }//namespace arms
