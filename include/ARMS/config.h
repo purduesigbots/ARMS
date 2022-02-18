@@ -54,8 +54,6 @@ inline void init() {
 	              DEGREE_CONSTANT, SLEW_STEP, IMU_PORT, {ENCODER_PORTS},
 	              EXPANDER_PORT, EXIT_ERROR);
 
-	pros::delay(2000);
-
 	if (IMU_PORT != 0) {
 		odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE,
 		           DISTANCE_CONSTANT, MIDDLE_TPI);

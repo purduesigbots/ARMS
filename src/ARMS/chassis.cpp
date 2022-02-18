@@ -340,13 +340,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
-	// initialize imu
-	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
-		delay(2000); // wait for IMU intialization
-		imu->reset();
-	}
-
 	chassis::leftMotors->tarePosition();
 	chassis::rightMotors->tarePosition();
 
@@ -361,6 +354,15 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	if (std::get<2>(encoderPorts) != 0) {
 		middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
 	}
+
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		delay(2000); // wait for IMU intialization
+	}
+
+	delay(100); // encoders are weird
 
 	Task chassis_task(chassisTask);
 }
