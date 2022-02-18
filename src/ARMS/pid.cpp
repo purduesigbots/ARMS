@@ -84,7 +84,9 @@ std::array<double, 2> angular() {
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
-	double speed = pid(angularTarget, &pe, &in, angularKP, angularKI, angularKD);
+	double sv = chassis::angle();
+	double speed =
+	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
