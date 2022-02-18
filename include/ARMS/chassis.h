@@ -1,20 +1,11 @@
 #ifndef _ARMS_CHASSIS_H_
 #define _ARMS_CHASSIS_H_
 
+#include "ARMS/flags.h"
 #include "ARMS/point.h"
 #include "okapi/api.hpp"
 
 namespace arms::chassis {
-
-enum MoveFlags {
-	NONE = 0b0000'0000,
-	ASYNC = 0b0000'0001,
-	THRU = 0b0000'0010,
-	BACKWARD = 0b0000'0100,
-	ABSOLUTE = 0b0000'1000,
-};
-
-typedef uint32_t flags_t;
 
 extern double maxSpeed;
 extern double leftPrev;
@@ -86,37 +77,37 @@ void waitUntilFinished(double exit_error);
  * Perform a linear chassis movement
  */
 void move(double target, double max, double exitError, double kp,
-          flags_t flags);
-void move(double target, double max, double exitError, flags_t flags);
-void move(double target, double max, flags_t flags);
-void move(double target, flags_t flags);
+          MoveFlags flags = NONE);
+void move(double target, double max, double exitError, MoveFlags flags = NONE);
+void move(double target, double max, MoveFlags flags = NONE);
+void move(double target, MoveFlags flags = NONE);
 
 /**
  * Perform an odom chassis movement
  */
 void move(Point target, double max, double exit_error, double lp, double ap,
-          flags_t flags);
-void move(Point target, double max, double exit_error, flags_t flags);
-void move(Point target, double max, flags_t flags);
-void move(Point target, flags_t flags);
+          MoveFlags flags);
+void move(Point target, double max, double exit_error, MoveFlags flags);
+void move(Point target, double max, MoveFlags flags);
+void move(Point target, MoveFlags flags);
 
 /**
  * Perform a turn movement
  */
 void turn(double target, double max, double exit_error, double ap,
-          flags_t flags);
-void turn(double target, double max, double exit_error, flags_t flags);
-void turn(double target, double max, flags_t flags);
-void turn(double target, flags_t flags);
+          MoveFlags flags);
+void turn(double target, double max, double exit_error, MoveFlags flags);
+void turn(double target, double max, MoveFlags flags);
+void turn(double target, MoveFlags flags);
 
 /**
  * Turn to face a point
  */
 void turn(Point target, double max, double exit_error, double ap,
-          flags_t flags);
-void turn(Point target, double max, double exit_error, flags_t flags);
-void turn(Point target, double max, flags_t flags);
-void turn(Point target, flags_t flags);
+          MoveFlags flags);
+void turn(Point target, double max, double exit_error, MoveFlags flags);
+void turn(Point target, double max, MoveFlags flags);
+void turn(Point target, MoveFlags flags);
 
 /**
  * Assign a power to the left and right motors

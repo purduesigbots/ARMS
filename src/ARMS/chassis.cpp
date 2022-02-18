@@ -162,7 +162,7 @@ void waitUntilFinished(double exit_error) {
 
 // linear movement
 void move(double target, double max, double exit_error, double kp,
-          flags_t flags) {
+          MoveFlags flags) {
 	reset();
 	pid::mode = LINEAR;
 	pid::linearTarget = target;
@@ -174,21 +174,21 @@ void move(double target, double max, double exit_error, double kp,
 		waitUntilFinished(exit_error);
 }
 
-void move(double target, double max, double exit_error, flags_t flags) {
+void move(double target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, flags);
 }
 
-void move(double target, double max, flags_t flags) {
+void move(double target, double max, MoveFlags flags) {
 	move(target, max, default_exit_error, -1, flags);
 }
 
-void move(double target, flags_t flags) {
+void move(double target, MoveFlags flags) {
 	move(target, 100.0, default_exit_error, -1, flags);
 }
 
 // odometry movement
 void move(Point target, double max, double exit_error, double lp, double ap,
-          flags_t flags) {
+          MoveFlags flags) {
 	reset();
 	pid::mode = ODOM;
 	pid::pointTarget = target;
@@ -201,21 +201,21 @@ void move(Point target, double max, double exit_error, double lp, double ap,
 		waitUntilFinished(exit_error);
 }
 
-void move(Point target, double max, double exit_error, flags_t flags) {
+void move(Point target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
 
-void move(Point target, double max, flags_t flags) {
+void move(Point target, double max, MoveFlags flags) {
 	move(target, max, default_exit_error, -1, -1, flags);
 }
 
-void move(Point target, flags_t flags) {
+void move(Point target, MoveFlags flags) {
 	move(target, 100.0, default_exit_error, -1, -1, flags);
 }
 
 // rotational movement
 void turn(double target, double max, double exit_error, double ap,
-          flags_t flags) {
+          MoveFlags flags) {
 	reset();
 	pid::mode = ANGULAR;
 
@@ -238,34 +238,34 @@ void turn(double target, double max, double exit_error, double ap,
 		waitUntilFinished(exit_error);
 }
 
-void turn(double target, double max, double exit_error, flags_t flags) {
+void turn(double target, double max, double exit_error, MoveFlags flags) {
 	turn(target, max, exit_error, -1, flags);
 }
 
-void turn(double target, double max, flags_t flags) {
+void turn(double target, double max, MoveFlags flags) {
 	turn(target, max, default_exit_error, -1, flags);
 }
 
-void turn(double target, flags_t flags) {
+void turn(double target, MoveFlags flags) {
 	turn(target, 100, default_exit_error, -1, flags);
 }
 
 // odometry turn to to point
 void turn(Point target, double max, double exit_error, double ap,
-          flags_t flags) {
+          MoveFlags flags) {
 	double angle_error = odom::getAngleError(target);
 	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
 }
 
-void turn(Point target, double max, double exit_error, flags_t flags) {
+void turn(Point target, double max, double exit_error, MoveFlags flags) {
 	turn(target, max, exit_error, -1, flags);
 }
 
-void turn(Point target, double max, flags_t flags) {
+void turn(Point target, double max, MoveFlags flags) {
 	turn(target, max, default_exit_error, -1, flags);
 }
 
-void turn(Point target, flags_t flags) {
+void turn(Point target, MoveFlags flags) {
 	turn(target, 100, default_exit_error, -1, flags);
 }
 
