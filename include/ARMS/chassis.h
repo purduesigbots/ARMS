@@ -86,28 +86,28 @@ void move(double target, MoveFlags flags = NONE);
  * Perform an odom chassis movement
  */
 void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags);
-void move(Point target, double max, double exit_error, MoveFlags flags);
-void move(Point target, double max, MoveFlags flags);
-void move(Point target, MoveFlags flags);
+          MoveFlags = NONE);
+void move(Point target, double max, double exit_error, MoveFlags = NONE);
+void move(Point target, double max, MoveFlags = NONE);
+void move(Point target, MoveFlags = NONE);
 
 /**
  * Perform a turn movement
  */
 void turn(double target, double max, double exit_error, double ap,
-          MoveFlags flags);
-void turn(double target, double max, double exit_error, MoveFlags flags);
-void turn(double target, double max, MoveFlags flags);
-void turn(double target, MoveFlags flags);
+          MoveFlags = NONE);
+void turn(double target, double max, double exit_error, MoveFlags = NONE);
+void turn(double target, double max, MoveFlags = NONE);
+void turn(double target, MoveFlags = NONE);
 
 /**
  * Turn to face a point
  */
 void turn(Point target, double max, double exit_error, double ap,
-          MoveFlags flags);
-void turn(Point target, double max, double exit_error, MoveFlags flags);
-void turn(Point target, double max, MoveFlags flags);
-void turn(Point target, MoveFlags flags);
+          MoveFlags = NONE);
+void turn(Point target, double max, double exit_error, MoveFlags = NONE);
+void turn(Point target, double max, MoveFlags = NONE);
+void turn(Point target, MoveFlags = NONE);
 
 /**
  * Assign a power to the left and right motors
