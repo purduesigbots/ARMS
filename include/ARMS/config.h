@@ -30,17 +30,18 @@ namespace arms {
 #define LEFT_RIGHT_DISTANCE 0 // only needed for non-imu setups
 #define MIDDLE_DISTANCE 0     // only needed if using middle tracker
 #define MIDDLE_TPI 41.4       // Ticks per inch
-#define EXIT_ERROR 6          // default exit distance for movements
 
 // default pid constants
-#define LINEAR_KP .5
+#define EXIT_ERROR 1 // default exit distance for movements
+#define LINEAR_KP 5
 #define LINEAR_KI 0
-#define LINEAR_KD 0
-#define ANGULAR_KP 1
+#define LINEAR_KD 40
+#define ANGULAR_KP 3.2
 #define ANGULAR_KI 0
-#define ANGULAR_KD 6
-#define DIF_KP 1.2     // Keep the robot driving straight
-#define FEEDFORWARD 10 // Minimum power to keep the chassis moving
+#define ANGULAR_KD 19
+#define DIF_KP 1.2            // Keep the robot driving straight
+#define FEEDFORWARD 10        // Minimum power to keep the chassis moving
+#define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
@@ -60,7 +61,7 @@ inline void init() {
 	}
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
-	          DIF_KP, FEEDFORWARD);
+	          DIF_KP, FEEDFORWARD, ODOM_ANGLE_SCALING);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
