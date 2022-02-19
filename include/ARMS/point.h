@@ -69,13 +69,6 @@ union Point {
         return {x, y};
     }
 
-    double length() {
-        if(x == 0.0 && y == 0.0)
-            return 0.0;
-        else
-            return std::sqrt(x * x + y * y);
-    }
-
     struct { double x, y; };
     double data[2];
 };
@@ -106,12 +99,35 @@ inline double dot(Point& a, Point& b) {
     return a.x * b.x + a.y * b.y;
 }
 
+inline double length2(Point& p) {
+    return p.x * p.x + p.y * p.y;
+}
+
+//Why does c++ have weird things like r-value references... ;_;
+inline double length2(Point&& p) {
+    return p.x * p.x + p.y * p.y;
+}
+
+inline double length(Point& p) {
+    if(p.x == 0.0 && p.y == 0.0)
+        return 0.0;
+    else
+        return std::sqrt(p.x * p.x + p.y * p.y);
+}
+
+inline double length(Point&& p) {
+    if(p.x == 0.0 && p.y == 0.0)
+        return 0.0;
+    else
+        return std::sqrt(p.x * p.x + p.y * p.y);
+}
+
 inline Point normalize(Point& a) {
-    return a / a.length();
+    return a / length(a);
 }
 
 inline Point normalize(Point&& a) {
-    return a / a.length();
+    return a / length(a);
 }
 
 }//namespace arms

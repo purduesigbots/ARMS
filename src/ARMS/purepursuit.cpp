@@ -2,6 +2,7 @@
 #include "api.h"
 
 #include <cmath>
+#include <limits>
 
 using namespace pros;
 
@@ -64,7 +65,7 @@ int lineCircleIntersectionPoints(Point start, Point end, Point cent, double r,
 	Point dir = normalize(end - start);
 	int numInter = rayCircleIntersectionTimes(start, dir, cent, r, t1, t2);
 
-	double len = dir.length();
+	double len = length(dir);
 
 	bool inside1 = (t1 > 0.0 && t1 < len);
 	bool inside2 = (t2 > 0.0 && t2 < len);
@@ -88,12 +89,53 @@ int lineCircleIntersectionPoints(Point start, Point end, Point cent, double r,
 	return 0;
 }
 
-bool getGoalPoint(std::vector<Point>& path, int lastPoint, Point pos,
-                  double dist, Point& point) {
+Point getGoalPoint(std::vector<Point>& path, Point botPos, double dist) {
+	Point closestPoint;
+	double closestDist = std::numeric_limits<double>::max(); //max double value
+
+	//loop through each of the line segments
+	for(int i = 0; i < path.size() - 1; i++) {
+		Point p1, p2;
+		int numInter = lineCircleIntersectionPoints(path[i], path[i + 1], botPos, dist, p1, p2);
+
+		if(numInter == 0) continue;
+
+		double l1 = length2(p1 - botPos);
+
+		if(l1 < closestDist) {
+			closestPoint = p1;
+			closestDist = l1;
+		}
+		
+		double l2 = length2(p2 - botPos);
+		if(numInter == 2 && l2 < closestDist) {
+			closestPoint = p2;
+			closestDist = l2;
+		}
+	}
+
+	return closestPoint;
 }
 
-void followPath(std::vector<Point>& path, double radius) {
-	int curPathPoint = 0;
+void followPath(std::vector<Point>&& path, double radius) {
+	std::cout << "Following path:\n";
+
+	for(Point& p : path)
+		std::cout << "  (" << p.x << "," << p.y << "),\n";
+
+	std::cout << std::endl;
+
+	while(true) {
+		Point botPos{odom::global_x, odom::global_y};
+		Point target = getGoalPoint(path, botPos, radius);
+
+		std::cout << "pos: (" << botPos.x << ", " << botPos.y << ")" << "\tgoal: (" <<
+				  	 target.x << ", " << target.y << ")" << std::endl;
+
+		chassis::move(target, arms::ASYNC);
+
+		delay(10);
+	}
 }
 
 } // namespace arms::purepursuit

@@ -14,7 +14,17 @@ void competition_initialize() {
 
 void autonomous() {
 	using namespace arms::chassis;
-	move(24, 50, arms::ABSOLUTE | arms::THRU | arms::ASYNC);
+	using namespace arms::purepursuit;
+
+	std::cout << "Starting autonomous" << std::endl;
+
+	followPath({
+		{0, 0},
+		{24, 0},
+		{24, 24}
+	}, 24);
+
+	std::cout << "Ending autonomous" << std::endl;
 }
 
 void opcontrol() {
