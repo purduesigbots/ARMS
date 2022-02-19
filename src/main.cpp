@@ -3,10 +3,7 @@
 pros::Controller master(CONTROLLER_MASTER);
 
 void initialize() {
-	arms::chassis::init();
-	arms::odom::init();
-	arms::pid::init();
-	arms::selector::init();
+	arms::init();
 }
 
 void disabled() {
@@ -16,7 +13,8 @@ void competition_initialize() {
 }
 
 void autonomous() {
-	arms::odom::move({24, 0});
+	using namespace arms::chassis;
+	move(24, 50, arms::ABSOLUTE | arms::THRU | arms::ASYNC);
 }
 
 void opcontrol() {

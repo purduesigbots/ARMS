@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 
+#if 0
 namespace arms::purepursuit {
 
 std::array<double, 2>
@@ -13,5 +14,7 @@ void goToPoint(std::vector<std::array<double, 2>> path);
 void followPath(std::vector<std::array<double, 2>> path);
 
 } // namespace arms::purepursuit
+
+#endif
 
 #endif

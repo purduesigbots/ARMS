@@ -1,7 +1,4 @@
-#include "ARMS/chassis.h"
-#include "ARMS/config.h"
-#include "ARMS/odom.h"
-#include "ARMS/pid.h"
+#include "ARMS/lib.h"
 #include "api.h"
 
 using namespace pros;
@@ -15,12 +12,6 @@ std::shared_ptr<Imu> imu;
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
-// individual motors
-std::shared_ptr<okapi::Motor> frontLeft;
-std::shared_ptr<okapi::Motor> frontRight;
-std::shared_ptr<okapi::Motor> backLeft;
-std::shared_ptr<okapi::Motor> backRight;
-
 // quad encoders
 std::shared_ptr<ADIEncoder> leftEncoder;
 std::shared_ptr<ADIEncoder> rightEncoder;
@@ -31,31 +22,22 @@ std::shared_ptr<Rotation> leftRotation;
 std::shared_ptr<Rotation> middleRotation;
 std::shared_ptr<Rotation> rightRotation;
 
+int encoderType;
+
 // distance constants
-double distance_constant; // ticks per foot
+double distance_constant; // ticks per inch
 double degree_constant;   // ticks per degree
 
-// settle constants
-int settle_count;
-int settle_time;
-double settle_threshold_linear;
-double settle_threshold_angular;
-
 // slew control (autonomous only)
-double accel_step; // smaller number = more slew
-double arc_step;   // acceleration for arcs
+double slew_step; // smaller number = more slew
+
+// default exit error
+double default_exit_error;
 
 // chassis variables
 double maxSpeed = 100;
-double maxTurn = 100;
-double maxAngular = 50; // holonomic odom only
-double output_prev[4] = {0, 0, 0, 0};
-bool useVelocity = false;
-
-// joystick threshold
-int joystick_threshold;
-
-int encoderType = ENCODER_ADI;
+double leftPrev = 0;
+double rightPrev = 0;
 
 /**************************************************/
 // encoder getter/setters
@@ -134,21 +116,18 @@ void resetRightEncoder() {
 /**************************************************/
 // basic control
 
-// move motor group at given velocity
+// move motor group
 void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
-               bool vel = useVelocity) {
-	if (vel)
+               bool velocity) {
+	if (velocity)
 		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
 	else
 		motor->moveVoltage(speed * 120);
-}
 
-void motorMove(std::shared_ptr<okapi::Motor> motor, double speed,
-               bool vel = useVelocity) {
-	if (vel)
-		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
+	if (motor == leftMotors)
+		leftPrev = speed;
 	else
-		motor->moveVoltage(speed * 120);
+		rightPrev = speed;
 }
 
 void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
@@ -164,25 +143,18 @@ void resetAngle(double angle) {
 }
 
 void reset() {
-
 	// reset odom
 	odom::prev_left_pos = 0;
 	odom::prev_right_pos = 0;
 	odom::prev_middle_pos = 0;
 
-	settle_count = 0;
-
-	pid::vectorAngle = 0;
-
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
 	delay(10);
+
 	leftMotors->tarePosition();
 	rightMotors->tarePosition();
-	frontLeft->tarePosition();
-	frontRight->tarePosition();
-	backLeft->tarePosition();
-	backRight->tarePosition();
+
 	if (leftEncoder) {
 		resetLeftEncoder();
 		resetRightEncoder();
@@ -206,23 +178,8 @@ std::array<double, 2> getEncoders() {
 	return encoders;
 }
 
-double position(bool yDirection) {
-	if (yDirection) {
-		double top_pos, bot_pos;
-
-		if (middleEncoder) {
-			top_pos = getMiddleEncoderValue();
-			bot_pos = getMiddleEncoderValue();
-		} else {
-			top_pos = frontLeft->getPosition() - frontRight->getPosition();
-			bot_pos = backRight->getPosition() - backLeft->getPosition();
-		}
-
-		return (top_pos + bot_pos) / 2;
-
-	} else {
-		return (getEncoders()[0] + getEncoders()[1]) / 2;
-	}
+double distance() {
+	return (getEncoders()[0] + getEncoders()[1]) / 2 / distance_constant;
 }
 
 double angle() {
@@ -230,14 +187,6 @@ double angle() {
 		return imu->get_rotation();
 	} else {
 		return (getEncoders()[0] - getEncoders()[1]) / 2 / degree_constant;
-	}
-}
-
-double difference() {
-	if (imu) {
-		return chassis::angle() - pid::angularTarget;
-	} else {
-		return (getEncoders()[0] - getEncoders()[1]);
 	}
 }
 
@@ -253,175 +202,157 @@ double limitSpeed(double speed, double max) {
 	return speed;
 }
 
-double slew(double target_speed, double step, double* current_speed) {
+double slew(double target_speed, double step, double current_speed) {
 
-	if (fabs(*current_speed) > fabs(target_speed))
+	if (fabs(current_speed) > fabs(target_speed))
 		step = 200;
 
-	if (target_speed > *current_speed + step)
-		*current_speed += step;
-	else if (target_speed < *current_speed - step)
-		*current_speed -= step;
+	if (target_speed > current_speed + step)
+		current_speed += step;
+	else if (target_speed < current_speed - step)
+		current_speed -= step;
 	else
-		*current_speed = target_speed;
+		current_speed = target_speed;
 
-	return *current_speed;
-}
-
-/**************************************************/
-// chassis settling
-int wheelMoving(double sv, double* psv) {
-	int isMoving = 0;
-	double thresh = settle_threshold_linear;
-	if (pid::mode == ANGULAR)
-		thresh = settle_threshold_angular;
-
-	if (fabs(sv - *psv) > thresh)
-		isMoving = 1;
-
-	*psv = sv;
-
-	return isMoving;
-}
-
-bool settled() {
-	static double psv_left = 0;
-	static double psv_right = 0;
-	static double psv_middle = 0;
-
-	int wheelMovingCount = 0;
-
-	if (leftEncoder) {
-		wheelMovingCount += wheelMoving(getLeftEncoderValue(), &psv_left);
-		wheelMovingCount += wheelMoving(getRightEncoderValue(), &psv_right);
-	} else {
-		wheelMovingCount += wheelMoving(leftMotors->getPosition(), &psv_left);
-		wheelMovingCount += wheelMoving(rightMotors->getPosition(), &psv_right);
-	}
-
-	wheelMovingCount += wheelMoving(position(true), &psv_middle);
-
-	if (wheelMovingCount == 0)
-		settle_count++;
-	else
-		settle_count = 0;
-
-	// not driving if we haven't moved
-	if (settle_count > settle_time)
-		return true;
-	else
-		return false;
-}
-
-void waitUntilSettled() {
-	while (!settled())
-		delay(10);
+	return current_speed;
 }
 
 /**************************************************/
 // autonomous functions
-void moveAsync(double sp, int max) {
-	pid::mode = LINEAR;
-	sp *= distance_constant;
-	reset();
-	maxSpeed = max;
-	pid::angularTarget = chassis::angle(); // hold the robot to the current angle
-	pid::linearTarget = sp;
-}
 
-void turnAsync(double sp, int max) {
-	pid::mode = ANGULAR;
-	reset();
-	sp += angle();
-	maxSpeed = max;
-	pid::angularTarget = sp;
-}
+// conditional waiting
+void waitUntilFinished(double exit_error) {
+	if (exit_error == 0)
+		exit_error = default_exit_error;
 
-void turnAbsoluteAsync(double sp, int max) {
-	pid::mode = ANGULAR;
-
-	// convert from absolute to relative set point
-	sp = sp - (int)angle() % 360;
-
-	// make sure all turns take most efficient route
-	if (sp > 180)
-		sp -= 360;
-	else if (sp < -180)
-		sp += 360;
-
-	turnAsync(sp, max);
-}
-
-void holoAsync(double distance, double angle, int max) {
-	distance *= distance_constant;
-	reset();
-	maxSpeed = max;
-	pid::linearTarget = distance;
-	pid::vectorAngle = angle * M_PI / 180;
-	pid::mode = LINEAR;
-}
-
-void move(double sp, int max) {
-	moveAsync(sp, max);
-	delay(450);
-	waitUntilSettled();
-}
-
-void turn(double sp, int max) {
-	turnAsync(sp, max);
-	delay(450);
-	waitUntilSettled();
-}
-
-void turnAbsolute(double sp, int max) {
-	turnAbsoluteAsync(sp, max);
-	delay(450);
-	waitUntilSettled();
-}
-
-void holo(double distance, double angle, int max) {
-	holoAsync(distance, angle, max);
-	delay(450);
-	waitUntilSettled();
-}
-
-void fast(double sp, int max) {
-	double speed; // speed before PID
-
-	if (sp < 0)
-		max = -max;
-	reset();
-	pid::mode = DISABLE;
-
-	while (fabs(position()) < fabs(sp * distance_constant)) {
-		speed = slew(max, accel_step, &output_prev[0]);
-		output_prev[1] = output_prev[2] = output_prev[3] = output_prev[0];
-		// differential PID
-		double dif = difference() * pid::difKP;
-		motorMove(leftMotors, speed - dif);
-		motorMove(rightMotors, speed + dif);
-		delay(10);
+	switch (pid::mode) {
+	case LINEAR:
+		while (fabs(distance() - pid::linearTarget) > exit_error)
+			delay(10);
+		break;
+	case ANGULAR:
+		while (fabs(angle() - pid::angularTarget) > exit_error)
+			delay(10);
+		break;
+	case ODOM:
+		while (odom::getDistanceError(pid::pointTarget) > exit_error)
+			delay(10);
+		break;
 	}
 }
 
-void voltage(int t, int left_speed, int right_speed) {
-	pid::mode = DISABLE;
-	motorMove(leftMotors, left_speed, false);
-	motorMove(rightMotors, right_speed == 101 ? left_speed : right_speed, false);
-	delay(t);
+// linear movement
+void move(double target, double max, double exit_error, double kp,
+          MoveFlags flags) {
+	reset();
+	pid::mode = LINEAR;
+	pid::linearTarget = target;
+	maxSpeed = max;
+	pid::linearKP = kp;
+	pid::thru = (flags & THRU);
+
+	if (!(flags & ASYNC))
+		waitUntilFinished(exit_error);
 }
 
-void velocity(int t, int left_max, int right_max) {
-	pid::mode = DISABLE;
-	motorMove(leftMotors, left_max, true);
-	motorMove(rightMotors, right_max == 101 ? left_max : right_max, true);
-	delay(t);
+void move(double target, double max, double exit_error, MoveFlags flags) {
+	move(target, max, exit_error, -1, flags);
+}
+
+void move(double target, double max, MoveFlags flags) {
+	move(target, max, default_exit_error, -1, flags);
+}
+
+void move(double target, MoveFlags flags) {
+	move(target, 100.0, default_exit_error, -1, flags);
+}
+
+// odometry movement
+void move(Point target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
+	reset();
+	pid::mode = ODOM;
+	pid::pointTarget = target;
+	maxSpeed = max;
+	pid::linearKP = lp;
+	pid::angularKP = ap;
+	pid::thru = (flags & THRU);
+
+	if (!(flags & ASYNC))
+		waitUntilFinished(exit_error);
+}
+
+void move(Point target, double max, double exit_error, MoveFlags flags) {
+	move(target, max, exit_error, -1, -1, flags);
+}
+
+void move(Point target, double max, MoveFlags flags) {
+	move(target, max, default_exit_error, -1, -1, flags);
+}
+
+void move(Point target, MoveFlags flags) {
+	move(target, 100.0, default_exit_error, -1, -1, flags);
+}
+
+// rotational movement
+void turn(double target, double max, double exit_error, double ap,
+          MoveFlags flags) {
+	reset();
+	pid::mode = ANGULAR;
+
+	if (flags & ABSOLUTE) {
+		// convert from absolute to relative set point
+		target -= (int)angle() % 360;
+
+		// make sure all turns take most efficient route
+		if (target > 180)
+			target -= 360;
+		else if (target < -180)
+			target += 360;
+	}
+
+	pid::angularTarget = target;
+	maxSpeed = max;
+	pid::angularKP = ap;
+
+	if (!(flags & ASYNC))
+		waitUntilFinished(exit_error);
+}
+
+void turn(double target, double max, double exit_error, MoveFlags flags) {
+	turn(target, max, exit_error, -1, flags);
+}
+
+void turn(double target, double max, MoveFlags flags) {
+	turn(target, max, default_exit_error, -1, flags);
+}
+
+void turn(double target, MoveFlags flags) {
+	turn(target, 100, default_exit_error, -1, flags);
+}
+
+// odometry turn to to point
+void turn(Point target, double max, double exit_error, double ap,
+          MoveFlags flags) {
+	double angle_error = odom::getAngleError(target);
+	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
+}
+
+void turn(Point target, double max, double exit_error, MoveFlags flags) {
+	turn(target, max, exit_error, -1, flags);
+}
+
+void turn(Point target, double max, MoveFlags flags) {
+	turn(target, max, default_exit_error, -1, flags);
+}
+
+void turn(Point target, MoveFlags flags) {
+	turn(target, 100, default_exit_error, -1, flags);
 }
 
 /**************************************************/
 // task control
 int chassisTask() {
-
 	while (1) {
 		delay(10);
 
@@ -431,80 +362,28 @@ int chassisTask() {
 			speeds = pid::linear();
 		} else if (pid::mode == ANGULAR) {
 			speeds = pid::angular();
-		} else if (pid::mode == ODOM || pid::mode == ODOM_HOLO ||
-		           pid::mode == ODOM_HOLO_THRU || pid::mode == ODOM_THRU) {
+		} else if (pid::mode == ODOM) {
 			speeds = pid::odom();
 		} else {
 			continue;
 		}
 
-		double leftSpeed = speeds[0];
-		double rightSpeed = speeds[1];
-
 		// speed limiting
-		leftSpeed = limitSpeed(leftSpeed, maxSpeed);
-		rightSpeed = limitSpeed(rightSpeed, maxSpeed);
+		speeds[0] = limitSpeed(speeds[0], maxSpeed);
+		speeds[1] = limitSpeed(speeds[1], maxSpeed);
 
-		double output[4] = {0, 0, 0, 0};
+		// slew
+		speeds[0] = slew(speeds[0], slew_step, leftPrev);
+		speeds[1] = slew(speeds[1], slew_step, rightPrev);
 
-		// set motors
-		if (pid::vectorAngle != 0) {
-			// calculate vectors for each wheel set
-			double frontVector = sin(M_PI / 4 - pid::vectorAngle);
-			double backVector = sin(M_PI / 4 + pid::vectorAngle);
-
-			// set scaling factor based on largest vector
-			double largestVector;
-			if (fabs(frontVector) > fabs(backVector)) {
-				largestVector = frontVector;
-			} else {
-				largestVector = backVector;
-			}
-
-			double largestSpeed;
-			if (fabs(leftSpeed) > fabs(rightSpeed))
-				largestSpeed = leftSpeed;
-			else
-				largestSpeed = rightSpeed;
-
-			double scalingFactor;
-			if (pid::mode == ODOM_HOLO_THRU)
-				scalingFactor = fabs(maxSpeed) / fabs(largestVector);
-			else
-				scalingFactor = fabs(largestSpeed) / fabs(largestVector);
-
-			frontVector *= scalingFactor;
-			backVector *= scalingFactor;
-
-			double turnSpeed = rightSpeed - leftSpeed;
-			turnSpeed = limitSpeed(turnSpeed, maxTurn);
-
-			output[0] = frontVector - turnSpeed; // front left
-			output[1] = backVector - turnSpeed;  // back left
-			output[2] = backVector + turnSpeed;  // front right
-			output[3] = frontVector + turnSpeed; // back right
-
-		} else {
-			output[0] = output[1] = leftSpeed;  // left motors
-			output[2] = output[3] = rightSpeed; // right motors
-		}
-
-		for (int i = 0; i < 4; i++) {
-			output[i] = slew(output[i], accel_step, &output_prev[i]);
-		}
-
-		if (pid::vectorAngle != 0) {
-			motorMove(frontLeft, output[0]);
-			motorMove(backLeft, output[1]);
-			motorMove(frontRight, output[2]);
-			motorMove(backRight, output[3]);
-		} else {
-			motorMove(leftMotors, output[0]);
-			motorMove(rightMotors, output[2]);
-		}
+		// output
+		motorMove(leftMotors, speeds[0], false);
+		motorMove(rightMotors, speeds[1], false);
 	}
 }
 
+/**************************************************/
+// initialization
 std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
 	std::shared_ptr<ADIEncoder> encoder;
 
@@ -538,21 +417,15 @@ std::shared_ptr<Rotation> initRotation(int rotationPort) {
 
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, int settle_time,
-          double settle_threshold_linear, double settle_threshold_angular,
-          double accel_step, double arc_step, int imuPort,
-          std::tuple<int, int, int> encoderPorts, int expanderPort,
-          int joystick_threshold, int encoder_type) {
+          double distance_constant, double degree_constant, double slew_step,
+          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
+          double exit_error, int encoderType) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
-	chassis::settle_time = settle_time;
-	chassis::settle_threshold_linear = settle_threshold_linear;
-	chassis::settle_threshold_angular = settle_threshold_angular;
-	chassis::accel_step = accel_step;
-	chassis::arc_step = arc_step;
-	chassis::joystick_threshold = joystick_threshold;
+	chassis::slew_step = slew_step;
+	chassis::default_exit_error = exit_error;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -560,35 +433,12 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
-	// initialize imu
-	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
-		imu->reset();
-	}
-
-	// configure individual motors for holonomic chassis
-	chassis::frontLeft = std::make_shared<okapi::Motor>(*leftMotors.begin());
-	chassis::backLeft = std::make_shared<okapi::Motor>(*(leftMotors.end() - 1));
-	chassis::frontRight = std::make_shared<okapi::Motor>(*rightMotors.begin());
-	chassis::backRight = std::make_shared<okapi::Motor>(*(rightMotors.end() - 1));
-
-	// set gearing for individual motors
-	chassis::frontLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::backLeft->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::frontRight->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::backRight->setGearing((okapi::AbstractMotor::gearset)gearset);
-
-	chassis::frontLeft->tarePosition();
-	chassis::backLeft->tarePosition();
-	chassis::frontRight->tarePosition();
-	chassis::backRight->tarePosition();
-
 	chassis::leftMotors->tarePosition();
 	chassis::rightMotors->tarePosition();
 
-	chassis::encoderType = encoder_type;
+	chassis::encoderType = encoderType;
 
-	if (encoder_type == ENCODER_ROTATION) {
+	if (encoderType == ENCODER_ROTATION) {
 		if (std::get<0>(encoderPorts) != 0) {
 			leftRotation = initRotation(std::get<0>(encoderPorts));
 		}
@@ -615,45 +465,32 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 		}
 	}
 
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		delay(2000); // wait for IMU intialization
+	}
+
+	delay(100); // encoders are weird
+
 	Task chassis_task(chassisTask);
 }
 
 /**************************************************/
 // operator control
-void tank(double left_speed, double right_speed) {
+void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
 
-	// apply thresholding
-	left_speed = (fabs(left_speed) > joystick_threshold ? left_speed : 0);
-	right_speed = (fabs(right_speed) > joystick_threshold ? right_speed : 0);
-
-	motorMove(leftMotors, left_speed, false);
-	motorMove(rightMotors, right_speed, false);
+	motorMove(leftMotors, left_speed, velocity);
+	motorMove(rightMotors, right_speed, velocity);
 }
 
-void arcade(double vertical, double horizontal) {
+void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
 
-	// apply thresholding
-	vertical = (fabs(vertical) > joystick_threshold ? vertical : 0);
-	horizontal = (fabs(horizontal) > joystick_threshold ? horizontal : 0);
-
-	motorMove(leftMotors, vertical + horizontal, false);
-	motorMove(rightMotors, vertical - horizontal, false);
-}
-
-void holonomic(double y, double x, double z) {
-	pid::mode = DISABLE; // turns off autonomous task
-
-	// apply thresholding
-	y = (fabs(y) > joystick_threshold ? y : 0);
-	x = (fabs(x) > joystick_threshold ? x : 0);
-	z = (fabs(z) > joystick_threshold ? z : 0);
-
-	motorMove(frontLeft, y + x + z, false);
-	motorMove(frontRight, y - x - z, false);
-	motorMove(backLeft, y - x + z, false);
-	motorMove(backRight, y + x - z, false);
+	motorMove(leftMotors, vertical + horizontal, velocity);
+	motorMove(rightMotors, vertical - horizontal, velocity);
 }
 
 } // namespace arms::chassis

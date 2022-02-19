@@ -1,34 +1,31 @@
 #ifndef _ARMS_CHASSIS_H_
 #define _ARMS_CHASSIS_H_
 
-#include "ARMS/config.h"
+#include "ARMS/flags.h"
+#include "ARMS/point.h"
 #include "okapi/api.hpp"
 
 namespace arms::chassis {
 
-extern bool useVelocity;
-extern double accel_step;
-extern double distance_constant;
-extern double width;
-extern double maxSpeed;
-extern double maxTurn;
-extern double output_prev[4];
-
-extern std::shared_ptr<okapi::Motor> frontLeft;
-extern std::shared_ptr<okapi::Motor> frontRight;
-extern std::shared_ptr<okapi::Motor> backLeft;
-extern std::shared_ptr<okapi::Motor> backRight;
-
-extern std::shared_ptr<okapi::MotorGroup> leftMotors;
-extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-extern std::shared_ptr<pros::Imu> imu;
-
-//The different types of encoders that can be used by the chassis
-enum {
+enum EncoderType {
     ENCODER_ADI,
     ENCODER_ROTATION
 };
+
+extern double maxSpeed;
+extern double leftPrev;
+extern double rightPrev;
+extern double slew_step;
+
+// motors
+extern std::shared_ptr<okapi::MotorGroup> leftMotors;
+extern std::shared_ptr<okapi::MotorGroup> rightMotors;
+
+// sensors
+extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
+extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
+extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
+extern std::shared_ptr<pros::Imu> imu;
 
 /**
  *  Functions to interact with the non-motor encoders on the chassis.
@@ -54,11 +51,6 @@ void resetRightEncoder();
 /**
  * Set the speed of target motor
  */
-void motorMove(std::shared_ptr<okapi::Motor> motor, double speed, bool vel);
-
-/**
- * Set the speed of target motor group
- */
 void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
                bool vel);
 
@@ -78,19 +70,19 @@ void resetAngle(double angle = 0);
 void reset();
 
 /**
- * Get the average position between the sides of the chassis
+ * Return the raw encoder values
  */
-double position(bool yDirection = false);
+std::array<double, 2> getEncoders();
+
+/**
+ * Return the distance traveled by the chassis
+ */
+double distance();
 
 /**
  * Get the angle of the chassis in degrees
  */
 double angle();
-
-/**
- * Get the difference between the sides of the chassis
- */
-double difference();
 
 /**
  * Reduce a speed
@@ -100,106 +92,68 @@ double limitSpeed(double speed, double max);
 /**
  * Get a gradually accelerating speed towards the target input
  */
-double slew(double speed, double step, double* prev);
+double slew(double speed, double step, double prev);
 
 /**
- * Get a boolean that is true if the chassis motors are in motion
+ * Wait for the chassis to complete the current movement
  */
-bool settled();
+void waitUntilFinished(double exit_error);
 
 /**
- * Delay the program until the chassis motors come to rest
+ * Perform a linear chassis movement
  */
-void waitUntilSettled();
+void move(double target, double max, double exitError, double kp,
+          MoveFlags flags = NONE);
+void move(double target, double max, double exitError, MoveFlags flags = NONE);
+void move(double target, double max, MoveFlags flags = NONE);
+void move(double target, MoveFlags flags = NONE);
 
 /**
- * Begin an asycronous chassis movement
+ * Perform an odom chassis movement
  */
-void moveAsync(double sp, int max = 100);
+void move(Point target, double max, double exit_error, double lp, double ap,
+          MoveFlags = NONE);
+void move(Point target, double max, double exit_error, MoveFlags = NONE);
+void move(Point target, double max, MoveFlags = NONE);
+void move(Point target, MoveFlags = NONE);
 
 /**
- * Begin an asycronous turn movement
+ * Perform a turn movement
  */
-void turnAsync(double sp, int max = 100);
+void turn(double target, double max, double exit_error, double ap,
+          MoveFlags = NONE);
+void turn(double target, double max, double exit_error, MoveFlags = NONE);
+void turn(double target, double max, MoveFlags = NONE);
+void turn(double target, MoveFlags = NONE);
 
 /**
- * Begin an asycronous absolute turn movement (only works with IMU)
+ * Turn to face a point
  */
-void turnAbsoluteAsync(double sp, int max = 100);
+void turn(Point target, double max, double exit_error, double ap,
+          MoveFlags = NONE);
+void turn(Point target, double max, double exit_error, MoveFlags = NONE);
+void turn(Point target, double max, MoveFlags = NONE);
+void turn(Point target, MoveFlags = NONE);
 
 /**
- * Begin an asycronous holonomic chassis movement
+ * Assign a power to the left and right motors
  */
-void holoAsync(double distance, double angle, int max = 100);
+void tank(double left, double right, bool velocity = false);
 
 /**
- * Perform a chassis movement and wait until settled
+ * Assign a vertical and horizontal power to the motors
  */
-void move(double sp, int max = 100);
-
-/**
- * Perform a turn movement and wait until settled
- */
-void turn(double sp, int max = 100);
-
-/**
- * Perform an absolute turn movement and wait until settled (only works with
- * IMU)
- */
-void turnAbsolute(double sp, int max = 100);
-
-/**
- * Perform a holonomic movement and wait until settled
- */
-void holo(double distance, double angle, int max = 100);
-
-/**
- * Move a distance at a set voltage with no PID
- */
-void fast(double sp, int max = 100);
-
-/**
- * Move for a duration at a set voltage with no PID
- */
-void voltage(int t, int left_speed = 100, int right_speed = 101);
-
-/**
- * Move for a duration at a set velocity using internal PID
- */
-void velocity(int t, int left_max = 100, int right_max = 101);
-
-/**
- * Assign a voltage to each motor on a scale of -100 to 100
- */
-void tank(double left, double right);
-
-/**
- * Assign a voltage to each motor on a scale of -100 to 100
- */
-void arcade(double vertical, double horizontal);
-
-/**
- * Assign a voltage to each motor on a scale of -100 to 100
- */
-void holonomic(double x, double y, double z);
+void arcade(double vertical, double horizontal, bool velocity = false);
 
 /**
  * initialize the chassis
  */
-void init(std::initializer_list<okapi::Motor> leftMotors = {LEFT_MOTORS},
-          std::initializer_list<okapi::Motor> rightMotors = {RIGHT_MOTORS},
-          int gearset = GEARSET, double distance_constant = DISTANCE_CONSTANT,
-          double degree_constant = DEGREE_CONSTANT,
-          int settle_time = SETTLE_TIME,
-          double settle_threshold_linear = SETTLE_THRESHOLD_LINEAR,
-          double settle_threshold_angular = SETTLE_THRESHOLD_ANGULAR,
-          double accel_step = ACCEL_STEP, double arc_step = ARC_STEP,
-          int imuPort = IMU_PORT,
-          std::tuple<int, int, int> encoderPorts = {ENCODER_PORTS},
-          int expanderPort = EXPANDER_PORT,
-          int joystick_threshold = JOYSTICK_THRESHOLD,
-          int encoder_type = ENCODER_ADI    //ADI For backards compat
-          );
+void init(std::initializer_list<okapi::Motor> leftMotors,
+          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+          double distance_constant, double degree_constant, double slew_step,
+          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
+          double exit_error,
+          int encoderType);
 
 } // namespace arms::chassis
 

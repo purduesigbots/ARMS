@@ -1,41 +1,36 @@
-#include "ARMS/pid.h"
-#include "ARMS/chassis.h"
-#include "ARMS/odom.h"
+#include "ARMS/lib.h"
+#include "api.h"
 
 namespace arms::pid {
 
 int mode = DISABLE;
-bool debug = false;
 
 // pid constants
 double linearKP;
+double angularKP;
 double linearKI;
 double linearKD;
-double angularKP;
 double angularKI;
 double angularKD;
-double linear_pointKP;
-double linear_pointKI;
-double linear_pointKD;
-double angular_pointKP;
-double angular_pointKI;
-double angular_pointKD;
-double arcKP;
+
+// kp defaults
+double defaultLinearKP;
+double defaultAngularKP;
+
 double difKP;
-double dif;
-double difMax;
-double min_error;
+double feedforward;
+double odomAngleScaling;
+
+int direction;
+bool thru;
 
 // pid targets
 double linearTarget = 0;
 double angularTarget = 0;
-double vectorAngle = 0;
-std::array<double, 2> pointTarget{0, 0};
+Point pointTarget{0, 0};
 
 double pid(double error, double* pe, double* in, double kp, double ki,
            double kd) {
-	if (debug)
-		printf("%.2f\n", error);
 
 	double derivative = error - *pe;
 	if ((*pe > 0 && error < 0) || (*pe < 0 && error > 0))
@@ -62,24 +57,23 @@ std::array<double, 2> linear() {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
 
-	// get position in the x and y directions
-	double sv_x = chassis::position();
-	double sv_y = chassis::position(true);
+	if (linearKP == -1)
+		linearKP = defaultLinearKP;
 
-	// calculate total displacement using pythagorean theorem
-	double sv;
-	if (vectorAngle != 0)
-		sv = sqrt(pow(sv_x, 2) + pow(sv_y, 2));
-	else
-		sv = sv_x; // just use the x value for non-holonomic movements
-
+	double sv = chassis::distance();
 	double speed = pid(linearTarget, sv, &pe, &in, linearKP, linearKI, linearKD);
-
 	speed = chassis::limitSpeed(speed, chassis::maxSpeed);
 
+	if (abs(speed) < feedforward)
+		speed = feedforward * speed / fabs(speed);
+
 	// difference PID
-	dif = chassis::difference() * difKP;
-	dif = chassis::limitSpeed(dif, difMax);
+	std::array<double, 2> encoders = chassis::getEncoders();
+	double dif = (encoders[0] - encoders[1]) * difKP;
+
+	// disable PID for thru movement
+	if (thru)
+		speed = chassis::maxSpeed;
 
 	return {speed - dif, speed + dif};
 }
@@ -87,6 +81,10 @@ std::array<double, 2> linear() {
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
 	static double in = 0; // integral
+
+	if (angularKP == -1)
+		angularKP = defaultAngularKP;
+
 	double sv = chassis::angle();
 	double speed =
 	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
@@ -98,101 +96,65 @@ std::array<double, 2> odom() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
-	double lin_error = odom::getDistanceError(pointTarget); // linear
-	double ang_error = odom::getAngleError(pointTarget);    // angular
-
-	// if holonomic, angular error is relative to field, not to point
-	if (pid::mode == ODOM_HOLO || pid::mode == ODOM_HOLO_THRU) {
-		pid::vectorAngle = ang_error;
-		ang_error = pid::angularTarget - ((int)odom::heading_degrees % 360);
-
-		// make sure all turns take most efficient route
-		if (ang_error > 180)
-			ang_error -= 360;
-		else if (ang_error < -180)
-			ang_error += 360;
-
-		// convert to radians
-		ang_error *= -M_PI / 180;
-
-	} else if (lin_error < min_error) {
-		ang_error = 0; // prevent spinning
-	}
-
 	// integral values
 	static double in_lin;
 	static double in_ang;
 
-	// reverse if point is behind robot
-	int reverse = 1;
-	if (fabs(ang_error) > M_PI_2 && (mode == ODOM || mode == ODOM_THRU)) {
+	// get current error
+	double lin_error = odom::getDistanceError(pointTarget);
+	double ang_error = odom::getAngleError(pointTarget);
+
+	// check for default kp
+	if (linearKP == -1)
+		linearKP = defaultLinearKP;
+	if (angularKP == -1)
+		angularKP = defaultAngularKP;
+
+	double lin_speed =
+	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
+
+	double ang_speed =
+	    pid(ang_error, &pe_ang, &in_ang, angularKP * odomAngleScaling, angularKI,
+	        angularKD * odomAngleScaling);
+
+	// apply direction
+	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
-		reverse = -1;
+		lin_speed = -lin_speed;
 	}
 
-	// calculate pid
-	double ang_speed = pid(ang_error, &pe_ang, &in_ang, angular_pointKP,
-	                       angular_pointKI, angular_pointKD);
-	double lin_speed = pid(lin_error, &pe_lin, &in_lin, linear_pointKP,
-	                       linear_pointKI, linear_pointKD);
+	// limit speeds
+	lin_speed = chassis::limitSpeed(lin_speed, chassis::maxSpeed);
+	ang_speed = chassis::limitSpeed(ang_speed, chassis::maxSpeed);
 
-	if (mode == ODOM_THRU) {
+	// disable PID for thru movement
+	if (thru)
 		lin_speed = chassis::maxSpeed;
-	}
 
-	lin_speed *= reverse; // apply reversal
+	// scale down angular speed as linear scales down
+	if (fabs(ang_speed) > fabs(lin_speed))
+		ang_speed = fabs(lin_speed) * ang_speed / fabs(ang_speed);
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
 	double right_speed = lin_speed + ang_speed;
 
-	// speed scaling
-	if (left_speed > chassis::maxSpeed) {
-		double diff = left_speed - chassis::maxSpeed;
-		left_speed -= diff;
-		right_speed -= diff;
-	} else if (left_speed < -chassis::maxSpeed) {
-		double diff = left_speed + chassis::maxSpeed;
-		left_speed -= diff;
-		right_speed -= diff;
-	}
-
-	if (right_speed > chassis::maxSpeed) {
-		double diff = right_speed - chassis::maxSpeed;
-		left_speed -= diff;
-		right_speed -= diff;
-	} else if (right_speed < -chassis::maxSpeed) {
-		double diff = right_speed + chassis::maxSpeed;
-		left_speed -= diff;
-		right_speed -= diff;
-	}
 	return {left_speed, right_speed};
 }
 
-void init(bool debug, double linearKP, double linearKI, double linearKD,
-          double angularKP, double angularKI, double angularKD,
-          double linear_pointKP, double linear_pointKI, double linear_pointKD,
-          double angular_pointKP, double angular_pointKI,
-          double angular_pointKD, double arcKP, double difKP, double min_error,
-          double difMax) {
+void init(double linearKP, double linearKI, double linearKD, double angularKP,
+          double angularKI, double angularKD, double difKP, double feedforward,
+          double odomAngleScaling) {
 
-	pid::debug = debug;
-	pid::linearKP = linearKP;
+	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
 	pid::linearKD = linearKD;
-	pid::angularKP = angularKP;
+	pid::defaultAngularKP = angularKP;
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
-	pid::linear_pointKP = linear_pointKP;
-	pid::linear_pointKI = linear_pointKI;
-	pid::linear_pointKD = linear_pointKD;
-	pid::angular_pointKP = angular_pointKP;
-	pid::angular_pointKI = angular_pointKI;
-	pid::angular_pointKD = angular_pointKD;
-	pid::arcKP = arcKP;
 	pid::difKP = difKP;
-	pid::min_error = min_error;
-	pid::difMax = difMax;
+	pid::feedforward = feedforward;
+	pid::odomAngleScaling = odomAngleScaling;
 }
 
 } // namespace arms::pid
