@@ -32,7 +32,8 @@ std::array<double, 2> angular();
 std::array<double, 2> odom();
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double difKP, double feedforward);
+          double angularKI, double angularKD, double difKP, double feedforward,
+          double odomAngleScaling);
 
 } // namespace arms::pid
 

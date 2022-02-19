@@ -19,6 +19,7 @@ double defaultAngularKP;
 
 double difKP;
 double feedforward;
+double odomAngleScaling;
 
 int direction;
 bool thru;
@@ -84,7 +85,9 @@ std::array<double, 2> angular() {
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
-	double speed = pid(angularTarget, &pe, &in, angularKP, angularKI, angularKD);
+	double sv = chassis::angle();
+	double speed =
+	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive
 }
 
@@ -111,7 +114,8 @@ std::array<double, 2> odom() {
 	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
 	double ang_speed =
-	    pid(ang_error, &pe_ang, &in_ang, angularKP, angularKI, angularKD);
+	    pid(ang_error, &pe_ang, &in_ang, angularKP * odomAngleScaling, angularKI,
+	        angularKD * odomAngleScaling);
 
 	// apply direction
 	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
@@ -127,6 +131,10 @@ std::array<double, 2> odom() {
 	if (thru)
 		lin_speed = chassis::maxSpeed;
 
+	// scale down angular speed as linear scales down
+	if (fabs(ang_speed) > fabs(lin_speed))
+		ang_speed = fabs(lin_speed) * ang_speed / fabs(ang_speed);
+
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
 	double right_speed = lin_speed + ang_speed;
@@ -135,8 +143,8 @@ std::array<double, 2> odom() {
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double difKP,
-          double feedforward) {
+          double angularKI, double angularKD, double difKP, double feedforward,
+          double odomAngleScaling) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
@@ -146,6 +154,7 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::angularKD = angularKD;
 	pid::difKP = difKP;
 	pid::feedforward = feedforward;
+	pid::odomAngleScaling = odomAngleScaling;
 }
 
 } // namespace arms::pid
