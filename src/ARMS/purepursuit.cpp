@@ -7,14 +7,14 @@ using namespace pros;
 
 // Resources Used:
 //	* https://github.com/xiaoxiae/PurePursuitAlgorithm
-//	* https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf
+//	*
+//https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf
 //	* https://www.mathworks.com/help/robotics/ug/pure-pursuit-controller.html
-
 
 namespace arms::purepursuit {
 
-//Because floating point values rarely equal each other exactly, 
-//we use a small fudge range
+// Because floating point values rarely equal each other exactly,
+// we use a small fudge range
 const double EPSILON = 1e-3;
 
 inline bool roughly_equal(double val, double target) {
@@ -26,25 +26,25 @@ inline bool roughly_equal(double val, double target) {
  * 	@param dir	The direction that the ray travels in
  * 	@param cent	The center point of the circle
  * 	@param r	The radius of the circle
- * 
+ *
  * 	@param t1	A reference to a double to hold the lower t parameter
  * 	@param t2	A reference to a double to hold the higher t parameter
- * 
+ *
  * 	@return 	An integer representing how many intersections occured.
  * 				0, 1, or 2
  */
-int rayCircleIntersectionTimes(Point orig, Point dir, Point cent, double r, double& t1, double& t2)
-{
+int rayCircleIntersectionTimes(Point orig, Point dir, Point cent, double r,
+                               double& t1, double& t2) {
 	Point omc = orig - cent;
 
-	//The 'a' term of the quadratic is not needed becasue dir should be a unit
-	//vector
+	// The 'a' term of the quadratic is not needed becasue dir should be a unit
+	// vector
 	double b = 2 * dot(dir, omc);
 	double c = dot(omc, omc) - r * r;
 
 	double disc = b * b - 4.0 * c;
 
-	if(roughly_equal(disc, 0.0))
+	if (roughly_equal(disc, 0.0))
 		return 0;
 
 	double rt = std::sqrt(disc);
@@ -52,13 +52,14 @@ int rayCircleIntersectionTimes(Point orig, Point dir, Point cent, double r, doub
 	t1 = (-b + rt) * 0.5;
 	t2 = (-b - rt) * 0.5;
 
-	if(t1 > t2) std::swap(t1, t2);
+	if (t1 > t2)
+		std::swap(t1, t2);
 
 	return disc < 0.0 ? 1 : 2;
 }
 
-int lineCircleIntersectionPoints(Point start, Point end, Point cent, double r, Point& p1, Point& p2)
-{
+int lineCircleIntersectionPoints(Point start, Point end, Point cent, double r,
+                                 Point& p1, Point& p2) {
 	double t1, t2;
 	Point dir = normalize(end - start);
 	int numInter = rayCircleIntersectionTimes(start, dir, cent, r, t1, t2);
@@ -68,40 +69,34 @@ int lineCircleIntersectionPoints(Point start, Point end, Point cent, double r, P
 	bool inside1 = (t1 > 0.0 && t1 < len);
 	bool inside2 = (t2 > 0.0 && t2 < len);
 
-	if(numInter == 2) {
-		if(inside1 && inside2) {
+	if (numInter == 2) {
+		if (inside1 && inside2) {
 			p1 = start + t1 * dir;
 			p2 = start + t2 * dir;
 			return 2;
-		}
-		else if(inside1) {
+		} else if (inside1) {
 			p1 = start + t1 * dir;
 			return 1;
-		}
-		else if(inside2) {
+		} else if (inside2) {
 			p1 = start + t2 * dir;
 			return 1;
 		}
-	}
-	else if(numInter == 1 && inside1) {
+	} else if (numInter == 1 && inside1) {
 		p1 = start + t1 * dir;
 	}
 
 	return 0;
 }
 
-bool getGoalPoint(std::vector<Point>& path, int lastPoint, Point pos, double dist, Point& point)
-{
-
+bool getGoalPoint(std::vector<Point>& path, int lastPoint, Point pos,
+                  double dist, Point& point) {
 }
 
-void followPath(std::vector<Point>& path, double radius) 
-{
+void followPath(std::vector<Point>& path, double radius) {
 	int curPathPoint = 0;
 }
 
-}//arms::purepursuit
-
+} // namespace arms::purepursuit
 
 #if 0
 

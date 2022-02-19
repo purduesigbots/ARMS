@@ -419,8 +419,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
           int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error,
-		  int encoderType) {
+          double exit_error, int encoderType) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
