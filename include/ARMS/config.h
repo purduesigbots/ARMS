@@ -27,6 +27,7 @@ namespace arms {
 #define EXPANDER_PORT 0       // Port 0 for disabled
 
 // Odometry
+#define ENCODER_TYPE arms::chassis::ENCODER_ADI	//The type of encoders to use for odom
 #define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel
@@ -53,7 +54,7 @@ inline void init() {
 
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
 	              DEGREE_CONSTANT, SLEW_STEP, IMU_PORT, {ENCODER_PORTS},
-	              EXPANDER_PORT, EXIT_ERROR);
+	              EXPANDER_PORT, EXIT_ERROR, ENCODER_TYPE);
 
 	if (IMU_PORT != 0) {
 		odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE,

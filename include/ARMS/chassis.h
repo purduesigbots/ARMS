@@ -7,6 +7,11 @@
 
 namespace arms::chassis {
 
+enum EncoderType {
+    ENCODER_ADI,
+    ENCODER_ROTATION
+};
+
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
@@ -21,12 +26,6 @@ extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
 extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
 extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
-
-//The different types of encoders that can be used by the chassis
-enum {
-    ENCODER_ADI,
-    ENCODER_ROTATION
-};
 
 /**
  *  Functions to interact with the non-motor encoders on the chassis.
@@ -153,7 +152,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
           int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error);
+          double exit_error,
+          int encoderType);
 
 } // namespace arms::chassis
 

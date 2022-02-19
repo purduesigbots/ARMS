@@ -22,6 +22,8 @@ std::shared_ptr<Rotation> leftRotation;
 std::shared_ptr<Rotation> middleRotation;
 std::shared_ptr<Rotation> rightRotation;
 
+int encoderType;
+
 // distance constants
 double distance_constant; // ticks per inch
 double degree_constant;   // ticks per degree
@@ -417,7 +419,8 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
           int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error) {
+          double exit_error,
+		  int encoderType) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -434,9 +437,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->tarePosition();
 	chassis::rightMotors->tarePosition();
 
-	chassis::encoderType = encoder_type;
+	chassis::encoderType = encoderType;
 
-	if (encoder_type == ENCODER_ROTATION) {
+	if (encoderType == ENCODER_ROTATION) {
 		if (std::get<0>(encoderPorts) != 0) {
 			leftRotation = initRotation(std::get<0>(encoderPorts));
 		}
