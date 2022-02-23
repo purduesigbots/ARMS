@@ -9,7 +9,7 @@ using namespace pros;
 // Resources Used:
 //	* https://github.com/xiaoxiae/PurePursuitAlgorithm
 //	*
-//https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf
+// https://www.ri.cmu.edu/pub_files/pub3/coulter_r_craig_1992_1/coulter_r_craig_1992_1.pdf
 //	* https://www.mathworks.com/help/robotics/ug/pure-pursuit-controller.html
 
 namespace arms::purepursuit {
