@@ -110,10 +110,10 @@ double getAngleError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	y -= global_y;
 	x -= global_x;
+	y -= global_y;
 
-	double delta_theta = heading - atan2(y, x);
+	double delta_theta = atan2(y, x) - heading;
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
