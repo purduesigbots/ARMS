@@ -184,9 +184,9 @@ double distance() {
 
 double angle() {
 	if (imu) {
-		return imu->get_rotation();
+		return -imu->get_rotation();
 	} else {
-		return (getEncoders()[0] - getEncoders()[1]) / 2 / degree_constant;
+		return (getEncoders()[1] - getEncoders()[0]) / 2 / degree_constant;
 	}
 }
 

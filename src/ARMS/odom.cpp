@@ -56,7 +56,7 @@ int odomTask() {
 			heading = heading_degrees * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
-			delta_angle = (delta_left - delta_right) / (left_right_distance * 2);
+			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
 
 			heading += delta_angle;
 			heading_degrees = heading * 180.0 / M_PI;
@@ -74,18 +74,18 @@ int odomTask() {
 
 		if (delta_angle) {
 			double i = sin(delta_angle / 2.0) * 2.0;
-			local_y = (delta_right / delta_angle + left_right_distance) * i;
-			local_x = (delta_middle / delta_angle + middle_distance) * i;
+			local_x = (delta_right / delta_angle + left_right_distance) * i;
+			local_y = (delta_middle / delta_angle + middle_distance) * i;
 		} else {
-			local_y = delta_right;
-			local_x = delta_middle;
+			local_x = delta_right;
+			local_y = delta_middle;
 		}
 
 		double p = heading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
-		global_y += cos(p) * local_y - sin(p) * local_x;
-		global_x += sin(p) * local_y + cos(p) * local_x;
+		global_x += cos(p) * local_x + sin(p) * local_y;
+		global_y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
 			printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
@@ -110,10 +110,10 @@ double getAngleError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	y -= global_y;
 	x -= global_x;
+	y -= global_y;
 
-	double delta_theta = heading - atan2(x, y);
+	double delta_theta = atan2(y, x) - heading;
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
