@@ -113,7 +113,7 @@ double getAngleError(Point point) {
 	y -= global_y;
 	x -= global_x;
 
-	double delta_theta = heading - atan2(x, y);
+	double delta_theta = heading - atan2(y, x);
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
