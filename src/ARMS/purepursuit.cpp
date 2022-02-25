@@ -17,6 +17,19 @@ Point projectionPoint = {0, 0};
 double lookahead;
 
 /**
+ * Find total length of path from robot
+ */
+double getDistanceError(std::vector<Point> waypoints) {
+	double dist = length(waypoints[projectionLineIndex + 1] - projectionPoint);
+
+	for (int i = projectionLineIndex + 1; i <= waypoints.size() - 2; i++) {
+		dist += length(waypoints[i + 1] - waypoints[i]);
+	}
+
+	return dist;
+}
+
+/**
  * Find the closest point on a line
  */
 std::tuple<Point, double> closestPointOnLine(Point pt1, Point pt2,
@@ -122,14 +135,16 @@ Point getLookaheadPoint(std::vector<Point> waypoints) {
 	// Find the exact look ahead point by interpolating between the
 	// start and end point of the line segment on which the
 	// lookahead point lies.
+
+	// prevent division by 0
+	if (length(lookaheadStartPt - lookaheadEndPt) == 0)
+		return lookaheadEndPt;
+
 	Point lookaheadPoint;
 	double alpha = overshootDist / length(lookaheadStartPt - lookaheadEndPt);
-	if (alpha > 0)
-		lookaheadPoint = {
-		    alpha * lookaheadStartPt.x + (1 - alpha) * lookaheadEndPt.x,
-		    alpha * lookaheadStartPt.y + (1 - alpha) * lookaheadEndPt.y};
-	else
-		lookaheadPoint = lookaheadEndPt;
+	lookaheadPoint = {alpha * lookaheadStartPt.x + (1 - alpha) * lookaheadEndPt.x,
+	                  alpha * lookaheadStartPt.y +
+	                      (1 - alpha) * lookaheadEndPt.y};
 
 	return lookaheadPoint;
 }

@@ -156,7 +156,8 @@ std::array<double, 2> purepursuit() {
 	pointTarget = purepursuit::getLookaheadPoint(waypoints);
 
 	// get current error
-	double lin_error = odom::getDistanceError(pointTarget);
+	double lin_error = purepursuit::getDistanceError(waypoints);
+	printf("x:%.2f, y:%.2f, dis:%.2f\n", pointTarget.x, pointTarget.y, lin_error);
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// check for default kp

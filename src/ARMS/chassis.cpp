@@ -312,13 +312,10 @@ void move(Point target, MoveFlags flags) {
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	reset();
-	printf("Waypoints:\n");
 	pid::mode = PUREPURSUIT;
 	pid::waypoints = std::vector{virtualPosition};
-	printf("  %f, %f\n", waypoints[0].x, waypoints[0].y);
 
 	for (int i = 0; i < waypoints.size(); i++) {
-		printf("  %f, %f\n", waypoints[i].x, waypoints[i].y);
 		pid::waypoints.push_back(waypoints[i]);
 	}
 	virtualPosition = waypoints[waypoints.size() - 1];
@@ -328,10 +325,8 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	pid::thru = (flags & THRU);
 
 	if (!(flags & ASYNC)) {
-		printf("Waiting until movement finished before returning\n");
 		waitUntilFinished(exit_error);
 	}
-	printf("Waiting until movement finished before returning\n");
 }
 
 void move(std::vector<Point> waypoints, double max, double exit_error,

@@ -8,6 +8,8 @@
 namespace arms::purepursuit {
 
 Point getLookaheadPoint(std::vector<Point> waypoints);
+double getDistanceError(std::vector<Point> waypoints);
+
 void init(double lookahead);
 
 } // namespace arms::purepursuit
