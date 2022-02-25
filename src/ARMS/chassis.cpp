@@ -241,8 +241,12 @@ void waitUntilFinished(double exit_error) {
 			delay(10);
 		break;
 	case ODOM:
-	case PUREPURSUIT:
 		while (odom::getDistanceError(pid::pointTarget) > exit_error)
+			delay(10);
+		break;
+	case PUREPURSUIT:
+		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
+		       exit_error)
 			delay(10);
 		break;
 	}
