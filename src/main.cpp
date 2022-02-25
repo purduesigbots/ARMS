@@ -14,21 +14,11 @@ void competition_initialize() {
 
 void autonomous() {
 	using namespace arms::chassis;
-	using namespace arms::purepursuit;
-
-	std::cout << "Starting autonomous" << std::endl;
-
-	followPath({
-		{0, 0},
-		{24, 0},
-		{24, 24}
-	}, 24);
-
-	std::cout << "Ending autonomous" << std::endl;
+	move({{48, 48}, {48, 0}, {72, 0}}, 50);
+	delay(1000);
 }
 
 void opcontrol() {
-
 	while (true) {
 		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected())
 			autonomous();
