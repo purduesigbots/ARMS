@@ -122,7 +122,10 @@ Point getLookaheadPoint(std::vector<Point> waypoints) {
 	// If the remaining path on current line segment is not long
 	// enough for look ahead, check the waypoints past current line
 	// segment.
-	while (overshootDist < 0 && lookaheadIdx < waypoints.size() - 1) {
+	while (overshootDist < 0) {
+		if (lookaheadIdx >= waypoints.size() - 1)
+			return lookaheadEndPt;
+
 		lookaheadIdx++;
 
 		lookaheadStartPt = waypoints[lookaheadIdx];
