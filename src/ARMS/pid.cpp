@@ -157,7 +157,8 @@ std::array<double, 2> purepursuit() {
 
 	// get current error
 	double lin_error = purepursuit::getDistanceError(waypoints);
-	printf("x:%.2f, y:%.2f, dis:%.2f\n", pointTarget.x, pointTarget.y, lin_error);
+	// printf("x:%.2f, y:%.2f, dis:%.2f\n", pointTarget.x, pointTarget.y,
+	// lin_error);
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// check for default kp
@@ -177,6 +178,13 @@ std::array<double, 2> purepursuit() {
 	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		lin_speed = -lin_speed;
+	}
+
+	// scaling
+	if (abs(lin_speed) + abs(ang_speed) > chassis::maxSpeed) {
+		double scaling_factor = abs(lin_speed) + abs(ang_speed);
+		lin_speed = chassis::maxSpeed * lin_speed / scaling_factor;
+		ang_speed = chassis::maxSpeed * ang_speed / scaling_factor;
 	}
 
 	// limit speeds
