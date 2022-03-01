@@ -47,7 +47,7 @@ std::tuple<Point, double> closestPointOnLine(Point pt1, Point pt2,
 	    (v12.x * vr2.x + v12.y * vr2.y) / (v12.x * v12.x + v12.y * v12.y);
 
 	// Find the closet point by interpolation
-	if (alpha > 1)
+	if (alpha > 1 || isnan(alpha))
 		closestPoint = pt1;
 	else if (alpha < 0)
 		closestPoint = pt2;
