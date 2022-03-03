@@ -326,6 +326,9 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
+		pid::mode = DISABLE;
+		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+		chassis::tank(0, 0);
 	}
 }
 

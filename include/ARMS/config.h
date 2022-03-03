@@ -32,16 +32,16 @@ namespace arms {
 // Movement tuning
 #define SLEW_STEP 8  // Smaller number = more slew
 #define EXIT_ERROR 3 // default exit distance for movements
-#define LINEAR_KP 3.5
+#define LINEAR_KP 3
 #define LINEAR_KI 0
-#define LINEAR_KD 18
-#define ANGULAR_KP .3
+#define LINEAR_KD 16
+#define ANGULAR_KP 1.5
 #define ANGULAR_KI 0
-#define ANGULAR_KD 5
+#define ANGULAR_KD 8
 #define DIF_KP 0              // Keep the robot driving straight
-#define FEEDFORWARD 10        // Minimum power to keep the chassis moving
+#define FEEDFORWARD 5         // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
-#define LOOKAHEAD 8           // lookahead amount for purepursuit
+#define LOOKAHEAD 15          // lookahead amount for purepursuit
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10

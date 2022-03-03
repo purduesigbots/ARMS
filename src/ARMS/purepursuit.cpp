@@ -122,10 +122,7 @@ Point getLookaheadPoint(std::vector<Point> waypoints) {
 	// If the remaining path on current line segment is not long
 	// enough for look ahead, check the waypoints past current line
 	// segment.
-	while (overshootDist < 0) {
-		if (lookaheadIdx >= waypoints.size() - 1)
-			return lookaheadEndPt;
-
+	while (overshootDist < 0 && (lookaheadIdx < waypoints.size() - 2)) {
 		lookaheadIdx++;
 
 		lookaheadStartPt = waypoints[lookaheadIdx];
@@ -135,21 +132,20 @@ Point getLookaheadPoint(std::vector<Point> waypoints) {
 		overshootDist = dist - lookahead;
 	}
 
-	// Find the exact look ahead point by interpolating between the
-	// start and end point of the line segment on which the
-	// lookahead point lies.
-
 	// prevent division by 0
 	if (length(lookaheadStartPt - lookaheadEndPt) == 0)
 		return lookaheadEndPt;
 
-	Point lookaheadPoint;
-	double alpha = overshootDist / length(lookaheadStartPt - lookaheadEndPt);
-	lookaheadPoint = {alpha * lookaheadStartPt.x + (1 - alpha) * lookaheadEndPt.x,
-	                  alpha * lookaheadStartPt.y +
-	                      (1 - alpha) * lookaheadEndPt.y};
+	// if we are within the lookahead distance, just drive straight at the point
+	if (overshootDist < 0)
+		return lookaheadEndPt;
 
-	return lookaheadPoint;
+	// Find the exact look ahead point by interpolating between the
+	// start and end point of the line segment on which the
+	// lookahead point lies.
+	double alpha = overshootDist / length(lookaheadStartPt - lookaheadEndPt);
+	return {alpha * lookaheadStartPt.x + (1 - alpha) * lookaheadEndPt.x,
+	        alpha * lookaheadStartPt.y + (1 - alpha) * lookaheadEndPt.y};
 }
 
 /**
