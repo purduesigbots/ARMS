@@ -65,8 +65,6 @@ inline void init() {
 	selector::init(HUE, DEFAULT, b);
 
 	purepursuit::init(LOOKAHEAD);
-
-	pros::delay(200); // Delay while PID and odom initialize
 }
 
 } // namespace arms

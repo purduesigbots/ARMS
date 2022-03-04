@@ -7,6 +7,12 @@ namespace arms::odom {
 
 enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
 
+// sensors
+extern std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
+extern std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
+extern std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
+extern std::shared_ptr<pros::Imu> imu;
+
 /**
  * Return the robot position coordinates
  */
@@ -40,7 +46,7 @@ double getDistanceError(Point point);
 /**
  * Initialize the odometry
  */
-void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
+void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
           int expanderPort, int imuPort, double left_right_distance,
           double middle_distance, double left_right_tpi, double middle_tpi);
 

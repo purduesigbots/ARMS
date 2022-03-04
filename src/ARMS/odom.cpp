@@ -139,33 +139,18 @@ double getDistanceError(Point point) {
 	return sqrt(x * x + y * y);
 }
 
-std::shared_ptr<okapi::ADIEncoder> initEncoder(int encoderPort,
-                                               int expanderPort) {
-	std::shared_ptr<okapi::ADIEncoder> encoder;
-
-	bool reversed = encoderPort > 0 ? false : true;
-
-	int encoderPort2 =
-	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
-	encoderPort = abs(encoderPort);
-
-	if (expanderPort != 0) {
-		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
-		encoder = std::make_shared<okapi::ADIEncoder>(pair, reversed);
-	} else {
-		encoder = std::make_shared<okapi::ADIEncoder>(encoderPort, encoderPort2,
-		                                              reversed);
-	}
-
-	return encoder;
+std::shared_ptr<okapi::ContinuousRotarySensor> initEncoder(int p1, int exp,
+                                                           int type) {
+	if (type == ENCODER_ROTATION)
+		return std::make_shared<okapi::RotationSensor>(p1, p1 <= 0);
+	if (exp != 0) {
+		std::tuple<int, int, int> pair(exp, p1, p1 + 1);
+		return std::make_shared<okapi::ADIEncoder>(pair, 0);
+	} else
+		return std::make_shared<okapi::ADIEncoder>(p1, p1 + 1, 0);
 }
 
-std::shared_ptr<okapi::RotationSensor> initRotation(int rotationPort) {
-	return std::make_shared<okapi::RotationSensor>(rotationPort,
-	                                               rotationPort <= 0);
-}
-
-void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
+void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
           int expanderPort, int imuPort, double left_right_distance,
           double middle_distance, double left_right_tpi, double middle_tpi) {
 	odom::debug = debug;
@@ -175,22 +160,15 @@ void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
 	odom::middle_tpi = middle_tpi;
 
 	// encoders
-	if (std::get<0>(encoderPorts) != 0) {
-		if (encoderType == ENCODER_ADI) {
-			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
-			rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
-			if (std::get<2>(encoderPorts) != 0)
-				middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
-		} else {
-			leftEncoder = initRotation(std::get<0>(encoderPorts));
-			rightEncoder = initRotation(std::get<1>(encoderPorts));
-			if (std::get<2>(encoderPorts) != 0)
-				middleEncoder = initRotation(std::get<2>(encoderPorts));
-		}
+	if (encoderPorts[0] != 0) {
+		leftEncoder = initEncoder(encoderPorts[0], expanderPort, encoderType);
+		rightEncoder = initEncoder(encoderPorts[1], expanderPort, encoderType);
 	} else {
 		leftEncoder = chassis::leftMotors->getEncoder();
 		rightEncoder = chassis::rightMotors->getEncoder();
 	}
+	if (encoderPorts[2] != 0)
+		middleEncoder = initEncoder(encoderPorts[2], expanderPort, encoderType);
 
 	// initialize imu
 	if (imuPort != 0) {
@@ -198,7 +176,6 @@ void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
 		imu->reset();
 		delay(2000); // wait for IMU intialization
 	}
-
 	delay(100); // encoders are weird
 
 	Task odom_task(odomTask);
