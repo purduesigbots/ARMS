@@ -10,17 +10,17 @@ namespace arms {
 #define ODOM_DEBUG 0
 
 // Negative numbers mean reversed motor
-#define LEFT_MOTORS -8, -9, 10
-#define RIGHT_MOTORS -1, 2, 3
-#define GEARSET 600 // RPM of chassis motors
+#define LEFT_MOTORS 1, 2
+#define RIGHT_MOTORS -3, -4
+#define GEARSET 200 // RPM of chassis motors
 
 // Unit constants
-#define DISTANCE_CONSTANT 40.61 // Ticks per distance unit
-#define DEGREE_CONSTANT 1 // Ticks per degree (should be 1 if using an IMU)
+#define DISTANCE_CONSTANT 1 // Ticks per distance unit
+#define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
 
 // Sensors
-#define IMU_PORT 21           // Port 0 for disabled
-#define ENCODER_PORTS 1, 1, 0 // Port 0 for disabled,
+#define IMU_PORT 0            // Port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0 // Port 0 for disabled,
 #define EXPANDER_PORT 0       // Port 0 for disabled
 
 // Odometry
@@ -31,15 +31,15 @@ namespace arms {
 
 // Movement tuning
 #define SLEW_STEP 8  // Smaller number = more slew
-#define EXIT_ERROR 3 // default exit distance for movements
-#define LINEAR_KP 3
+#define EXIT_ERROR 1 // default exit distance for movements
+#define LINEAR_KP 1
 #define LINEAR_KI 0
-#define LINEAR_KD 16
-#define ANGULAR_KP 1.5
+#define LINEAR_KD 0
+#define ANGULAR_KP 1
 #define ANGULAR_KI 0
-#define ANGULAR_KD 8
+#define ANGULAR_KD 0
 #define DIF_KP 0              // Keep the robot driving straight
-#define FEEDFORWARD 5         // Minimum power to keep the chassis moving
+#define FEEDFORWARD 10        // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 
