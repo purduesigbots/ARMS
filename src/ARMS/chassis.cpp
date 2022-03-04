@@ -106,6 +106,9 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	pid::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
+		if (flags & RELATIVE)
+			waypoints[i].x += odom::global_x * cos(odom::heading) +
+			                  odom::global_y * sin(odom::heading);
 		pid::waypoints.push_back(waypoints[i]);
 	}
 	virtualPosition = waypoints[waypoints.size() - 1];
@@ -143,11 +146,13 @@ void turn(double target, double max, double exit_error, double ap,
 	// convert from absolute to relative set point
 	target -= (int)odom::heading_degrees % 360;
 
-	// make sure all turns take most efficient route
-	if (target > 180)
-		target -= 360;
-	else if (target < -180)
-		target += 360;
+	if (!(flags & RELATIVE)) {
+		// make sure all turns take most efficient route
+		if (target > 180)
+			target -= 360;
+		else if (target < -180)
+			target += 360;
+	}
 
 	pid::angularTarget = target;
 	maxSpeed = max;
