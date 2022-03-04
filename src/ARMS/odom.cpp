@@ -41,7 +41,9 @@ int odomTask() {
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
 		double delta_right = (right_pos - prev_right_pos) / left_right_tpi;
-		double delta_middle = (middle_pos - prev_middle_pos) / middle_tpi;
+		double delta_middle = chassis::middleEncoder
+		                          ? (middle_pos - prev_middle_pos) / middle_tpi
+		                          : 0;
 
 		// calculate new heading
 		double delta_angle;

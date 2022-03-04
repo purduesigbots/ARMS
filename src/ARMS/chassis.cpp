@@ -307,6 +307,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
+	// encoders
 	if (std::get<0>(encoderPorts) != 0) {
 		if (encoderType == ENCODER_ADI) {
 			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
@@ -319,6 +320,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 			if (std::get<2>(encoderPorts) != 0)
 				middleEncoder = initRotation(std::get<2>(encoderPorts));
 		}
+	} else {
+		leftEncoder = chassis::leftMotors->getEncoder();
+		rightEncoder = chassis::rightMotors->getEncoder();
 	}
 
 	// initialize imu
