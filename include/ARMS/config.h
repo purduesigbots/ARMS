@@ -19,12 +19,12 @@ namespace arms {
 #define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
 
 // Sensors
-#define IMU_PORT 0            // Port 0 for disabled
-#define ENCODER_PORTS 0, 0, 0 // Port 0 for disabled,
-#define EXPANDER_PORT 0       // Port 0 for disabled
+#define IMU_PORT 0                              // Port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0                   // Port 0 for disabled,
+#define EXPANDER_PORT 0                         // Port 0 for disabled
+#define ENCODER_TYPE arms::chassis::ENCODER_ADI // The type of encoders
 
 // Odometry
-#define ENCODER_TYPE arms::chassis::ENCODER_ADI // The type of encoders
 #define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel

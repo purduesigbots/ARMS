@@ -89,11 +89,10 @@ double distance() {
 }
 
 double angle() {
-	if (imu) {
+	if (imu)
 		return -imu->get_rotation();
-	} else {
+	else
 		return (getEncoders()[1] - getEncoders()[0]) / 2 / degree_constant;
-	}
 }
 
 /**************************************************/
