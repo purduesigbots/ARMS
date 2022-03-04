@@ -19,9 +19,9 @@ extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
 // sensors
-extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
-extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
-extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
+extern std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
+extern std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
+extern std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
 
 /**

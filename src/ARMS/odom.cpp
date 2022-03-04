@@ -33,16 +33,10 @@ int odomTask() {
 		double middle_pos;
 
 		// get positions of each encoder
-		if (chassis::leftEncoder) {
-			left_pos = chassis::leftEncoder->get_value();
-			right_pos = chassis::rightEncoder->get_value();
-		} else {
-			left_pos = chassis::leftMotors->getPosition();
-			right_pos = chassis::rightMotors->getPosition();
-		}
-
-		if (chassis::hasMiddleEncoder())
-			middle_pos = chassis::getMiddleEncoderValue();
+		left_pos = chassis::leftEncoder->get();
+		right_pos = chassis::rightEncoder->get();
+		if (chassis::middleEncoder)
+			middle_pos = chassis::middleEncoder->get();
 
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
