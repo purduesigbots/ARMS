@@ -6,6 +6,8 @@
 
 namespace arms::odom {
 
+enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
+
 extern double global_x;
 extern double global_y;
 extern double heading;
@@ -22,8 +24,9 @@ double getAngleError(Point point);
 
 double getDistanceError(Point point);
 
-void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi);
+void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
+          int expanderPort, int imuPort, double left_right_distance,
+          double middle_distance, double left_right_tpi, double middle_tpi);
 
 } // namespace arms::odom
 

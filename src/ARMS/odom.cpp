@@ -5,6 +5,12 @@ using namespace pros;
 
 namespace arms::odom {
 
+// sensors
+std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
+std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
+std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
+std::shared_ptr<Imu> imu;
+
 bool debug;
 double left_right_distance;
 double middle_distance;
@@ -33,22 +39,21 @@ int odomTask() {
 		double middle_pos;
 
 		// get positions of each encoder
-		left_pos = chassis::leftEncoder->get();
-		right_pos = chassis::rightEncoder->get();
-		if (chassis::middleEncoder)
-			middle_pos = chassis::middleEncoder->get();
+		left_pos = leftEncoder->get();
+		right_pos = rightEncoder->get();
+		if (middleEncoder)
+			middle_pos = middleEncoder->get();
 
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
 		double delta_right = (right_pos - prev_right_pos) / left_right_tpi;
-		double delta_middle = chassis::middleEncoder
-		                          ? (middle_pos - prev_middle_pos) / middle_tpi
-		                          : 0;
+		double delta_middle =
+		    middleEncoder ? (middle_pos - prev_middle_pos) / middle_tpi : 0;
 
 		// calculate new heading
 		double delta_angle;
-		if (chassis::imu) {
-			heading_degrees = chassis::imu->get_heading();
+		if (imu) {
+			heading_degrees = imu->get_heading();
 			heading = heading_degrees * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
@@ -99,7 +104,7 @@ void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	chassis::imu->set_heading(angle);
+	imu->set_heading(angle);
 }
 
 double getAngleError(Point point) {
@@ -127,13 +132,68 @@ double getDistanceError(Point point) {
 	return sqrt(x * x + y * y);
 }
 
-void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi) {
+std::shared_ptr<okapi::ADIEncoder> initEncoder(int encoderPort,
+                                               int expanderPort) {
+	std::shared_ptr<okapi::ADIEncoder> encoder;
+
+	bool reversed = encoderPort > 0 ? false : true;
+
+	int encoderPort2 =
+	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
+	encoderPort = abs(encoderPort);
+
+	if (expanderPort != 0) {
+		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
+		encoder = std::make_shared<okapi::ADIEncoder>(pair, reversed);
+	} else {
+		encoder = std::make_shared<okapi::ADIEncoder>(encoderPort, encoderPort2,
+		                                              reversed);
+	}
+
+	return encoder;
+}
+
+std::shared_ptr<okapi::RotationSensor> initRotation(int rotationPort) {
+	return std::make_shared<okapi::RotationSensor>(rotationPort,
+	                                               rotationPort <= 0);
+}
+
+void init(bool debug, int encoderType, std::tuple<int, int, int> encoderPorts,
+          int expanderPort, int imuPort, double left_right_distance,
+          double middle_distance, double left_right_tpi, double middle_tpi) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
+
+	// encoders
+	if (std::get<0>(encoderPorts) != 0) {
+		if (encoderType == ENCODER_ADI) {
+			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
+			rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
+			if (std::get<2>(encoderPorts) != 0)
+				middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
+		} else {
+			leftEncoder = initRotation(std::get<0>(encoderPorts));
+			rightEncoder = initRotation(std::get<1>(encoderPorts));
+			if (std::get<2>(encoderPorts) != 0)
+				middleEncoder = initRotation(std::get<2>(encoderPorts));
+		}
+	} else {
+		leftEncoder = chassis::leftMotors->getEncoder();
+		rightEncoder = chassis::rightMotors->getEncoder();
+	}
+
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<Imu>(imuPort);
+		imu->reset();
+		delay(2000); // wait for IMU intialization
+	}
+
+	delay(100); // encoders are weird
+
 	Task odom_task(odomTask);
 }
 

@@ -19,10 +19,10 @@ namespace arms {
 #define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
 
 // Sensors
-#define IMU_PORT 0                              // Port 0 for disabled
-#define ENCODER_PORTS 0, 0, 0                   // Port 0 for disabled,
-#define EXPANDER_PORT 0                         // Port 0 for disabled
-#define ENCODER_TYPE arms::chassis::ENCODER_ADI // The type of encoders
+#define IMU_PORT 0                           // Port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0                // Port 0 for disabled,
+#define EXPANDER_PORT 0                      // Port 0 for disabled
+#define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
 
 // Odometry
 #define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
@@ -52,13 +52,11 @@ namespace arms {
 inline void init() {
 
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
-	              DEGREE_CONSTANT, SLEW_STEP, IMU_PORT, {ENCODER_PORTS},
-	              EXPANDER_PORT, EXIT_ERROR, ENCODER_TYPE);
+	              DEGREE_CONSTANT, SLEW_STEP, EXIT_ERROR);
 
-	if (IMU_PORT != 0) {
-		odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE,
-		           DISTANCE_CONSTANT, MIDDLE_TPI);
-	}
+	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
+	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
+	           MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
 	          MIN_POWER, ODOM_ANGLE_SCALING);

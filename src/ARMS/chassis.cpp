@@ -7,17 +7,9 @@ using namespace pros;
 
 namespace arms::chassis {
 
-// imu
-std::shared_ptr<Imu> imu;
-
 // chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-// encoders
-std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
-std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
-std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
 
 // distance constants
 double distance_constant; // ticks per inch
@@ -148,16 +140,14 @@ void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	pid::mode = ANGULAR;
 
-	if (flags & ABSOLUTE) {
-		// convert from absolute to relative set point
-		target -= (int)odom::heading_degrees % 360;
+	// convert from absolute to relative set point
+	target -= (int)odom::heading_degrees % 360;
 
-		// make sure all turns take most efficient route
-		if (target > 180)
-			target -= 360;
-		else if (target < -180)
-			target += 360;
-	}
+	// make sure all turns take most efficient route
+	if (target > 180)
+		target -= 360;
+	else if (target < -180)
+		target += 360;
 
 	pid::angularTarget = target;
 	maxSpeed = max;
@@ -182,7 +172,7 @@ void turn(double target, MoveFlags flags) {
 void turn(Point target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	double angle_error = odom::getAngleError(target);
-	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
+	turn(angle_error, max, exit_error, ap, flags);
 }
 
 void turn(Point target, double max, double exit_error, MoveFlags flags) {
@@ -226,37 +216,10 @@ int chassisTask() {
 
 /**************************************************/
 // initialization
-std::shared_ptr<okapi::ADIEncoder> initEncoder(int encoderPort,
-                                               int expanderPort) {
-	std::shared_ptr<okapi::ADIEncoder> encoder;
-
-	bool reversed = encoderPort > 0 ? false : true;
-
-	int encoderPort2 =
-	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
-	encoderPort = abs(encoderPort);
-
-	if (expanderPort != 0) {
-		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
-		encoder = std::make_shared<okapi::ADIEncoder>(pair, reversed);
-	} else {
-		encoder = std::make_shared<okapi::ADIEncoder>(encoderPort, encoderPort2,
-		                                              reversed);
-	}
-
-	return encoder;
-}
-
-std::shared_ptr<okapi::RotationSensor> initRotation(int rotationPort) {
-	return std::make_shared<okapi::RotationSensor>(rotationPort,
-	                                               rotationPort <= 0);
-}
-
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error, int encoderType) {
+          double exit_error) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -269,33 +232,6 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-
-	// encoders
-	if (std::get<0>(encoderPorts) != 0) {
-		if (encoderType == ENCODER_ADI) {
-			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
-			rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
-			if (std::get<2>(encoderPorts) != 0)
-				middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
-		} else {
-			leftEncoder = initRotation(std::get<0>(encoderPorts));
-			rightEncoder = initRotation(std::get<1>(encoderPorts));
-			if (std::get<2>(encoderPorts) != 0)
-				middleEncoder = initRotation(std::get<2>(encoderPorts));
-		}
-	} else {
-		leftEncoder = chassis::leftMotors->getEncoder();
-		rightEncoder = chassis::rightMotors->getEncoder();
-	}
-
-	// initialize imu
-	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
-		imu->reset();
-		delay(2000); // wait for IMU intialization
-	}
-
-	delay(100); // encoders are weird
 
 	Task chassis_task(chassisTask);
 }

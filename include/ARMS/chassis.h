@@ -7,8 +7,6 @@
 
 namespace arms::chassis {
 
-enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
-
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
@@ -17,12 +15,6 @@ extern double slew_step;
 // motors
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-// sensors
-extern std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
-extern std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
-extern std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
-extern std::shared_ptr<pros::Imu> imu;
 
 /**
  *  Functions to interact with the non-motor encoders on the chassis.
@@ -105,8 +97,7 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error, int encoderType);
+          double exit_error);
 
 } // namespace arms::chassis
 
