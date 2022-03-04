@@ -229,86 +229,22 @@ void waitUntilFinished(double exit_error) {
 		exit_error = default_exit_error;
 
 	switch (pid::mode) {
-	case LINEAR:
-		while (fabs(distance() - pid::linearTarget) > exit_error)
+	case TRANSLATIONAL:
+		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
+		       exit_error)
 			delay(10);
 		break;
 	case ANGULAR:
 		while (fabs(angle() - pid::angularTarget) > exit_error)
 			delay(10);
 		break;
-	case ODOM:
-		while (odom::getDistanceError(pid::pointTarget) > exit_error)
-			delay(10);
-		break;
-	case PUREPURSUIT:
-		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
-		       exit_error)
-			delay(10);
-		break;
 	}
 }
 
-// linear movement
-void move(double target, double max, double exit_error, double kp,
-          MoveFlags flags) {
-	reset();
-	pid::mode = LINEAR;
-	pid::linearTarget = target;
-	maxSpeed = max;
-	pid::linearKP = kp;
-	pid::thru = (flags & THRU);
-	virtualPosition.x = cos(odom::heading) * target;
-	virtualPosition.y = sin(odom::heading) * target;
-
-	if (!(flags & ASYNC))
-		waitUntilFinished(exit_error);
-}
-
-void move(double target, double max, double exit_error, MoveFlags flags) {
-	move(target, max, exit_error, -1, flags);
-}
-
-void move(double target, double max, MoveFlags flags) {
-	move(target, max, default_exit_error, -1, flags);
-}
-
-void move(double target, MoveFlags flags) {
-	move(target, 100.0, default_exit_error, -1, flags);
-}
-
-// odometry movement
-void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
-	reset();
-	pid::mode = ODOM;
-	pid::pointTarget = target;
-	maxSpeed = max;
-	pid::linearKP = lp;
-	pid::angularKP = ap;
-	pid::thru = (flags & THRU);
-	virtualPosition = target;
-
-	if (!(flags & ASYNC))
-		waitUntilFinished(exit_error);
-}
-
-void move(Point target, double max, double exit_error, MoveFlags flags) {
-	move(target, max, exit_error, -1, -1, flags);
-}
-
-void move(Point target, double max, MoveFlags flags) {
-	move(target, max, default_exit_error, -1, -1, flags);
-}
-
-void move(Point target, MoveFlags flags) {
-	move(target, 100.0, default_exit_error, -1, -1, flags);
-}
-
-// pure pursuit
+// translational movement
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
-	pid::mode = PUREPURSUIT;
+	pid::mode = TRANSLATIONAL;
 	pid::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
@@ -378,7 +314,6 @@ void turn(double target, MoveFlags flags) {
 	turn(target, 100, default_exit_error, -1, flags);
 }
 
-// odometry turn to to point
 void turn(Point target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	double angle_error = odom::getAngleError(target);
@@ -405,17 +340,10 @@ int chassisTask() {
 
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
-		if (pid::mode == LINEAR) {
-			speeds = pid::linear();
-		} else if (pid::mode == ANGULAR) {
+		if (pid::mode == TRANSLATIONAL)
+			speeds = pid::translational();
+		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
-		} else if (pid::mode == ODOM) {
-			speeds = pid::odom();
-		} else if (pid::mode == PUREPURSUIT) {
-			speeds = pid::purepursuit();
-		} else {
-			continue;
-		}
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);

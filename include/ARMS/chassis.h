@@ -97,25 +97,7 @@ double slew(double speed, double step, double prev);
 void waitUntilFinished(double exit_error);
 
 /**
- * Perform a linear chassis movement
- */
-void move(double target, double max, double exitError, double kp,
-          MoveFlags flags = NONE);
-void move(double target, double max, double exitError, MoveFlags flags = NONE);
-void move(double target, double max, MoveFlags flags = NONE);
-void move(double target, MoveFlags flags = NONE);
-
-/**
- * Perform an odom chassis movement
- */
-void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags = NONE);
-void move(Point target, double max, double exit_error, MoveFlags = NONE);
-void move(Point target, double max, MoveFlags = NONE);
-void move(Point target, MoveFlags = NONE);
-
-/**
- * Perform an pure pursuit chassis movement
+ * Perform a chassis movement
  */
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);

@@ -39,7 +39,7 @@ namespace arms {
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
 #define DIF_KP 0              // Keep the robot driving straight
-#define FEEDFORWARD 10        // Minimum power to keep the chassis moving
+#define MIN_POWER 10          // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 
@@ -61,7 +61,7 @@ inline void init() {
 	}
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
-	          DIF_KP, FEEDFORWARD, ODOM_ANGLE_SCALING);
+	          MIN_POWER, ODOM_ANGLE_SCALING);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
