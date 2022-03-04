@@ -30,21 +30,6 @@ extern std::shared_ptr<pros::Imu> imu;
  *  the chassis has the ability to use either ADI or Rotation encoders
  */
 
-/* Returns the position of the encoder in degrees*/
-double getLeftEncoderValue();
-double getMiddleEncoderValue();
-double getRightEncoderValue();
-
-/* Returns whether the specific encoder exists or not */
-bool hasLeftEncoder();
-bool hasMiddleEncoder();
-bool hasRightEncoder();
-
-/* Resets the positions of the respective encoder */
-void resetLeftEncoder();
-void resetMiddleEncoder();
-void resetRightEncoder();
-
 /**
  * Set the speed of target motor
  */
@@ -82,7 +67,7 @@ double distance();
 double angle();
 
 /**
- * Reduce a speed
+ * Reduce an input speed if it exceeds the max value
  */
 double limitSpeed(double speed, double max);
 

@@ -6,9 +6,9 @@
 namespace arms::pid {
 
 // pid mode enums
-#define ANGULAR 2
-#define TRANSLATIONAL 1
 #define DISABLE 0
+#define TRANSLATIONAL 1
+#define ANGULAR 2
 
 extern int mode;
 
