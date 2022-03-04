@@ -65,7 +65,7 @@ std::tuple<Point, double> closestPointOnLine(Point pt1, Point pt2,
 void computeProjectionPoint(std::vector<Point> waypoints) {
 	// computeprojectionPoint Find closest point past the last Projection point
 	bool searchFlag = false;
-	Point robotPosition{odom::global_x, odom::global_y};
+	Point robotPosition = odom::getPosition();
 
 	// If Projection point is not initialized, start searching from
 	// first waypoint

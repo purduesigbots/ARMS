@@ -11,38 +11,37 @@ std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
 std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
 std::shared_ptr<Imu> imu;
 
+// output the odometry data to the terminal
 bool debug;
+
+// tracker wheel configuration
 double left_right_distance;
 double middle_distance;
 double left_right_tpi;
 double middle_tpi;
 
-// odom tracking values
-double global_x;
-double global_y;
+// odom position values
+Point position;
 double heading;
-double heading_degrees;
-double prev_heading = 0;
+
+// previous values
 double prev_left_pos = 0;
 double prev_right_pos = 0;
 double prev_middle_pos = 0;
+double prev_heading = 0;
 
 int odomTask() {
 
-	global_x = 0;
-	global_y = 0;
+	position.x = 0;
+	position.y = 0;
 	heading = 0;
 
 	while (true) {
-		double left_pos;
-		double right_pos;
-		double middle_pos;
 
 		// get positions of each encoder
-		left_pos = leftEncoder->get();
-		right_pos = rightEncoder->get();
-		if (middleEncoder)
-			middle_pos = middleEncoder->get();
+		double left_pos = leftEncoder->get();
+		double right_pos = rightEncoder->get();
+		double middle_pos = middleEncoder ? middleEncoder->get() : 0;
 
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
@@ -53,14 +52,12 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (imu) {
-			heading_degrees = imu->get_heading();
-			heading = heading_degrees * M_PI / 180.0;
+			heading = imu->get_heading() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
 
 			heading += delta_angle;
-			heading_degrees = heading * 180.0 / M_PI;
 		}
 
 		// store previous positions
@@ -85,19 +82,19 @@ int odomTask() {
 		double p = heading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
-		global_x += cos(p) * local_x + sin(p) * local_y;
-		global_y += cos(p) * local_y + sin(p) * local_x;
+		position.x += cos(p) * local_x + sin(p) * local_y;
+		position.y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
-			printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
+			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
 
 		delay(10);
 	}
 }
 
 void reset(Point point) {
-	global_x = point.x;
-	global_y = point.y;
+	position.x = point.x;
+	position.y = point.y;
 }
 
 void reset(Point point, double angle) {
@@ -107,12 +104,22 @@ void reset(Point point, double angle) {
 	imu->set_heading(angle);
 }
 
+Point getPosition() {
+	return position;
+}
+
+double getHeading(bool radians) {
+	if (radians)
+		return heading;
+	return heading * 180 / M_PI;
+}
+
 double getAngleError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	x -= global_x;
-	y -= global_y;
+	x -= position.x;
+	y -= position.y;
 
 	double delta_theta = atan2(y, x) - heading;
 
@@ -127,8 +134,8 @@ double getDistanceError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	y -= global_y;
-	x -= global_x;
+	y -= position.y;
+	x -= position.x;
 	return sqrt(x * x + y * y);
 }
 

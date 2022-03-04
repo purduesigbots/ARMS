@@ -93,7 +93,7 @@ void waitUntilFinished(double exit_error) {
 			delay(10);
 		break;
 	case ANGULAR:
-		while (fabs(odom::heading_degrees - pid::angularTarget) > exit_error)
+		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
 			delay(10);
 		break;
 	}
@@ -106,9 +106,12 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	pid::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
-		if (flags & RELATIVE)
-			waypoints[i].x += odom::global_x * cos(odom::heading) +
-			                  odom::global_y * sin(odom::heading);
+		if (flags & RELATIVE) {
+			Point p = odom::getPosition();     // robot position
+			double h = odom::getHeading(true); // robot heading in radians
+			waypoints[i].x += p.x * cos(h) + p.y * sin(h);
+		}
+
 		pid::waypoints.push_back(waypoints[i]);
 	}
 	virtualPosition = waypoints[waypoints.size() - 1];
@@ -144,7 +147,7 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::mode = ANGULAR;
 
 	// convert from absolute to relative set point
-	target -= (int)odom::heading_degrees % 360;
+	target -= (int)odom::getHeading() % 360;
 
 	if (!(flags & RELATIVE)) {
 		// make sure all turns take most efficient route
