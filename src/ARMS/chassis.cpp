@@ -165,9 +165,6 @@ void reset() {
 	if (middleEncoder) {
 		resetMiddleEncoder();
 	}
-
-	virtualPosition.x = 0;
-	virtualPosition.y = 0;
 }
 
 std::array<double, 2> getEncoders() {
@@ -311,7 +308,6 @@ void move(Point target, MoveFlags flags) {
 // pure pursuit
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
-	reset();
 	pid::mode = PUREPURSUIT;
 	pid::waypoints = std::vector{virtualPosition};
 
