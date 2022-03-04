@@ -59,42 +59,6 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	motorMove(rightMotors, 0, true);
 }
 
-void resetAngle(double angle) {
-	if (imu)
-		imu->set_rotation(angle);
-}
-
-void reset() {
-	// reset odom
-	odom::prev_left_pos = 0;
-	odom::prev_right_pos = 0;
-	odom::prev_middle_pos = 0;
-
-	motorMove(leftMotors, 0, true);
-	motorMove(rightMotors, 0, true);
-	delay(10);
-
-	leftEncoder->reset();
-	rightEncoder->reset();
-	if (middleEncoder)
-		middleEncoder->reset();
-}
-
-std::array<double, 2> getEncoders() {
-	return {leftEncoder->get(), rightEncoder->get()};
-}
-
-double distance() {
-	return (getEncoders()[0] + getEncoders()[1]) / 2 / distance_constant;
-}
-
-double angle() {
-	if (imu)
-		return -imu->get_rotation();
-	else
-		return (getEncoders()[1] - getEncoders()[0]) / 2 / degree_constant;
-}
-
 /**************************************************/
 // speed control
 double limitSpeed(double speed, double max) {
@@ -137,7 +101,7 @@ void waitUntilFinished(double exit_error) {
 			delay(10);
 		break;
 	case ANGULAR:
-		while (fabs(angle() - pid::angularTarget) > exit_error)
+		while (fabs(odom::heading_degrees - pid::angularTarget) > exit_error)
 			delay(10);
 		break;
 	}
@@ -182,12 +146,11 @@ void move(std::vector<Point> waypoints, MoveFlags flags) {
 // rotational movement
 void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
-	reset();
 	pid::mode = ANGULAR;
 
 	if (flags & ABSOLUTE) {
 		// convert from absolute to relative set point
-		target -= (int)angle() % 360;
+		target -= (int)odom::heading_degrees % 360;
 
 		// make sure all turns take most efficient route
 		if (target > 180)

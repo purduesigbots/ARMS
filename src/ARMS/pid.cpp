@@ -113,7 +113,7 @@ std::array<double, 2> angular() {
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
-	double sv = chassis::angle();
+	double sv = odom::heading_degrees;
 	double speed =
 	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
 	return {speed, -speed}; // clockwise positive

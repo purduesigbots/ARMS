@@ -48,7 +48,7 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (chassis::imu) {
-			heading_degrees = chassis::angle();
+			heading_degrees = chassis::imu->get_heading();
 			heading = heading_degrees * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
@@ -99,7 +99,7 @@ void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	chassis::resetAngle(angle);
+	chassis::imu->set_heading(angle);
 }
 
 double getAngleError(Point point) {

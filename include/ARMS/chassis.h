@@ -47,26 +47,6 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 void resetAngle(double angle = 0);
 
 /**
- * Reset the internal motor encoders for all chassis motors
- */
-void reset();
-
-/**
- * Return the raw encoder values
- */
-std::array<double, 2> getEncoders();
-
-/**
- * Return the distance traveled by the chassis
- */
-double distance();
-
-/**
- * Get the angle of the chassis in degrees
- */
-double angle();
-
-/**
  * Reduce an input speed if it exceeds the max value
  */
 double limitSpeed(double speed, double max);
