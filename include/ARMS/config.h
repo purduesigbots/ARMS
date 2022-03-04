@@ -16,10 +16,7 @@ namespace arms {
 
 // Unit constants
 #define DISTANCE_CONSTANT 1 // Ticks per distance unit
-#define DEGREE_CONSTANT 1   // Ticks per degree
-
-// Slew control (autonomous only)
-#define SLEW_STEP 8 // Smaller number = more slew
+#define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
 
 // Sensors
 #define IMU_PORT 0            // Port 0 for disabled
@@ -27,12 +24,13 @@ namespace arms {
 #define EXPANDER_PORT 0       // Port 0 for disabled
 
 // Odometry
-#define ENCODER_TYPE arms::chassis::ENCODER_ADI	//The type of encoders to use for odom
+#define ENCODER_TYPE arms::chassis::ENCODER_ADI // The type of encoders
 #define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel
 
-// PID constants
+// Movement tuning
+#define SLEW_STEP 8  // Smaller number = more slew
 #define EXIT_ERROR 1 // default exit distance for movements
 #define LINEAR_KP 1
 #define LINEAR_KI 0
@@ -43,6 +41,7 @@ namespace arms {
 #define DIF_KP 0              // Keep the robot driving straight
 #define FEEDFORWARD 10        // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
+#define LOOKAHEAD 15          // lookahead amount for purepursuit
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
@@ -66,6 +65,8 @@ inline void init() {
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
+
+	purepursuit::init(LOOKAHEAD);
 
 	pros::delay(200); // Delay while PID and odom initialize
 }

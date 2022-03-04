@@ -1,6 +1,8 @@
 #include "ARMS/lib.h"
 #include "api.h"
 
+#include <tuple>
+
 using namespace pros;
 
 namespace arms::chassis {
@@ -38,6 +40,7 @@ double default_exit_error;
 double maxSpeed = 100;
 double leftPrev = 0;
 double rightPrev = 0;
+Point virtualPosition;
 
 /**************************************************/
 // encoder getter/setters
@@ -238,6 +241,11 @@ void waitUntilFinished(double exit_error) {
 		while (odom::getDistanceError(pid::pointTarget) > exit_error)
 			delay(10);
 		break;
+	case PUREPURSUIT:
+		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
+		       exit_error)
+			delay(10);
+		break;
 	}
 }
 
@@ -250,6 +258,8 @@ void move(double target, double max, double exit_error, double kp,
 	maxSpeed = max;
 	pid::linearKP = kp;
 	pid::thru = (flags & THRU);
+	virtualPosition.x = cos(odom::heading) * target;
+	virtualPosition.y = sin(odom::heading) * target;
 
 	if (!(flags & ASYNC))
 		waitUntilFinished(exit_error);
@@ -277,6 +287,7 @@ void move(Point target, double max, double exit_error, double lp, double ap,
 	pid::linearKP = lp;
 	pid::angularKP = ap;
 	pid::thru = (flags & THRU);
+	virtualPosition = target;
 
 	if (!(flags & ASYNC))
 		waitUntilFinished(exit_error);
@@ -292,6 +303,42 @@ void move(Point target, double max, MoveFlags flags) {
 
 void move(Point target, MoveFlags flags) {
 	move(target, 100.0, default_exit_error, -1, -1, flags);
+}
+
+// pure pursuit
+void move(std::vector<Point> waypoints, double max, double exit_error,
+          double lp, double ap, MoveFlags flags) {
+	pid::mode = PUREPURSUIT;
+	pid::waypoints = std::vector{virtualPosition};
+
+	for (int i = 0; i < waypoints.size(); i++) {
+		pid::waypoints.push_back(waypoints[i]);
+	}
+	virtualPosition = waypoints[waypoints.size() - 1];
+	maxSpeed = max;
+	pid::linearKP = lp;
+	pid::angularKP = ap;
+	pid::thru = (flags & THRU);
+
+	if (!(flags & ASYNC)) {
+		waitUntilFinished(exit_error);
+		pid::mode = DISABLE;
+		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+		chassis::tank(0, 0);
+	}
+}
+
+void move(std::vector<Point> waypoints, double max, double exit_error,
+          MoveFlags flags) {
+	move(waypoints, max, exit_error, -1, -1, flags);
+}
+
+void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
+	move(waypoints, max, default_exit_error, -1, -1, flags);
+}
+
+void move(std::vector<Point> waypoints, MoveFlags flags) {
+	move(waypoints, 100.0, default_exit_error, -1, -1, flags);
 }
 
 // rotational movement
@@ -364,6 +411,8 @@ int chassisTask() {
 			speeds = pid::angular();
 		} else if (pid::mode == ODOM) {
 			speeds = pid::odom();
+		} else if (pid::mode == PUREPURSUIT) {
+			speeds = pid::purepursuit();
 		} else {
 			continue;
 		}

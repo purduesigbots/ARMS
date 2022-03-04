@@ -7,10 +7,7 @@
 
 namespace arms::chassis {
 
-enum EncoderType {
-    ENCODER_ADI,
-    ENCODER_ROTATION
-};
+enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
 
 extern double maxSpeed;
 extern double leftPrev;
@@ -118,6 +115,16 @@ void move(Point target, double max, MoveFlags = NONE);
 void move(Point target, MoveFlags = NONE);
 
 /**
+ * Perform an pure pursuit chassis movement
+ */
+void move(std::vector<Point> waypoints, double max, double exit_error,
+          double lp, double ap, MoveFlags = NONE);
+void move(std::vector<Point> waypoints, double max, double exit_error,
+          MoveFlags = NONE);
+void move(std::vector<Point> waypoints, double max, MoveFlags = NONE);
+void move(std::vector<Point> waypoints, MoveFlags = NONE);
+
+/**
  * Perform a turn movement
  */
 void turn(double target, double max, double exit_error, double ap,
@@ -152,8 +159,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
           int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error,
-          int encoderType);
+          double exit_error, int encoderType);
 
 } // namespace arms::chassis
 

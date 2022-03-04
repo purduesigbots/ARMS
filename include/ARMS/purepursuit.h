@@ -1,20 +1,17 @@
 #ifndef _ARMS_PURE_PURSUIT_H_
 #define _ARMS_PURE_PURSUIT_H_
 
+#include "point.h"
+
 #include <array>
 #include <vector>
-
-#if 0
 namespace arms::purepursuit {
 
-std::array<double, 2>
-findIntersectionPoint(std::vector<std::array<double, 2>> path, double radius);
+Point getLookaheadPoint(std::vector<Point> waypoints);
+double getDistanceError(std::vector<Point> waypoints);
 
-void goToPoint(std::vector<std::array<double, 2>> path);
-void followPath(std::vector<std::array<double, 2>> path);
+void init(double lookahead);
 
 } // namespace arms::purepursuit
-
-#endif
 
 #endif
