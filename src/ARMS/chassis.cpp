@@ -110,6 +110,7 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 			Point p = odom::getPosition();     // robot position
 			double h = odom::getHeading(true); // robot heading in radians
 			waypoints[i].x += p.x * cos(h) + p.y * sin(h);
+			waypoints[i].y += p.y * cos(h) + p.x * sin(h);
 		}
 
 		pid::waypoints.push_back(waypoints[i]);
