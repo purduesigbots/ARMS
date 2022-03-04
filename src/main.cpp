@@ -14,10 +14,11 @@ void competition_initialize() {
 
 void autonomous() {
 	using namespace arms::chassis;
-	move({{24, 48}, {48, 0}, {72, 48}, {96, 0}}, 50);
+	move(24, 50, arms::ABSOLUTE | arms::THRU | arms::ASYNC);
 }
 
 void opcontrol() {
+
 	while (true) {
 		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected())
 			autonomous();
