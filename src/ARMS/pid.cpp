@@ -26,7 +26,6 @@ bool thru;
 // pid targets
 double angularTarget = 0;
 Point pointTarget{0, 0};
-std::vector<Point> waypoints;
 
 double pid(double error, double* pe, double* in, double kp, double ki,
            double kd) {
@@ -62,10 +61,10 @@ std::array<double, 2> translational() {
 	static double in_ang;
 
 	// find the lookahead point
-	pointTarget = purepursuit::getLookaheadPoint(waypoints);
+	pointTarget = purepursuit::getLookaheadPoint();
 
 	// get current error
-	double lin_error = purepursuit::getDistanceError(waypoints);
+	double lin_error = purepursuit::getDistanceError();
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// check for default kp

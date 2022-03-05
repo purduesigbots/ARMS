@@ -8,45 +8,31 @@ using namespace pros;
 
 namespace arms::purepursuit {
 
-// Beware all ye who feast their eyes upon this source
-// This code from matlab to c++, we have forced
-// The working of this algorithm none shall know
-
 int projectionLineIndex = 0;
-Point projectionPoint = {0, 0};
+Point projectionPoint;
 double lookahead;
+std::vector<Point> waypoints;
 
-/**
- * Find total length of path from robot
- */
-double getDistanceError(std::vector<Point> waypoints) {
+double getDistanceError() {
 	double dist = length(waypoints[projectionLineIndex + 1] - projectionPoint);
 
-	for (int i = projectionLineIndex + 1; i <= waypoints.size() - 2; i++) {
+	for (int i = projectionLineIndex + 1; i <= waypoints.size() - 2; i++)
 		dist += length(waypoints[i + 1] - waypoints[i]);
-	}
 
 	return dist;
 }
 
-/**
- * Find the closest point on a line
- */
 std::tuple<Point, double> closestPointOnLine(Point pt1, Point pt2,
                                              Point refPt) {
-
-	Point closestPoint;
-
-	// Vector from pt1 to pt2
-	Point v12 = pt2 - pt1;
-	// Vector from refPt to pt2
-	Point vr2 = pt2 - refPt;
+	Point v12 = pt2 - pt1;   // Vector from pt1 to pt2
+	Point vr2 = pt2 - refPt; // Vector from refPt to pt2
 
 	// Projection of the vr2 on v12, normalized by norm(v12)
 	double alpha =
 	    (v12.x * vr2.x + v12.y * vr2.y) / (v12.x * v12.x + v12.y * v12.y);
 
 	// Find the closet point by interpolation
+	Point closestPoint;
 	if (alpha > 1 || isnan(alpha))
 		closestPoint = pt1;
 	else if (alpha < 0)
@@ -55,27 +41,14 @@ std::tuple<Point, double> closestPointOnLine(Point pt1, Point pt2,
 		closestPoint = {alpha * pt1.x + (1 - alpha) * pt2.x,
 		                alpha * pt1.y + (1 - alpha) * pt2.y};
 
-	double distance = length(refPt - closestPoint);
-	return {closestPoint, distance};
+	// return the closest point and distance to it
+	return {closestPoint, length(refPt - closestPoint)};
 }
 
-/**
- * Compute projection point
- */
-void computeProjectionPoint(std::vector<Point> waypoints) {
-	// computeprojectionPoint Find closest point past the last Projection point
-	bool searchFlag = false;
+void computeProjectionPoint() {
 	Point robotPosition = odom::getPosition();
 
-	// If Projection point is not initialized, start searching from
-	// first waypoint
-	if (projectionLineIndex == 0) {
-		searchFlag = true;
-		projectionPoint = waypoints[0];
-		projectionLineIndex = 0;
-	}
-
-	// Start searching from the current projection line segment
+	// start searching from the current projection line segment
 	std::tuple<Point, int> pointData = closestPointOnLine(
 	    projectionPoint, waypoints[projectionLineIndex + 1], robotPosition);
 	projectionPoint = std::get<0>(pointData);
@@ -84,9 +57,8 @@ void computeProjectionPoint(std::vector<Point> waypoints) {
 	double dist = length(projectionPoint - waypoints[projectionLineIndex + 1]);
 
 	for (int i = projectionLineIndex + 1; i < waypoints.size() - 1; i++) {
-		if (!searchFlag && dist > lookahead) {
+		if (dist > lookahead)
 			break;
-		}
 
 		dist = dist + length(waypoints[i] - waypoints[i + 1]);
 
@@ -108,9 +80,9 @@ void computeProjectionPoint(std::vector<Point> waypoints) {
 /**
  *  Find the lookahead point for a given set of waypoints
  */
-Point getLookaheadPoint(std::vector<Point> waypoints) {
+Point getLookaheadPoint() {
 
-	computeProjectionPoint(waypoints);
+	computeProjectionPoint();
 
 	// First check the current line segment
 	double dist = length(projectionPoint - waypoints[projectionLineIndex + 1]);
@@ -148,9 +120,11 @@ Point getLookaheadPoint(std::vector<Point> waypoints) {
 	        alpha * lookaheadStartPt.y + (1 - alpha) * lookaheadEndPt.y};
 }
 
-/**
- * Initialize tuning paramters for purepursuit
- */
+void reset() {
+	projectionPoint = waypoints[0];
+	projectionLineIndex = 0;
+}
+
 void init(double lookahead) {
 	purepursuit::lookahead = lookahead;
 }

@@ -7,8 +7,12 @@
 #include <vector>
 namespace arms::purepursuit {
 
-Point getLookaheadPoint(std::vector<Point> waypoints);
-double getDistanceError(std::vector<Point> waypoints);
+extern std::vector<Point> waypoints;
+
+Point getLookaheadPoint();
+double getDistanceError();
+
+void reset();
 
 void init(double lookahead);
 

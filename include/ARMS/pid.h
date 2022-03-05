@@ -21,7 +21,6 @@ extern double angularKD;
 
 extern double angularTarget;
 extern Point pointTarget;
-extern std::vector<Point> waypoints;
 
 extern int direction;
 extern bool thru;

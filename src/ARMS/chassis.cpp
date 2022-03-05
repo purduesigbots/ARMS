@@ -88,7 +88,8 @@ void waitUntilFinished(double exit_error) {
 
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
+		while (odom::getDistanceError(
+		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
 		       exit_error)
 			delay(10);
 		break;
@@ -103,7 +104,7 @@ void waitUntilFinished(double exit_error) {
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
-	pid::waypoints = std::vector{virtualPosition};
+	purepursuit::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
 		if (flags & RELATIVE) {
@@ -113,8 +114,11 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 			waypoints[i].y += p.y * cos(h) + p.x * sin(h);
 		}
 
-		pid::waypoints.push_back(waypoints[i]);
+		purepursuit::waypoints.push_back(waypoints[i]);
 	}
+
+	purepursuit::reset(); // set the intialconditions
+
 	virtualPosition = waypoints[waypoints.size() - 1];
 	maxSpeed = max;
 	pid::linearKP = lp;
