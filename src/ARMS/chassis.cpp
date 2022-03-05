@@ -212,6 +212,8 @@ int chassisTask() {
 			speeds = pid::translational();
 		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
+		else
+			continue;
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);

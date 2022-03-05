@@ -52,7 +52,7 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (imu) {
-			heading = imu->get_heading() * M_PI / 180.0;
+			heading = imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
@@ -170,15 +170,16 @@ void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
 	if (encoderPorts[2] != 0)
 		middleEncoder = initEncoder(encoderPorts[2], expanderPort, encoderType);
 
+	Task odom_task(odomTask);
+
 	// initialize imu
 	if (imuPort != 0) {
 		imu = std::make_shared<Imu>(imuPort);
 		imu->reset();
 		delay(2000); // wait for IMU intialization
 	}
-	delay(100); // encoders are weird
-
-	Task odom_task(odomTask);
+	delay(100);
+	reset();
 }
 
 } // namespace arms::odom
