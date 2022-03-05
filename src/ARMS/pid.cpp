@@ -98,6 +98,14 @@ std::array<double, 2> translational() {
 	double scaling_factor = fabs(lin_speed) + fabs(ang_speed);
 	lin_speed = chassis::maxSpeed * lin_speed / (scaling_factor);
 
+	// make we always move forward by the minimum power
+	if (fabs(lin_speed) < minPower)
+		lin_speed = minPower * lin_speed / fabs(lin_speed);
+
+	// catch nan edge cases
+	if (isnan(lin_speed))
+		lin_speed = minPower;
+
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
 	double right_speed = lin_speed + ang_speed;
