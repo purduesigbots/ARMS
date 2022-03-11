@@ -52,7 +52,7 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (imu) {
-			heading = imu->get_rotation() * M_PI / 180.0;
+			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
@@ -95,13 +95,14 @@ int odomTask() {
 void reset(Point point) {
 	position.x = point.x;
 	position.y = point.y;
+	chassis::virtualPosition = position;
 }
 
 void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	imu->set_heading(angle);
+	imu->set_heading(-angle);
 }
 
 Point getPosition() {
@@ -142,12 +143,12 @@ double getDistanceError(Point point) {
 std::shared_ptr<okapi::ContinuousRotarySensor> initEncoder(int p1, int exp,
                                                            int type) {
 	if (type == ENCODER_ROTATION)
-		return std::make_shared<okapi::RotationSensor>(p1, p1 <= 0);
+		return std::make_shared<okapi::RotationSensor>(p1, p1 < 0);
 	if (exp != 0) {
-		std::tuple<int, int, int> pair(exp, p1, p1 + 1);
-		return std::make_shared<okapi::ADIEncoder>(pair, 0);
+		std::tuple<int, int, int> pair(exp, abs(p1), abs(p1 + 1));
+		return std::make_shared<okapi::ADIEncoder>(pair, p1 < 0);
 	} else
-		return std::make_shared<okapi::ADIEncoder>(p1, p1 + 1, 0);
+		return std::make_shared<okapi::ADIEncoder>(abs(p1), abs(p1) + 1, p1 < 0);
 }
 
 void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
