@@ -1,11 +1,1 @@
-#ifndef _ARMS_SELECTOR_H_
-#define _ARMS_SELECTOR_H_
-
-namespace arms::selector {
-
-extern int auton;
-void init(int hue, int default_auton, const char** autons);
-
-} // namespace arms::selector
-
-#endif
+GET OUT OF MY CHANNEL MAX. IT IS NOT YOURS TO COVET.

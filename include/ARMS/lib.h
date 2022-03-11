@@ -1,10 +1,1 @@
-#pragma once
-
-#include "ARMS/chassis.h"
-#include "ARMS/flags.h"
-#include "ARMS/odom.h"
-#include "ARMS/pid.h"
-#include "ARMS/point.h"
-#include "ARMS/pose.h"
-#include "ARMS/purepursuit.h"
-#include "ARMS/selector.h"
+GET OUT OF MY CHANNEL MAX. IT IS NOT YOURS TO COVET.
