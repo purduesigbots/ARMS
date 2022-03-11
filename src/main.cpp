@@ -14,9 +14,11 @@ void competition_initialize() {
 
 void autonomous() {
 	using namespace arms::chassis;
-	printf("auton started!\n");
-	move({{24, 0}}, 100);
-	printf("auton finished!\n");
+	printf("Running autonomous\n");
+	move({{24, 0}}, 50, arms::THRU);
+	move({{0, 0}}, 50, arms::THRU | arms::BACKWARDS);
+	
+	printf("Finished autonomous\n");
 }
 
 void opcontrol() {
