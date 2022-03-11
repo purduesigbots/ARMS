@@ -13,6 +13,8 @@ extern std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
 extern std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
 
+extern bool reverse;
+
 /**
  * Return the robot position coordinates
  */

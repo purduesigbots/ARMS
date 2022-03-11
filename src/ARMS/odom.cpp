@@ -30,6 +30,8 @@ double prev_right_pos = 0;
 double prev_middle_pos = 0;
 double prev_heading = 0;
 
+bool reverse;
+
 int odomTask() {
 
 	position.x = 0;
@@ -79,7 +81,10 @@ int odomTask() {
 			local_y = delta_middle;
 		}
 
-		double p = heading - delta_angle / 2.0; // global angle
+		// If we want the robot to move in reverse, then we need to flip the heading of the robot
+		// 180 degrees
+		double rHeading = heading - (reverse ? M_PI : 0.0);
+		double p = rHeading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
 		position.x += cos(p) * local_x + sin(p) * local_y;

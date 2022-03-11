@@ -105,6 +105,7 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 	purepursuit::waypoints = std::vector{virtualPosition};
+	odom::reverse = flags.reverse;
 
 	for (int i = 0; i < waypoints.size(); i++) {
 		if (flags & RELATIVE) {
