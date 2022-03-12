@@ -17,9 +17,11 @@ double angularKD;
 double defaultLinearKP;
 double defaultAngularKP;
 
+// chassis scalling
 double minPower;
 double odomAngleScaling;
 
+// flags
 bool reverse;
 bool thru;
 

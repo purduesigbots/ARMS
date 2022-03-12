@@ -26,9 +26,7 @@ double rightPrev = 0;
 Point virtualPosition;
 
 /**************************************************/
-// basic control
-
-// move motor group
+// motor control
 void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
                bool velocity) {
 	if (velocity)
@@ -52,7 +50,6 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 /**************************************************/
 // speed control
 double limitSpeed(double speed, double max) {
-	// speed limiting
 	if (speed > max)
 		speed = max;
 	if (speed < -max)
@@ -77,9 +74,7 @@ double slew(double target_speed, double step, double current_speed) {
 }
 
 /**************************************************/
-// autonomous functions
-
-// conditional waiting
+// settling
 void waitUntilFinished(double exit_error) {
 	if (exit_error == 0)
 		exit_error = default_exit_error;
@@ -98,6 +93,7 @@ void waitUntilFinished(double exit_error) {
 	}
 }
 
+/**************************************************/
 // translational movement
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
@@ -128,7 +124,6 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
 		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
-		chassis::tank(0, 0);
 	}
 }
 
@@ -145,6 +140,7 @@ void move(std::vector<Point> waypoints, MoveFlags flags) {
 	move(waypoints, 100.0, default_exit_error, -1, -1, flags);
 }
 
+/**************************************************/
 // rotational movement
 void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
@@ -169,7 +165,6 @@ void turn(double target, double max, double exit_error, double ap,
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
 		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
-		chassis::tank(0, 0);
 	}
 }
 
@@ -258,14 +253,12 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
-
 	motorMove(leftMotors, left_speed, velocity);
 	motorMove(rightMotors, right_speed, velocity);
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
-
 	motorMove(leftMotors, vertical + horizontal, velocity);
 	motorMove(rightMotors, vertical - horizontal, velocity);
 }

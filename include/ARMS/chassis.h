@@ -12,16 +12,8 @@ extern double leftPrev;
 extern double rightPrev;
 extern double slew_step;
 extern Point virtualPosition;
-
-// motors
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-/**
- *  Functions to interact with the non-motor encoders on the chassis.
- *  These should be used instead of accessing the encoders directly, as
- *  the chassis has the ability to use either ADI or Rotation encoders
- */
 
 /**
  * Set the speed of target motor
