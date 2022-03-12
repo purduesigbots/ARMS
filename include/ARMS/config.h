@@ -39,7 +39,6 @@ namespace arms {
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
 #define MIN_POWER 5           // Minimum power to keep the chassis moving
-#define MIN_POWER 10          // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 

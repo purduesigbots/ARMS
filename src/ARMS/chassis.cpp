@@ -3,8 +3,6 @@
 
 #include <tuple>
 
-using namespace pros;
-
 namespace arms::chassis {
 
 // chassis motors
@@ -91,11 +89,11 @@ void waitUntilFinished(double exit_error) {
 		while (odom::getDistanceError(
 		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
 		       exit_error)
-			delay(10);
+			pros::delay(10);
 		break;
 	case ANGULAR:
 		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
-			delay(10);
+			pros::delay(10);
 		break;
 	}
 }
@@ -204,7 +202,7 @@ void turn(Point target, MoveFlags flags) {
 // task control
 int chassisTask() {
 	while (1) {
-		delay(10);
+		pros::delay(10);
 
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
@@ -248,7 +246,7 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
-	Task chassis_task(chassisTask);
+	pros::Task chassis_task(chassisTask);
 }
 
 /**************************************************/
