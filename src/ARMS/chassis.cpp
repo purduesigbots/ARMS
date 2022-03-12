@@ -17,7 +17,8 @@ double degree_constant;   // ticks per degree
 double slew_step; // smaller number = more slew
 
 // default exit error
-double default_exit_error;
+double linear_exit_error;
+double angular_exit_error;
 
 // chassis variables
 double maxSpeed = 100;
@@ -76,9 +77,6 @@ double slew(double target_speed, double step, double current_speed) {
 /**************************************************/
 // settling
 void waitUntilFinished(double exit_error) {
-	if (exit_error == 0)
-		exit_error = default_exit_error;
-
 	switch (pid::mode) {
 	case TRANSLATIONAL:
 		while (odom::getDistanceError(
@@ -123,7 +121,7 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		if(!(flags & THRU))
+		if (!(flags & THRU))
 			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
 	}
 }
@@ -134,11 +132,11 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 }
 
 void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
-	move(waypoints, max, default_exit_error, -1, -1, flags);
+	move(waypoints, max, linear_exit_error, -1, -1, flags);
 }
 
 void move(std::vector<Point> waypoints, MoveFlags flags) {
-	move(waypoints, 100.0, default_exit_error, -1, -1, flags);
+	move(waypoints, 100.0, linear_exit_error, -1, -1, flags);
 }
 
 /**************************************************/
@@ -165,7 +163,7 @@ void turn(double target, double max, double exit_error, double ap,
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		if(!(flags & THRU))
+		if (!(flags & THRU))
 			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
 	}
 }
@@ -175,11 +173,11 @@ void turn(double target, double max, double exit_error, MoveFlags flags) {
 }
 
 void turn(double target, double max, MoveFlags flags) {
-	turn(target, max, default_exit_error, -1, flags);
+	turn(target, max, angular_exit_error, -1, flags);
 }
 
 void turn(double target, MoveFlags flags) {
-	turn(target, 100, default_exit_error, -1, flags);
+	turn(target, 100, angular_exit_error, -1, flags);
 }
 
 void turn(Point target, double max, double exit_error, double ap,
@@ -193,11 +191,11 @@ void turn(Point target, double max, double exit_error, MoveFlags flags) {
 }
 
 void turn(Point target, double max, MoveFlags flags) {
-	turn(target, max, default_exit_error, -1, flags);
+	turn(target, max, angular_exit_error, -1, flags);
 }
 
 void turn(Point target, MoveFlags flags) {
-	turn(target, 100, default_exit_error, -1, flags);
+	turn(target, 100, angular_exit_error, -1, flags);
 }
 
 /**************************************************/
@@ -234,13 +232,14 @@ int chassisTask() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double exit_error) {
+          double linear_exit_error, double angular_exit_error) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
 	chassis::slew_step = slew_step;
-	chassis::default_exit_error = exit_error;
+	chassis::linear_exit_error = linear_exit_error;
+	chassis::angular_exit_error = angular_exit_error;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
