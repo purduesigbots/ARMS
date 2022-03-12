@@ -123,7 +123,8 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+		if(!(flags & THRU))
+			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
 	}
 }
 
@@ -164,7 +165,8 @@ void turn(double target, double max, double exit_error, double ap,
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+		if(!(flags & THRU))
+			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
 	}
 }
 
