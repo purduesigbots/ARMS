@@ -20,7 +20,7 @@ double defaultAngularKP;
 double minPower;
 double odomAngleScaling;
 
-int direction;
+bool reverse;
 bool thru;
 
 // pid targets
@@ -81,7 +81,7 @@ std::array<double, 2> translational() {
 	        angularKD * odomAngleScaling);
 
 	// apply direction
-	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
+	if (reverse) {
 		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		lin_speed = -lin_speed;
 	}

@@ -91,7 +91,7 @@ const MoveFlags NONE = {false, false, false, false};
 const MoveFlags ASYNC = {true, false, false, false};
 const MoveFlags RELATIVE = {false, true, false, false};
 const MoveFlags THRU = {false, false, true, false};
-const MoveFlags BACKWARDS = {false, false, false, true};
+const MoveFlags REVERSE = {false, false, false, true};
 
 } // namespace arms
 

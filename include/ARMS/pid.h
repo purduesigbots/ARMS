@@ -22,8 +22,8 @@ extern double angularKD;
 extern double angularTarget;
 extern Point pointTarget;
 
-extern int direction;
 extern bool thru;
+extern bool reverse;
 
 std::array<double, 2> translational();
 std::array<double, 2> angular();

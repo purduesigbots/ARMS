@@ -122,6 +122,7 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	pid::linearKP = lp;
 	pid::angularKP = ap;
 	pid::thru = (flags & THRU);
+	pid::reverse = (flags & REVERSE);
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
@@ -164,8 +165,12 @@ void turn(double target, double max, double exit_error, double ap,
 	maxSpeed = max;
 	pid::angularKP = ap;
 
-	if (!(flags & ASYNC))
+	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
+		pid::mode = DISABLE;
+		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+		chassis::tank(0, 0);
+	}
 }
 
 void turn(double target, double max, double exit_error, MoveFlags flags) {
