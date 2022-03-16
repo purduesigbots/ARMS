@@ -122,6 +122,12 @@ double getAngleError(Point point) {
 
 	double delta_theta = atan2(y, x) - heading;
 
+	// if movement is reversed, calculate delta_theta using a 180 degree rotation
+	// of the target point
+	if (pid::reverse) {
+		delta_theta = atan2(-y, -x) - heading;
+	}
+
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
 	}

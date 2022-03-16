@@ -84,7 +84,6 @@ std::array<double, 2> translational() {
 
 	// apply direction
 	if (reverse) {
-		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 		lin_speed = -lin_speed;
 	}
 
