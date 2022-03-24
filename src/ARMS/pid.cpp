@@ -17,10 +17,12 @@ double angularKD;
 double defaultLinearKP;
 double defaultAngularKP;
 
+// chassis scalling
 double minPower;
 double odomAngleScaling;
 
-int direction;
+// flags
+bool reverse;
 bool thru;
 
 // pid targets
@@ -81,8 +83,7 @@ std::array<double, 2> translational() {
 	        angularKD * odomAngleScaling);
 
 	// apply direction
-	if (direction == 3 || (direction == 1 && fabs(ang_error) > M_PI_2)) {
-		ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+	if (reverse) {
 		lin_speed = -lin_speed;
 	}
 

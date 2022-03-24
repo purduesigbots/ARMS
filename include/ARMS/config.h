@@ -30,15 +30,16 @@ namespace arms {
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel
 
 // Movement tuning
-#define SLEW_STEP 8  // Smaller number = more slew
-#define EXIT_ERROR 3 // default exit distance for movements
-#define LINEAR_KP 0
+#define SLEW_STEP 8          // Smaller number = more slew
+#define LINEAR_EXIT_ERROR 1  // default exit distance for linear movements
+#define ANGULAR_EXIT_ERROR 1 // default exit distance for angular movements
+#define LINEAR_KP 1
 #define LINEAR_KI 0
 #define LINEAR_KD 0
 #define ANGULAR_KP 0
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
-#define MIN_POWER 10          // Minimum power to keep the chassis moving
+#define MIN_POWER 5           // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 
@@ -51,7 +52,8 @@ namespace arms {
 inline void init() {
 
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
-	              DEGREE_CONSTANT, SLEW_STEP, EXIT_ERROR);
+	              DEGREE_CONSTANT, SLEW_STEP, LINEAR_EXIT_ERROR,
+	              ANGULAR_EXIT_ERROR);
 
 	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
 	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,

@@ -12,16 +12,8 @@ extern double leftPrev;
 extern double rightPrev;
 extern double slew_step;
 extern Point virtualPosition;
-
-// motors
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-/**
- *  Functions to interact with the non-motor encoders on the chassis.
- *  These should be used instead of accessing the encoders directly, as
- *  the chassis has the ability to use either ADI or Rotation encoders
- */
 
 /**
  * Set the speed of target motor
@@ -98,7 +90,7 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double exit_error);
+          double linear_exit_error, double angular_exit_error);
 
 } // namespace arms::chassis
 

@@ -4,8 +4,6 @@
 #include <cmath>
 #include <tuple>
 
-using namespace pros;
-
 namespace arms::purepursuit {
 
 int projectionLineIndex = 0;

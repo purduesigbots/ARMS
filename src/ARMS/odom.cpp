@@ -1,15 +1,13 @@
 #include "ARMS/lib.h"
 #include "api.h"
 
-using namespace pros;
-
 namespace arms::odom {
 
 // sensors
 std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
 std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
 std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
-std::shared_ptr<Imu> imu;
+std::shared_ptr<pros::Imu> imu;
 
 // output the odometry data to the terminal
 bool debug;
@@ -93,7 +91,7 @@ int odomTask() {
 		if (debug)
 			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
 
-		delay(10);
+		pros::delay(10);
 	}
 }
 
@@ -128,6 +126,12 @@ double getAngleError(Point point) {
 	y -= position.y;
 
 	double delta_theta = atan2(y, x) - heading;
+
+	// if movement is reversed, calculate delta_theta using a 180 degree rotation
+	// of the target point
+	if (pid::reverse) {
+		delta_theta = atan2(-y, -x) - heading;
+	}
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
@@ -176,15 +180,15 @@ void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
 	if (encoderPorts[2] != 0)
 		middleEncoder = initEncoder(encoderPorts[2], expanderPort, encoderType);
 
-	Task odom_task(odomTask);
+	pros::Task odom_task(odomTask);
 
 	// initialize imu
 	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
+		imu = std::make_shared<pros::Imu>(imuPort);
 		imu->reset();
-		delay(2000); // wait for IMU intialization
+		pros::delay(2000); // wait for IMU intialization
 	}
-	delay(100);
+	pros::delay(100);
 	reset();
 }
 
