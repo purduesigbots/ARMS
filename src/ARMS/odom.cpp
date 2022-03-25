@@ -36,6 +36,11 @@ int odomTask() {
 	position.y = 0;
 	heading = 0;
 
+	if(odom::debug) {
+		printf("left_right_distance = %f\n", left_right_distance);
+		printf("left_right_tpi   	= %f\n", left_right_tpi);
+	}
+
 	while (true) {
 
 		// get positions of each encoder
@@ -171,19 +176,35 @@ void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
 
 	// encoders
 	if (encoderPorts[0] != 0) {
+		if(odom::debug) {
+			printf("Left/Rigbht encoder ports found\n");
+		}
+
 		leftEncoder = initEncoder(encoderPorts[0], expanderPort, encoderType);
 		rightEncoder = initEncoder(encoderPorts[1], expanderPort, encoderType);
 	} else {
+		if(odom::debug) {
+			printf("Left/Rigbht encoder ports not found\n");
+		}
+
 		leftEncoder = chassis::leftMotors->getEncoder();
 		rightEncoder = chassis::rightMotors->getEncoder();
 	}
-	if (encoderPorts[2] != 0)
+	if (encoderPorts[2] != 0) {
+		if(odom::debug) {
+			printf("Middle encoder port not found\n");
+		}
+
 		middleEncoder = initEncoder(encoderPorts[2], expanderPort, encoderType);
+	}
 
 	pros::Task odom_task(odomTask);
 
 	// initialize imu
 	if (imuPort != 0) {
+		if(odom::debug)
+			printf("Imu not found\n");
+
 		imu = std::make_shared<pros::Imu>(imuPort);
 		imu->reset();
 		pros::delay(2000); // wait for IMU intialization

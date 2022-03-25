@@ -15,10 +15,15 @@ void competition_initialize() {
 void autonomous() {
 	using namespace arms::chassis;
 	printf("Running autonomous\n");
-	move({{24, 0}}, 50, arms::THRU);
-	move({{0, 0}}, 50, arms::THRU | arms::BACKWARDS);
 	
+
+	move({{24, 0}});
+	pros::delay(1000);
+	move({{0, 0}}, arms::REVERSE);
+
 	printf("Finished autonomous\n");
+
+	pros::delay(5000);
 }
 
 void opcontrol() {
