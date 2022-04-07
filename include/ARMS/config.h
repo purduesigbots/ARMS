@@ -19,27 +19,27 @@ namespace arms {
 #define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
 
 // Sensors
-#define IMU_PORT 0            // Port 0 for disabled
-#define ENCODER_PORTS 0, 0, 0 // Port 0 for disabled,
-#define EXPANDER_PORT 0       // Port 0 for disabled
+#define IMU_PORT 0                           // Port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0                // Port 0 for disabled,
+#define EXPANDER_PORT 0                      // Port 0 for disabled
+#define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
 
 // Odometry
-#define ENCODER_TYPE arms::chassis::ENCODER_ADI // The type of encoders
 #define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel
 
 // Movement tuning
-#define SLEW_STEP 8  // Smaller number = more slew
-#define EXIT_ERROR 1 // default exit distance for movements
+#define SLEW_STEP 8          // Smaller number = more slew
+#define LINEAR_EXIT_ERROR 1  // default exit distance for linear movements
+#define ANGULAR_EXIT_ERROR 1 // default exit distance for angular movements
 #define LINEAR_KP 1
 #define LINEAR_KI 0
 #define LINEAR_KD 0
 #define ANGULAR_KP 1
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
-#define DIF_KP 0              // Keep the robot driving straight
-#define FEEDFORWARD 10        // Minimum power to keep the chassis moving
+#define MIN_POWER 5           // Minimum power to keep the chassis moving
 #define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 
@@ -52,23 +52,20 @@ namespace arms {
 inline void init() {
 
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
-	              DEGREE_CONSTANT, SLEW_STEP, IMU_PORT, {ENCODER_PORTS},
-	              EXPANDER_PORT, EXIT_ERROR, ENCODER_TYPE);
+	              DEGREE_CONSTANT, SLEW_STEP, LINEAR_EXIT_ERROR,
+	              ANGULAR_EXIT_ERROR);
 
-	if (IMU_PORT != 0) {
-		odom::init(ODOM_DEBUG, LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE,
-		           DISTANCE_CONSTANT, MIDDLE_TPI);
-	}
+	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
+	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
+	           MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
-	          DIF_KP, FEEDFORWARD, ODOM_ANGLE_SCALING);
+	          MIN_POWER, ODOM_ANGLE_SCALING);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
 
 	purepursuit::init(LOOKAHEAD);
-
-	pros::delay(200); // Delay while PID and odom initialize
 }
 
 } // namespace arms

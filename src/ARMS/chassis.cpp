@@ -3,28 +3,11 @@
 
 #include <tuple>
 
-using namespace pros;
-
 namespace arms::chassis {
-
-// imu
-std::shared_ptr<Imu> imu;
 
 // chassis motors
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-// quad encoders
-std::shared_ptr<ADIEncoder> leftEncoder;
-std::shared_ptr<ADIEncoder> rightEncoder;
-std::shared_ptr<ADIEncoder> middleEncoder;
-
-// Rotation encoders
-std::shared_ptr<Rotation> leftRotation;
-std::shared_ptr<Rotation> middleRotation;
-std::shared_ptr<Rotation> rightRotation;
-
-int encoderType;
 
 // distance constants
 double distance_constant; // ticks per inch
@@ -34,7 +17,8 @@ double degree_constant;   // ticks per degree
 double slew_step; // smaller number = more slew
 
 // default exit error
-double default_exit_error;
+double linear_exit_error;
+double angular_exit_error;
 
 // chassis variables
 double maxSpeed = 100;
@@ -43,83 +27,7 @@ double rightPrev = 0;
 Point virtualPosition;
 
 /**************************************************/
-// encoder getter/setters
-//
-// There is likely a more elgant and future-proof way of adding
-// support for different types of rotation encoders. This was
-// the quick method.
-//
-// TODO: Refactor Encoder/Rotation code??
-
-// The ADI encoder API returns it's value in degrees, and the Rotation API
-// returns it's values in centiDegrees. This necessitates a conversion.
-double getLeftEncoderValue() {
-	if (encoderType == ENCODER_ROTATION)
-		return leftRotation->get_position() / 100;
-	else
-		return leftEncoder->get_value();
-}
-
-double getMiddleEncoderValue() {
-	if (encoderType == ENCODER_ROTATION)
-		return middleRotation->get_position() / 100;
-	else
-		return middleEncoder->get_value();
-}
-
-double getRightEncoderValue() {
-	if (encoderType == ENCODER_ROTATION)
-		return rightRotation->get_position() / 100;
-	else
-		return rightEncoder->get_value();
-}
-
-bool hasLeftEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		return (bool)leftRotation;
-	else
-		return (bool)leftEncoder;
-}
-
-bool hasMiddleEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		return (bool)middleRotation;
-	else
-		return (bool)middleEncoder;
-}
-
-bool hasRightEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		return (bool)rightRotation;
-	else
-		return (bool)rightEncoder;
-}
-
-void resetLeftEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		leftRotation->reset_position();
-	else
-		leftEncoder->reset();
-}
-
-void resetMiddleEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		middleRotation->reset_position();
-	else
-		middleEncoder->reset();
-}
-
-void resetRightEncoder() {
-	if (encoderType == ENCODER_ROTATION)
-		rightRotation->reset_position();
-	else
-		rightEncoder->reset();
-}
-
-/**************************************************/
-// basic control
-
-// move motor group
+// motor control
 void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
                bool velocity) {
 	if (velocity)
@@ -140,63 +48,9 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
 	motorMove(rightMotors, 0, true);
 }
 
-void resetAngle(double angle) {
-	if (imu)
-		imu->set_rotation(angle);
-}
-
-void reset() {
-	// reset odom
-	odom::prev_left_pos = 0;
-	odom::prev_right_pos = 0;
-	odom::prev_middle_pos = 0;
-
-	motorMove(leftMotors, 0, true);
-	motorMove(rightMotors, 0, true);
-	delay(10);
-
-	leftMotors->tarePosition();
-	rightMotors->tarePosition();
-
-	if (leftEncoder) {
-		resetLeftEncoder();
-		resetRightEncoder();
-	}
-	if (middleEncoder) {
-		resetMiddleEncoder();
-	}
-}
-
-std::array<double, 2> getEncoders() {
-	std::array<double, 2> encoders;
-
-	if (leftEncoder) {
-		encoders[0] = getLeftEncoderValue();
-		encoders[1] = getRightEncoderValue();
-	} else {
-		encoders[0] = leftMotors->getPosition();
-		encoders[1] = rightMotors->getPosition();
-	}
-
-	return encoders;
-}
-
-double distance() {
-	return (getEncoders()[0] + getEncoders()[1]) / 2 / distance_constant;
-}
-
-double angle() {
-	if (imu) {
-		return -imu->get_rotation();
-	} else {
-		return (getEncoders()[1] - getEncoders()[0]) / 2 / degree_constant;
-	}
-}
-
 /**************************************************/
 // speed control
 double limitSpeed(double speed, double max) {
-	// speed limiting
 	if (speed > max)
 		speed = max;
 	if (speed < -max)
@@ -221,110 +75,54 @@ double slew(double target_speed, double step, double current_speed) {
 }
 
 /**************************************************/
-// autonomous functions
-
-// conditional waiting
+// settling
 void waitUntilFinished(double exit_error) {
-	if (exit_error == 0)
-		exit_error = default_exit_error;
-
 	switch (pid::mode) {
-	case LINEAR:
-		while (fabs(distance() - pid::linearTarget) > exit_error)
-			delay(10);
+	case TRANSLATIONAL:
+		while (odom::getDistanceError(
+		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
+		       exit_error)
+			pros::delay(10);
 		break;
 	case ANGULAR:
-		while (fabs(angle() - pid::angularTarget) > exit_error)
-			delay(10);
-		break;
-	case ODOM:
-		while (odom::getDistanceError(pid::pointTarget) > exit_error)
-			delay(10);
-		break;
-	case PUREPURSUIT:
-		while (odom::getDistanceError(pid::waypoints[pid::waypoints.size() - 1]) >
-		       exit_error)
-			delay(10);
+		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
+			pros::delay(10);
 		break;
 	}
 }
 
-// linear movement
-void move(double target, double max, double exit_error, double kp,
-          MoveFlags flags) {
-	reset();
-	pid::mode = LINEAR;
-	pid::linearTarget = target;
-	maxSpeed = max;
-	pid::linearKP = kp;
-	pid::thru = (flags & THRU);
-	virtualPosition.x = cos(odom::heading) * target;
-	virtualPosition.y = sin(odom::heading) * target;
-
-	if (!(flags & ASYNC))
-		waitUntilFinished(exit_error);
-}
-
-void move(double target, double max, double exit_error, MoveFlags flags) {
-	move(target, max, exit_error, -1, flags);
-}
-
-void move(double target, double max, MoveFlags flags) {
-	move(target, max, default_exit_error, -1, flags);
-}
-
-void move(double target, MoveFlags flags) {
-	move(target, 100.0, default_exit_error, -1, flags);
-}
-
-// odometry movement
-void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
-	reset();
-	pid::mode = ODOM;
-	pid::pointTarget = target;
-	maxSpeed = max;
-	pid::linearKP = lp;
-	pid::angularKP = ap;
-	pid::thru = (flags & THRU);
-	virtualPosition = target;
-
-	if (!(flags & ASYNC))
-		waitUntilFinished(exit_error);
-}
-
-void move(Point target, double max, double exit_error, MoveFlags flags) {
-	move(target, max, exit_error, -1, -1, flags);
-}
-
-void move(Point target, double max, MoveFlags flags) {
-	move(target, max, default_exit_error, -1, -1, flags);
-}
-
-void move(Point target, MoveFlags flags) {
-	move(target, 100.0, default_exit_error, -1, -1, flags);
-}
-
-// pure pursuit
+/**************************************************/
+// translational movement
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
-	pid::mode = PUREPURSUIT;
-	pid::waypoints = std::vector{virtualPosition};
+	pid::mode = TRANSLATIONAL;
+	purepursuit::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
-		pid::waypoints.push_back(waypoints[i]);
+		if (flags & RELATIVE) {
+			Point p = odom::getPosition();     // robot position
+			double h = odom::getHeading(true); // robot heading in radians
+			waypoints[i].x += p.x * cos(h) + p.y * sin(h);
+			waypoints[i].y += p.y * cos(h) + p.x * sin(h);
+		}
+
+		purepursuit::waypoints.push_back(waypoints[i]);
 	}
+
+	purepursuit::reset(); // set the intialconditions
+
 	virtualPosition = waypoints[waypoints.size() - 1];
 	maxSpeed = max;
 	pid::linearKP = lp;
 	pid::angularKP = ap;
 	pid::thru = (flags & THRU);
+	pid::reverse = (flags & REVERSE);
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
-		chassis::tank(0, 0);
+		if (!(flags & THRU))
+			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
 	}
 }
 
@@ -334,23 +132,23 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 }
 
 void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
-	move(waypoints, max, default_exit_error, -1, -1, flags);
+	move(waypoints, max, linear_exit_error, -1, -1, flags);
 }
 
 void move(std::vector<Point> waypoints, MoveFlags flags) {
-	move(waypoints, 100.0, default_exit_error, -1, -1, flags);
+	move(waypoints, 100.0, linear_exit_error, -1, -1, flags);
 }
 
+/**************************************************/
 // rotational movement
 void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
-	reset();
 	pid::mode = ANGULAR;
 
-	if (flags & ABSOLUTE) {
-		// convert from absolute to relative set point
-		target -= (int)angle() % 360;
+	// convert from absolute to relative set point
+	target -= (int)odom::getHeading() % 360;
 
+	if (!(flags & RELATIVE)) {
 		// make sure all turns take most efficient route
 		if (target > 180)
 			target -= 360;
@@ -362,8 +160,12 @@ void turn(double target, double max, double exit_error, double ap,
 	maxSpeed = max;
 	pid::angularKP = ap;
 
-	if (!(flags & ASYNC))
+	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
+		pid::mode = DISABLE;
+		if (!(flags & THRU))
+			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+	}
 }
 
 void turn(double target, double max, double exit_error, MoveFlags flags) {
@@ -371,18 +173,17 @@ void turn(double target, double max, double exit_error, MoveFlags flags) {
 }
 
 void turn(double target, double max, MoveFlags flags) {
-	turn(target, max, default_exit_error, -1, flags);
+	turn(target, max, angular_exit_error, -1, flags);
 }
 
 void turn(double target, MoveFlags flags) {
-	turn(target, 100, default_exit_error, -1, flags);
+	turn(target, 100, angular_exit_error, -1, flags);
 }
 
-// odometry turn to to point
 void turn(Point target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	double angle_error = odom::getAngleError(target);
-	turn(angle_error, max, exit_error, ap, flags | ABSOLUTE);
+	turn(angle_error, max, exit_error, ap, flags);
 }
 
 void turn(Point target, double max, double exit_error, MoveFlags flags) {
@@ -390,32 +191,27 @@ void turn(Point target, double max, double exit_error, MoveFlags flags) {
 }
 
 void turn(Point target, double max, MoveFlags flags) {
-	turn(target, max, default_exit_error, -1, flags);
+	turn(target, max, angular_exit_error, -1, flags);
 }
 
 void turn(Point target, MoveFlags flags) {
-	turn(target, 100, default_exit_error, -1, flags);
+	turn(target, 100, angular_exit_error, -1, flags);
 }
 
 /**************************************************/
 // task control
 int chassisTask() {
 	while (1) {
-		delay(10);
+		pros::delay(10);
 
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
-		if (pid::mode == LINEAR) {
-			speeds = pid::linear();
-		} else if (pid::mode == ANGULAR) {
+		if (pid::mode == TRANSLATIONAL)
+			speeds = pid::translational();
+		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
-		} else if (pid::mode == ODOM) {
-			speeds = pid::odom();
-		} else if (pid::mode == PUREPURSUIT) {
-			speeds = pid::purepursuit();
-		} else {
+		else
 			continue;
-		}
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);
@@ -433,48 +229,17 @@ int chassisTask() {
 
 /**************************************************/
 // initialization
-std::shared_ptr<ADIEncoder> initEncoder(int encoderPort, int expanderPort) {
-	std::shared_ptr<ADIEncoder> encoder;
-
-	bool reversed = encoderPort > 0 ? false : true;
-
-	int encoderPort2 =
-	    abs((encoderPort > 0) ? (abs(encoderPort) + 1) : encoderPort--);
-	encoderPort = abs(encoderPort);
-
-	if (expanderPort != 0) {
-		std::tuple<int, int, int> pair(expanderPort, encoderPort, encoderPort2);
-		encoder = std::make_shared<ADIEncoder>(pair, reversed);
-	} else {
-		encoder = std::make_shared<ADIEncoder>(encoderPort, encoderPort2, reversed);
-	}
-
-	return encoder;
-}
-
-std::shared_ptr<Rotation> initRotation(int rotationPort) {
-	std::shared_ptr<Rotation> rotation;
-
-	int rotationPort2 =
-	    abs((rotationPort > 0) ? (abs(rotationPort) + 1) : rotationPort--);
-
-	rotation = std::make_shared<Rotation>(rotationPort);
-	rotation->set_reversed(rotationPort <= 0);
-
-	return rotation;
-}
-
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error, int encoderType) {
+          double linear_exit_error, double angular_exit_error) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
 	chassis::degree_constant = degree_constant;
 	chassis::slew_step = slew_step;
-	chassis::default_exit_error = exit_error;
+	chassis::linear_exit_error = linear_exit_error;
+	chassis::angular_exit_error = angular_exit_error;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -482,62 +247,19 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
 
-	chassis::leftMotors->tarePosition();
-	chassis::rightMotors->tarePosition();
-
-	chassis::encoderType = encoderType;
-
-	if (encoderType == ENCODER_ROTATION) {
-		if (std::get<0>(encoderPorts) != 0) {
-			leftRotation = initRotation(std::get<0>(encoderPorts));
-		}
-
-		if (std::get<1>(encoderPorts) != 0) {
-			rightRotation = initRotation(std::get<1>(encoderPorts));
-		}
-
-		if (std::get<2>(encoderPorts) != 0) {
-			middleRotation = initRotation(std::get<2>(encoderPorts));
-		}
-
-	} else {
-		if (std::get<0>(encoderPorts) != 0) {
-			leftEncoder = initEncoder(std::get<0>(encoderPorts), expanderPort);
-		}
-
-		if (std::get<1>(encoderPorts) != 0) {
-			rightEncoder = initEncoder(std::get<1>(encoderPorts), expanderPort);
-		}
-
-		if (std::get<2>(encoderPorts) != 0) {
-			middleEncoder = initEncoder(std::get<2>(encoderPorts), expanderPort);
-		}
-	}
-
-	// initialize imu
-	if (imuPort != 0) {
-		imu = std::make_shared<Imu>(imuPort);
-		imu->reset();
-		delay(2000); // wait for IMU intialization
-	}
-
-	delay(100); // encoders are weird
-
-	Task chassis_task(chassisTask);
+	pros::Task chassis_task(chassisTask);
 }
 
 /**************************************************/
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
-
 	motorMove(leftMotors, left_speed, velocity);
 	motorMove(rightMotors, right_speed, velocity);
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
-
 	motorMove(leftMotors, vertical + horizontal, velocity);
 	motorMove(rightMotors, vertical - horizontal, velocity);
 }

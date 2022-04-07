@@ -7,43 +7,13 @@
 
 namespace arms::chassis {
 
-enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
-
 extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
 extern double slew_step;
-
-// motors
+extern Point virtualPosition;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-// sensors
-extern std::shared_ptr<pros::ADIEncoder> leftEncoder;
-extern std::shared_ptr<pros::ADIEncoder> rightEncoder;
-extern std::shared_ptr<pros::ADIEncoder> middleEncoder;
-extern std::shared_ptr<pros::Imu> imu;
-
-/**
- *  Functions to interact with the non-motor encoders on the chassis.
- *  These should be used instead of accessing the encoders directly, as
- *  the chassis has the ability to use either ADI or Rotation encoders
- */
-
-/* Returns the position of the encoder in degrees*/
-double getLeftEncoderValue();
-double getMiddleEncoderValue();
-double getRightEncoderValue();
-
-/* Returns whether the specific encoder exists or not */
-bool hasLeftEncoder();
-bool hasMiddleEncoder();
-bool hasRightEncoder();
-
-/* Resets the positions of the respective encoder */
-void resetLeftEncoder();
-void resetMiddleEncoder();
-void resetRightEncoder();
 
 /**
  * Set the speed of target motor
@@ -62,27 +32,7 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 void resetAngle(double angle = 0);
 
 /**
- * Reset the internal motor encoders for all chassis motors
- */
-void reset();
-
-/**
- * Return the raw encoder values
- */
-std::array<double, 2> getEncoders();
-
-/**
- * Return the distance traveled by the chassis
- */
-double distance();
-
-/**
- * Get the angle of the chassis in degrees
- */
-double angle();
-
-/**
- * Reduce a speed
+ * Reduce an input speed if it exceeds the max value
  */
 double limitSpeed(double speed, double max);
 
@@ -97,25 +47,7 @@ double slew(double speed, double step, double prev);
 void waitUntilFinished(double exit_error);
 
 /**
- * Perform a linear chassis movement
- */
-void move(double target, double max, double exitError, double kp,
-          MoveFlags flags = NONE);
-void move(double target, double max, double exitError, MoveFlags flags = NONE);
-void move(double target, double max, MoveFlags flags = NONE);
-void move(double target, MoveFlags flags = NONE);
-
-/**
- * Perform an odom chassis movement
- */
-void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags = NONE);
-void move(Point target, double max, double exit_error, MoveFlags = NONE);
-void move(Point target, double max, MoveFlags = NONE);
-void move(Point target, MoveFlags = NONE);
-
-/**
- * Perform an pure pursuit chassis movement
+ * Perform a chassis movement
  */
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);
@@ -158,8 +90,7 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          int imuPort, std::tuple<int, int, int> encoderPorts, int expanderPort,
-          double exit_error, int encoderType);
+          double linear_exit_error, double angular_exit_error);
 
 } // namespace arms::chassis
 

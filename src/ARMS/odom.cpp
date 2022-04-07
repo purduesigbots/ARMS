@@ -1,65 +1,61 @@
 #include "ARMS/lib.h"
 #include "api.h"
 
-using namespace pros;
-
 namespace arms::odom {
 
+// sensors
+std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
+std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
+std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
+std::shared_ptr<pros::Imu> imu;
+
+// output the odometry data to the terminal
 bool debug;
+
+// tracker wheel configuration
 double left_right_distance;
 double middle_distance;
 double left_right_tpi;
 double middle_tpi;
 
-// odom tracking values
-double global_x;
-double global_y;
+// odom position values
+Point position;
 double heading;
-double heading_degrees;
-double prev_heading = 0;
+
+// previous values
 double prev_left_pos = 0;
 double prev_right_pos = 0;
 double prev_middle_pos = 0;
+double prev_heading = 0;
 
 int odomTask() {
 
-	global_x = 0;
-	global_y = 0;
+	position.x = 0;
+	position.y = 0;
 	heading = 0;
 
 	while (true) {
-		double left_pos;
-		double right_pos;
-		double middle_pos;
 
 		// get positions of each encoder
-		if (chassis::leftEncoder) {
-			left_pos = chassis::leftEncoder->get_value();
-			right_pos = chassis::rightEncoder->get_value();
-		} else {
-			left_pos = chassis::leftMotors->getPosition();
-			right_pos = chassis::rightMotors->getPosition();
-		}
-
-		if (chassis::hasMiddleEncoder())
-			middle_pos = chassis::getMiddleEncoderValue();
+		double left_pos = leftEncoder->get();
+		double right_pos = rightEncoder->get();
+		double middle_pos = middleEncoder ? middleEncoder->get() : 0;
 
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
 		double delta_right = (right_pos - prev_right_pos) / left_right_tpi;
-		double delta_middle = (middle_pos - prev_middle_pos) / middle_tpi;
+		double delta_middle =
+		    middleEncoder ? (middle_pos - prev_middle_pos) / middle_tpi : 0;
 
 		// calculate new heading
 		double delta_angle;
-		if (chassis::imu) {
-			heading_degrees = chassis::angle();
-			heading = heading_degrees * M_PI / 180.0;
+		if (imu) {
+			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
 
 			heading += delta_angle;
-			heading_degrees = heading * 180.0 / M_PI;
 		}
 
 		// store previous positions
@@ -84,36 +80,53 @@ int odomTask() {
 		double p = heading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
-		global_x += cos(p) * local_x + sin(p) * local_y;
-		global_y += cos(p) * local_y + sin(p) * local_x;
+		position.x += cos(p) * local_x + sin(p) * local_y;
+		position.y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
-			printf("%.2f, %.2f, %.2f \n", global_x, global_y, heading_degrees);
+			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
 
-		delay(10);
+		pros::delay(10);
 	}
 }
 
 void reset(Point point) {
-	global_x = point.x;
-	global_y = point.y;
+	position.x = point.x;
+	position.y = point.y;
+	chassis::virtualPosition = position;
 }
 
 void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	chassis::resetAngle(angle);
+	imu->set_heading(-angle);
+}
+
+Point getPosition() {
+	return position;
+}
+
+double getHeading(bool radians) {
+	if (radians)
+		return heading;
+	return heading * 180 / M_PI;
 }
 
 double getAngleError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	x -= global_x;
-	y -= global_y;
+	x -= position.x;
+	y -= position.y;
 
 	double delta_theta = atan2(y, x) - heading;
+
+	// if movement is reversed, calculate delta_theta using a 180 degree rotation
+	// of the target point
+	if (pid::reverse) {
+		delta_theta = atan2(-y, -x) - heading;
+	}
 
 	while (fabs(delta_theta) > M_PI) {
 		delta_theta -= 2 * M_PI * delta_theta / fabs(delta_theta);
@@ -126,19 +139,52 @@ double getDistanceError(Point point) {
 	double x = point.x;
 	double y = point.y;
 
-	y -= global_y;
-	x -= global_x;
+	y -= position.y;
+	x -= position.x;
 	return sqrt(x * x + y * y);
 }
 
-void init(bool debug, double left_right_distance, double middle_distance,
-          double left_right_tpi, double middle_tpi) {
+std::shared_ptr<okapi::ContinuousRotarySensor> initEncoder(int p1, int exp,
+                                                           int type) {
+	if (type == ENCODER_ROTATION)
+		return std::make_shared<okapi::RotationSensor>(p1, p1 < 0);
+	if (exp != 0) {
+		std::tuple<int, int, int> pair(exp, abs(p1), abs(p1 + 1));
+		return std::make_shared<okapi::ADIEncoder>(pair, p1 < 0);
+	} else
+		return std::make_shared<okapi::ADIEncoder>(abs(p1), abs(p1) + 1, p1 < 0);
+}
+
+void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
+          int expanderPort, int imuPort, double left_right_distance,
+          double middle_distance, double left_right_tpi, double middle_tpi) {
 	odom::debug = debug;
 	odom::left_right_distance = left_right_distance;
 	odom::middle_distance = middle_distance;
 	odom::left_right_tpi = left_right_tpi;
 	odom::middle_tpi = middle_tpi;
-	Task odom_task(odomTask);
+
+	// encoders
+	if (encoderPorts[0] != 0) {
+		leftEncoder = initEncoder(encoderPorts[0], expanderPort, encoderType);
+		rightEncoder = initEncoder(encoderPorts[1], expanderPort, encoderType);
+	} else {
+		leftEncoder = chassis::leftMotors->getEncoder();
+		rightEncoder = chassis::rightMotors->getEncoder();
+	}
+	if (encoderPorts[2] != 0)
+		middleEncoder = initEncoder(encoderPorts[2], expanderPort, encoderType);
+
+	pros::Task odom_task(odomTask);
+
+	// initialize imu
+	if (imuPort != 0) {
+		imu = std::make_shared<pros::Imu>(imuPort);
+		imu->reset();
+		pros::delay(2000); // wait for IMU intialization
+	}
+	pros::delay(100);
+	reset();
 }
 
 } // namespace arms::odom
