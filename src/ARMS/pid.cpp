@@ -124,7 +124,7 @@ std::array<double, 2> angular() {
 	double sv = odom::getHeading();
 	double speed =
 	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
-	return {speed, -speed}; // clockwise positive
+	return {-speed, speed}; // clockwise positive
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
