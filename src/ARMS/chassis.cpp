@@ -145,15 +145,20 @@ void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	pid::mode = ANGULAR;
 
-	if (flags & RELATIVE) {
-		// make sure all turns take most efficient route
-		if (target > 180)
-			target -= 360;
-		else if (target < -180)
-			target += 360;
+	double bounded_heading = (int)(odom::getHeading()) % 360;
+	if (bounded_heading > 180) {
+		bounded_heading -= 360;
 	}
 
-	pid::angularTarget = target;
+	double diff = target - bounded_heading;
+
+	if (flags & RELATIVE) {
+		diff = target;
+	}
+
+	double true_target = diff + odom::getHeading();
+
+	pid::angularTarget = true_target;
 	maxSpeed = max;
 	pid::angularKP = ap;
 
