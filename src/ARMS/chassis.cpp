@@ -145,10 +145,7 @@ void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	pid::mode = ANGULAR;
 
-	// convert from absolute to relative set point
-	target -= (int)odom::getHeading() % 360;
-
-	if (!(flags & RELATIVE)) {
+	if (flags & RELATIVE) {
 		// make sure all turns take most efficient route
 		if (target > 180)
 			target -= 360;

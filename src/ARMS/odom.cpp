@@ -50,7 +50,7 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (imu) {
-			heading = -imu->get_heading() * M_PI / 180.0;
+			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
@@ -100,7 +100,7 @@ void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	imu->set_heading(-angle);
+	imu->set_rotation(-angle);
 }
 
 Point getPosition() {
