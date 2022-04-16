@@ -81,8 +81,9 @@ void waitUntilFinished(double exit_error) {
 	case TRANSLATIONAL:
 		while (odom::getDistanceError(
 		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
-		       exit_error)
+		       exit_error) {
 			pros::delay(10);
+		}
 		break;
 	case ANGULAR:
 		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
@@ -123,6 +124,11 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 		pid::mode = DISABLE;
 		if (!(flags & THRU))
 			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+	} else {
+		pros::Task moveAsyncTask([exit_error]() {
+			waitUntilFinished(exit_error);
+			pid::mode = DISABLE;
+		});
 	}
 }
 
@@ -212,8 +218,6 @@ int chassisTask() {
 			speeds = pid::translational();
 		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
-		else
-			continue;
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);
