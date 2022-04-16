@@ -24,6 +24,8 @@ double angular_exit_error;
 double maxSpeed = 100;
 double leftPrev = 0;
 double rightPrev = 0;
+double leftDriveSpeed = 0;
+double rightDriveSpeed = 0;
 Point virtualPosition;
 
 /**************************************************/
@@ -218,6 +220,8 @@ int chassisTask() {
 			speeds = pid::translational();
 		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
+		else
+			speeds = {leftDriveSpeed, rightDriveSpeed};
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);
@@ -260,14 +264,14 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
-	motorMove(leftMotors, left_speed, velocity);
-	motorMove(rightMotors, right_speed, velocity);
+	chassis::leftDriveSpeed = left_speed;
+	chassis::rightDriveSpeed = right_speed;
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
-	motorMove(leftMotors, vertical + horizontal, velocity);
-	motorMove(rightMotors, vertical - horizontal, velocity);
+	chassis::leftDriveSpeed = vertical + horizontal;
+	chassis::rightDriveSpeed = vertical - horizontal;
 }
 
 } // namespace arms::chassis
