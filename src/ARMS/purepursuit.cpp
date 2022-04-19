@@ -1,4 +1,4 @@
-#include "ARMS/api.h"
+#include "ARMS/lib.h"
 #include "api.h"
 
 #include <cmath>
