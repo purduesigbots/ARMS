@@ -19,6 +19,10 @@ extern double angularKP;
 extern double angularKI;
 extern double angularKD;
 
+// integral
+extern double in_lin;
+extern double in_ang;
+
 // targets
 extern double angularTarget;
 extern Point pointTarget;

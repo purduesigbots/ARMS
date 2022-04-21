@@ -13,6 +13,10 @@ double linearKD;
 double angularKI;
 double angularKD;
 
+// integral
+double in_lin;
+double in_ang;
+
 // kp defaults
 double defaultLinearKP;
 double defaultAngularKP;
@@ -37,8 +41,8 @@ double pid(double error, double* pe, double* in, double kp, double ki,
 		*in = 0; // remove integral at zero error
 	double speed = error * kp + *in * ki + derivative * kd;
 
-	// scale back integral if over max windup
-	if (fabs(speed) < 100) {
+	// only let integral wind up if near the target
+	if (fabs(error) < 15) {
 		*in += error;
 	}
 
@@ -57,10 +61,6 @@ std::array<double, 2> translational() {
 	// previous sensor values
 	static double pe_lin = 0;
 	static double pe_ang = 0;
-
-	// integral values
-	static double in_lin;
-	static double in_ang;
 
 	// find the lookahead point
 	pointTarget = purepursuit::getLookaheadPoint();
@@ -116,14 +116,13 @@ std::array<double, 2> translational() {
 
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
-	static double in = 0; // integral
 
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
 	double sv = odom::getHeading();
 	double speed =
-	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
+	    pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
 	return {-speed, speed}; // clockwise positive
 }
 

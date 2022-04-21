@@ -120,6 +120,10 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	pid::angularKP = ap;
 	pid::thru = (flags & THRU);
 	pid::reverse = (flags & REVERSE);
+	
+	// reset the integrals
+	pid::in_lin = 0;
+	pid::in_ang = 0;
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
@@ -154,11 +158,13 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::mode = ANGULAR;
 
 	double bounded_heading = (int)(odom::getHeading()) % 360;
-	if (bounded_heading > 180) {
-		bounded_heading -= 360;
-	}
 
 	double diff = target - bounded_heading;
+
+	if (diff > 180)
+		diff -= 360;
+	else if (diff < -180)
+		diff += 360;
 
 	if (flags & RELATIVE) {
 		diff = target;
@@ -169,6 +175,7 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::angularTarget = true_target;
 	maxSpeed = max;
 	pid::angularKP = ap;
+	pid::in_ang = 0; // reset the integral value to zero
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
