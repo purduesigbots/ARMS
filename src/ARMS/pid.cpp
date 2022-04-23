@@ -91,13 +91,8 @@ std::array<double, 2> translational() {
 	if (thru)
 		lin_speed = chassis::maxSpeed;
 
-	// scale down angular speed as linear scales down
-	if (fabs(ang_speed) > fabs(lin_speed))
-		ang_speed = fabs(lin_speed) * ang_speed / fabs(ang_speed);
-
-	// reduce linear speed if ang_speed is really large
-	double scaling_factor = fabs(lin_speed) + fabs(ang_speed);
-	lin_speed = chassis::maxSpeed * lin_speed / (scaling_factor);
+	if (lin_error < purepursuit::lookahead)
+		ang_speed = 0;
 
 	// make we always move forward by the minimum power
 	if (fabs(lin_speed) < minPower)

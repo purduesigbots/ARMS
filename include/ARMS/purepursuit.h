@@ -8,6 +8,7 @@
 namespace arms::purepursuit {
 
 extern std::vector<Point> waypoints;
+extern double lookahead;
 
 Point getLookaheadPoint();
 double getDistanceError();
