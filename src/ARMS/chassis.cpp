@@ -271,12 +271,14 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
+	maxSpeed = 100;
 	chassis::leftDriveSpeed = left_speed;
 	chassis::rightDriveSpeed = right_speed;
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
+	maxSpeed = 100;
 	chassis::leftDriveSpeed = vertical + horizontal;
 	chassis::rightDriveSpeed = vertical - horizontal;
 }
