@@ -94,10 +94,13 @@ bool settled() {
 
 	if (length(pos-p_pos) > settle_thresh_linear)
 		settle_count = 0;
-	if (fabs(ang - p_ang) > settle_thresh_angular)
+	else if (fabs(ang - p_ang) > settle_thresh_angular)
 		settle_count = 0;
-	
-	settle_count += 10;
+	else {
+		settle_count += 10;
+		p_pos = pos;
+		p_ang = ang;
+	}
 
 	if (settle_count > settle_time)
 		return true;

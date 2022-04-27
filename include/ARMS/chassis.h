@@ -41,6 +41,11 @@ double limitSpeed(double speed, double max);
 double slew(double speed, double step, double prev);
 
 /**
+ * Return true of the chassis is not moving
+ */
+bool settled();
+
+/**
  * Wait for the chassis to complete the current movement
  */
 void waitUntilFinished(double exit_error);
