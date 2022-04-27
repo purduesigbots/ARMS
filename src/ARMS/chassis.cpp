@@ -106,6 +106,7 @@ bool settled() {
 }
 
 void waitUntilFinished(double exit_error) {
+	pros::delay(400); // minimum movement time
 	switch (pid::mode) {
 	case TRANSLATIONAL:
 		while (odom::getDistanceError(purepursuit::waypoints[purepursuit::waypoints.size() - 1]) > exit_error && !settled()) {
@@ -124,6 +125,7 @@ void waitUntilFinished(double exit_error) {
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
+	purepursuit::waypoints = std::vector{odom::getPosition()}; // first point is the robot position
 
 	for (int i = 0; i < waypoints.size(); i++) {
 		if (flags & RELATIVE) {
