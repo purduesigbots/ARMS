@@ -98,9 +98,9 @@ bool settled() {
 		settle_count = 0;
 	else {
 		settle_count += 10;
-		p_pos = pos;
-		p_ang = ang;
 	}
+	p_pos = pos;
+	p_ang = ang;
 
 	if (settle_count > settle_time)
 		return true;
