@@ -92,11 +92,16 @@ bool settled() {
 	Point pos = odom::getPosition();
 	double ang = odom::getHeading();
 
-	if (length(pos-p_pos) > settle_thresh_linear)
+	if (fabs(pos.x - p_pos.x) > settle_thresh_linear){
+		p_pos.x = pos.x;
 		settle_count = 0;
-	else if (fabs(ang - p_ang) > settle_thresh_angular)
+	} else if (fabs(pos.y - p_pos.y) > settle_thresh_angular) {
+		p_pos.y = pos.y;
 		settle_count = 0;
-	else {
+	} else if (fabs(ang - p_ang) > settle_thresh_angular){
+		p_ang = ang;
+		settle_count = 0;
+	} else {
 		settle_count += 10;
 	}
 	p_pos = pos;
