@@ -12,6 +12,7 @@ double linearKI;
 double linearKD;
 double angularKI;
 double angularKD;
+double trackingKP;
 
 // integral
 double in_lin;
@@ -20,10 +21,6 @@ double in_ang;
 // kp defaults
 double defaultLinearKP;
 double defaultAngularKP;
-
-// chassis scalling
-double minPower;
-double odomAngleScaling;
 
 // flags
 bool reverse;
@@ -75,32 +72,36 @@ std::array<double, 2> translational() {
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
+	// calculate speeds with PID
 	double lin_speed =
 	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
 	double ang_speed =
-	    pid(ang_error, &pe_ang, &in_ang, angularKP * odomAngleScaling, angularKI,
-	        angularKD * odomAngleScaling);
+	    pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
+
+
+	// disable PID for thru movement
+	if (thru)
+		lin_speed = chassis::maxSpeed;
 
 	// apply direction
 	if (reverse) {
 		lin_speed = -lin_speed;
 	}
 
-	// disable PID for thru movement
-	if (thru)
-		lin_speed = chassis::maxSpeed;
+	// cap linear speed
+	if (lin_speed > 100)
+		lin_speed = 100;
+	else if (lin_speed < -100)
+		lin_speed = -100;
 
+	// prevent spinning around the point
 	if (lin_error < purepursuit::lookahead)
 		ang_speed = 0;
 
-	// make we always move forward by the minimum power
-	if (fabs(lin_speed) < minPower)
-		lin_speed = minPower * lin_speed / fabs(lin_speed);
-
 	// catch nan edge cases
 	if (isnan(lin_speed))
-		lin_speed = minPower;
+		lin_speed = 0;
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
@@ -122,8 +123,7 @@ std::array<double, 2> angular() {
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double minPower,
-          double odomAngleScaling) {
+          double angularKI, double angularKD, double trackingKP) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
@@ -131,8 +131,7 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::defaultAngularKP = angularKP;
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
-	pid::minPower = minPower;
-	pid::odomAngleScaling = odomAngleScaling;
+	pid::trackingKP = trackingKP;
 }
 
 } // namespace arms::pid

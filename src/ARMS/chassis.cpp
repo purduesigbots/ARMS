@@ -20,6 +20,11 @@ double slew_step; // smaller number = more slew
 double linear_exit_error;
 double angular_exit_error;
 
+// settling
+double settle_thresh_linear;
+double settle_thresh_angular;
+int settle_time;
+
 // chassis variables
 double maxSpeed = 100;
 double leftPrev = 0;
@@ -78,17 +83,38 @@ double slew(double target_speed, double step, double current_speed) {
 
 /**************************************************/
 // settling
+bool settled() {
+	// previous position values
+	static Point p_pos = {0, 0};
+	static double p_ang = 0;
+
+	static int settle_count = 0;
+
+	Point pos = odom::getPosition();
+	double ang = odom::getHeading();
+
+	if (length(pos-p_pos) > settle_thresh_linear)
+		settle_count = 0;
+	if (fabs(ang - p_ang) > settle_thresh_angular)
+		settle_count = 0;
+	
+	settle_count += 10;
+
+	if (settle_count > settle_time)
+		return true;
+	else
+		return false;
+}
+
 void waitUntilFinished(double exit_error) {
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(
-		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
-		       exit_error) {
+		while (odom::getDistanceError(purepursuit::waypoints[purepursuit::waypoints.size() - 1]) > exit_error && !settled()) {
 			pros::delay(10);
 		}
 		break;
 	case ANGULAR:
-		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
+		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error && !settled())
 			pros::delay(10);
 		break;
 	}
@@ -249,7 +275,8 @@ int chassisTask() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error) {
+          double linear_exit_error, double angular_exit_error, double settle_thresh_linear,
+					double settle_thresh_angular, int settle_time) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -257,6 +284,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::slew_step = slew_step;
 	chassis::linear_exit_error = linear_exit_error;
 	chassis::angular_exit_error = angular_exit_error;
+	chassis::settle_thresh_linear = settle_thresh_linear;
+	chassis::settle_thresh_angular = settle_thresh_angular;
+	chassis::settle_time = settle_time;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);

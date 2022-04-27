@@ -37,8 +37,7 @@ std::array<double, 2> angular();
 
 // initializer
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double minPower,
-          double odomAngleScaling);
+          double angularKI, double angularKD, double trackingKP);
 
 } // namespace arms::pid
 

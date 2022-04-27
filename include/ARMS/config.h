@@ -33,14 +33,16 @@ namespace arms {
 #define SLEW_STEP 8          // Smaller number = more slew
 #define LINEAR_EXIT_ERROR 1  // default exit distance for linear movements
 #define ANGULAR_EXIT_ERROR 1 // default exit distance for angular movements
+#define SETTLE_THRESH_LINEAR .5      // amount of linear movement for settling
+#define SETTLE_THRESH_ANGULAR 1      // amount of angular movement for settling
+#define SETTLE_TIME 250      // amount of time to count as settled
 #define LINEAR_KP 1
 #define LINEAR_KI 0
 #define LINEAR_KD 0
+#define TRACKING_KP 1		 // Purepursuit turning strength
 #define ANGULAR_KP 1
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
-#define MIN_POWER 5           // Minimum power to keep the chassis moving
-#define ODOM_ANGLE_SCALING 60 // Scale up the angular constants for 2D movements
 #define LOOKAHEAD 15          // lookahead amount for purepursuit
 
 // Auton selector configuration constants
@@ -53,14 +55,13 @@ inline void init() {
 
 	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
 	              DEGREE_CONSTANT, SLEW_STEP, LINEAR_EXIT_ERROR,
-	              ANGULAR_EXIT_ERROR);
+	              ANGULAR_EXIT_ERROR, SETTLE_THRESH_ANGULAR, SETTLE_THRESH_LINEAR, SETTLE_TIME);
 
 	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
 	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
 	           MIDDLE_TPI);
 
-	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
-	          MIN_POWER, ODOM_ANGLE_SCALING);
+	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
