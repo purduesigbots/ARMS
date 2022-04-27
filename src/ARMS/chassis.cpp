@@ -31,7 +31,6 @@ double leftPrev = 0;
 double rightPrev = 0;
 double leftDriveSpeed = 0;
 double rightDriveSpeed = 0;
-Point virtualPosition;
 
 /**************************************************/
 // motor control
@@ -125,7 +124,6 @@ void waitUntilFinished(double exit_error) {
 void move(std::vector<Point> waypoints, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
-	purepursuit::waypoints = std::vector{virtualPosition};
 
 	for (int i = 0; i < waypoints.size(); i++) {
 		if (flags & RELATIVE) {
@@ -138,12 +136,11 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 		purepursuit::waypoints.push_back(waypoints[i]);
 	}
 
-	purepursuit::reset(); // set the intialconditions
+	purepursuit::reset(); // set the intial conditions
 
-	virtualPosition = waypoints[waypoints.size() - 1];
 	maxSpeed = max;
 	pid::linearKP = lp;
-	pid::angularKP = ap;
+	pid::trackingKP = ap;
 	pid::thru = (flags & THRU);
 	pid::reverse = (flags & REVERSE);
 	
@@ -156,11 +153,6 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 		pid::mode = DISABLE;
 		if (!(flags & THRU))
 			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
-	} else {
-		pros::Task moveAsyncTask([exit_error]() {
-			waitUntilFinished(exit_error);
-			pid::mode = DISABLE;
-		});
 	}
 }
 

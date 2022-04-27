@@ -18,6 +18,7 @@ extern double linearKD;
 extern double angularKP;
 extern double angularKI;
 extern double angularKD;
+extern double trackingKP;
 
 // integral
 extern double in_lin;

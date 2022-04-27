@@ -93,7 +93,6 @@ int odomTask() {
 void reset(Point point) {
 	position.x = point.x;
 	position.y = point.y;
-	chassis::virtualPosition = position;
 }
 
 void reset(Point point, double angle) {

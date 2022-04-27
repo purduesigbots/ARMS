@@ -11,7 +11,6 @@ extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
 extern double slew_step;
-extern Point virtualPosition;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
