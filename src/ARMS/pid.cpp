@@ -21,6 +21,7 @@ double in_ang;
 // kp defaults
 double defaultLinearKP;
 double defaultAngularKP;
+double defaultTrackingKP;
 
 // flags
 bool reverse;
@@ -69,8 +70,8 @@ std::array<double, 2> translational() {
 	// check for default kp
 	if (linearKP == -1)
 		linearKP = defaultLinearKP;
-	if (angularKP == -1)
-		angularKP = defaultAngularKP;
+	if (trackingKP == -1)
+		trackingKP = defaultTrackingKP;
 
 	// calculate speeds with PID
 	double lin_speed =
@@ -131,7 +132,7 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::defaultAngularKP = angularKP;
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
-	pid::trackingKP = trackingKP;
+	pid::defaultTrackingKP = trackingKP;
 }
 
 } // namespace arms::pid
