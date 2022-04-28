@@ -95,7 +95,7 @@ bool settled() {
 	if (fabs(pos.x - p_pos.x) > settle_thresh_linear){
 		p_pos.x = pos.x;
 		settle_count = 0;
-	} else if (fabs(pos.y - p_pos.y) > settle_thresh_angular) {
+	} else if (fabs(pos.y - p_pos.y) > settle_thresh_linear) {
 		p_pos.y = pos.y;
 		settle_count = 0;
 	} else if (fabs(ang - p_ang) > settle_thresh_angular){
@@ -104,8 +104,6 @@ bool settled() {
 	} else {
 		settle_count += 10;
 	}
-	p_pos = pos;
-	p_ang = ang;
 
 	if (settle_count > settle_time)
 		return true;
