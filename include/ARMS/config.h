@@ -43,7 +43,7 @@ namespace arms {
 #define ANGULAR_KP 1
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
-#define LOOKAHEAD 15          // lookahead amount for purepursuit
+#define MIN_ERROR 5          // Minimum distance to target before angular componenet is disabled
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
@@ -61,12 +61,11 @@ inline void init() {
 	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
 	           MIDDLE_TPI);
 
-	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP);
+	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
 
-	purepursuit::init(LOOKAHEAD);
 }
 
 } // namespace arms

@@ -13,6 +13,7 @@ double linearKD;
 double angularKI;
 double angularKD;
 double trackingKP;
+double minError;
 
 // integral
 double in_lin;
@@ -60,11 +61,8 @@ std::array<double, 2> translational() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
-	// find the lookahead point
-	pointTarget = purepursuit::getLookaheadPoint();
-
 	// get current error
-	double lin_error = purepursuit::getDistanceError();
+	double lin_error = odom::getDistanceError(pointTarget);
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// check for default kp
@@ -97,12 +95,8 @@ std::array<double, 2> translational() {
 		lin_speed = -100;
 
 	// prevent spinning around the point
-	if (lin_error < purepursuit::lookahead)
+	if (lin_error < minError)
 		ang_speed = 0;
-
-	// catch nan edge cases
-	if (isnan(lin_speed))
-		lin_speed = 0;
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
@@ -124,7 +118,7 @@ std::array<double, 2> angular() {
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double trackingKP) {
+          double angularKI, double angularKD, double trackingKP, double minError) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
@@ -133,6 +127,7 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
 	pid::defaultTrackingKP = trackingKP;
+	pid::minError = minError;
 }
 
 } // namespace arms::pid

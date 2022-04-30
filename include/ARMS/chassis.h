@@ -53,12 +53,12 @@ void waitUntilFinished(double exit_error);
 /**
  * Perform a chassis movement
  */
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           MoveFlags = NONE);
-void move(std::vector<Point> waypoints, double max, MoveFlags = NONE);
-void move(std::vector<Point> waypoints, MoveFlags = NONE);
+void move(Point target, double max, MoveFlags = NONE);
+void move(Point target, MoveFlags = NONE);
 
 /**
  * Perform a turn movement

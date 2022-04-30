@@ -115,7 +115,7 @@ void waitUntilFinished(double exit_error) {
 	pros::delay(400); // minimum movement time
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(purepursuit::waypoints[purepursuit::waypoints.size() - 1]) > exit_error && !settled()) {
+		while (odom::getDistanceError(pid::pointTarget) > exit_error && !settled()) {
 			pros::delay(10);
 		}
 		break;
@@ -128,23 +128,18 @@ void waitUntilFinished(double exit_error) {
 
 /**************************************************/
 // translational movement
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           double lp, double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
-	purepursuit::waypoints = std::vector{odom::getPosition()}; // first point is the robot position
 
-	for (int i = 0; i < waypoints.size(); i++) {
-		if (flags & RELATIVE) {
-			Point p = odom::getPosition();     // robot position
-			double h = odom::getHeading(true); // robot heading in radians
-			waypoints[i].x = p.x + waypoints[i].x * cos(h) - waypoints[i].y * sin(h);
-			waypoints[i].y = p.y + waypoints[i].x * sin(h) + waypoints[i].y * cos(h);
-		}
-
-		purepursuit::waypoints.push_back(waypoints[i]);
+	if (flags & RELATIVE) {
+		Point p = odom::getPosition();     // robot position
+		double h = odom::getHeading(true); // robot heading in radians
+		target.x = p.x + target.x * cos(h) - target.y * sin(h);
+		target.y = p.y + target.x * sin(h) + target.y * cos(h);
 	}
 
-	purepursuit::reset(); // set the intial conditions
+	pid::pointTarget = target;
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -164,17 +159,17 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	}
 }
 
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           MoveFlags flags) {
-	move(waypoints, max, exit_error, -1, -1, flags);
+	move(target, max, exit_error, -1, -1, flags);
 }
 
-void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
-	move(waypoints, max, linear_exit_error, -1, -1, flags);
+void move(Point target, double max, MoveFlags flags) {
+	move(target, max, linear_exit_error, -1, -1, flags);
 }
 
-void move(std::vector<Point> waypoints, MoveFlags flags) {
-	move(waypoints, 100.0, linear_exit_error, -1, -1, flags);
+void move(Point target, MoveFlags flags) {
+	move(target, 100.0, linear_exit_error, -1, -1, flags);
 }
 
 /**************************************************/
