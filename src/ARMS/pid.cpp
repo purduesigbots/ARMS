@@ -83,20 +83,28 @@ std::array<double, 2> translational() {
 	if (thru)
 		lin_speed = chassis::maxSpeed;
 
-	// apply direction
-	if (reverse) {
-		lin_speed = -lin_speed;
-	}
-
 	// cap linear speed
 	if (lin_speed > 100)
 		lin_speed = 100;
-	else if (lin_speed < -100)
-		lin_speed = -100;
+
+	// overturn
+	double overturn = fabs(ang_speed) + lin_speed - 100;
+	if(overturn > 0)
+		lin_speed -= overturn;
+
+	// apply direction
+	if (reverse)
+		lin_speed = -lin_speed;
 
 	// prevent spinning around the point
-	if (lin_error < minError)
+	if(lin_error < minError){
 		ang_speed = 0;
+		lin_speed *= cos(ang_error);
+		if (fabs(ang_error) > M_PI_2) {
+			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+			lin_speed = -lin_speed;
+		}
+	}
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
