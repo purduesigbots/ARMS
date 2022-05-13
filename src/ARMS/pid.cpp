@@ -75,9 +75,7 @@ std::array<double, 2> translational() {
 	double lin_speed =
 	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
-	double ang_speed =
-	    pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
-
+	double ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
 
 	// disable PID for thru movement
 	if (thru)
@@ -89,7 +87,7 @@ std::array<double, 2> translational() {
 
 	// overturn
 	double overturn = fabs(ang_speed) + lin_speed - 100;
-	if(overturn > 0)
+	if (overturn > 0)
 		lin_speed -= overturn;
 
 	// apply direction
@@ -97,7 +95,7 @@ std::array<double, 2> translational() {
 		lin_speed = -lin_speed;
 
 	// prevent spinning around the point
-	if(lin_error < minError){
+	if (lin_error < minError) {
 		ang_speed = 0;
 		lin_speed *= cos(ang_error);
 		if (fabs(ang_error) > M_PI_2) {
@@ -126,7 +124,8 @@ std::array<double, 2> angular() {
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double trackingKP, double minError) {
+          double angularKI, double angularKD, double trackingKP,
+          double minError) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;

@@ -92,13 +92,13 @@ bool settled() {
 	Point pos = odom::getPosition();
 	double ang = odom::getHeading();
 
-	if (fabs(pos.x - p_pos.x) > settle_thresh_linear){
+	if (fabs(pos.x - p_pos.x) > settle_thresh_linear) {
 		p_pos.x = pos.x;
 		settle_count = 0;
 	} else if (fabs(pos.y - p_pos.y) > settle_thresh_linear) {
 		p_pos.y = pos.y;
 		settle_count = 0;
-	} else if (fabs(ang - p_ang) > settle_thresh_angular){
+	} else if (fabs(ang - p_ang) > settle_thresh_angular) {
 		p_ang = ang;
 		settle_count = 0;
 	} else {
@@ -115,12 +115,14 @@ void waitUntilFinished(double exit_error) {
 	pros::delay(400); // minimum movement time
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(pid::pointTarget) > exit_error && !settled()) {
+		while (odom::getDistanceError(pid::pointTarget) > exit_error &&
+		       !settled()) {
 			pros::delay(10);
 		}
 		break;
 	case ANGULAR:
-		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error && !settled())
+		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error &&
+		       !settled())
 			pros::delay(10);
 		break;
 	}
@@ -128,8 +130,8 @@ void waitUntilFinished(double exit_error) {
 
 /**************************************************/
 // translational movement
-void move(Point target, double max, double exit_error,
-          double lp, double ap, MoveFlags flags) {
+void move(Point target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 
 	if (flags & RELATIVE) {
@@ -146,7 +148,7 @@ void move(Point target, double max, double exit_error,
 	pid::trackingKP = ap;
 	pid::thru = (flags & THRU);
 	pid::reverse = (flags & REVERSE);
-	
+
 	// reset the integrals
 	pid::in_lin = 0;
 	pid::in_ang = 0;
@@ -159,8 +161,7 @@ void move(Point target, double max, double exit_error,
 	}
 }
 
-void move(Point target, double max, double exit_error,
-          MoveFlags flags) {
+void move(Point target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
 
@@ -270,8 +271,9 @@ int chassisTask() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error, double settle_thresh_linear,
-					double settle_thresh_angular, int settle_time) {
+          double linear_exit_error, double angular_exit_error,
+          double settle_thresh_linear, double settle_thresh_angular,
+          int settle_time) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
