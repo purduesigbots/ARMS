@@ -11,7 +11,6 @@ extern double maxSpeed;
 extern double leftPrev;
 extern double rightPrev;
 extern double slew_step;
-extern Point virtualPosition;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 
@@ -42,6 +41,11 @@ double limitSpeed(double speed, double max);
 double slew(double speed, double step, double prev);
 
 /**
+ * Return true of the chassis is not moving
+ */
+bool settled();
+
+/**
  * Wait for the chassis to complete the current movement
  */
 void waitUntilFinished(double exit_error);
@@ -49,12 +53,12 @@ void waitUntilFinished(double exit_error);
 /**
  * Perform a chassis movement
  */
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);
-void move(std::vector<Point> waypoints, double max, double exit_error,
+void move(Point target, double max, double exit_error,
           MoveFlags = NONE);
-void move(std::vector<Point> waypoints, double max, MoveFlags = NONE);
-void move(std::vector<Point> waypoints, MoveFlags = NONE);
+void move(Point target, double max, MoveFlags = NONE);
+void move(Point target, MoveFlags = NONE);
 
 /**
  * Perform a turn movement
@@ -90,7 +94,9 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error);
+          double linear_exit_error, double angular_exit_error, 
+          double settle_thresh_linear, double settle_thresh_angular,
+          int settle_time);
 
 } // namespace arms::chassis
 

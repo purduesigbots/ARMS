@@ -20,11 +20,17 @@ double slew_step; // smaller number = more slew
 double linear_exit_error;
 double angular_exit_error;
 
+// settling
+double settle_thresh_linear;
+double settle_thresh_angular;
+int settle_time;
+
 // chassis variables
 double maxSpeed = 100;
 double leftPrev = 0;
 double rightPrev = 0;
-Point virtualPosition;
+double leftDriveSpeed = 0;
+double rightDriveSpeed = 0;
 
 /**************************************************/
 // motor control
@@ -76,16 +82,47 @@ double slew(double target_speed, double step, double current_speed) {
 
 /**************************************************/
 // settling
+bool settled() {
+	// previous position values
+	static Point p_pos = {0, 0};
+	static double p_ang = 0;
+
+	static int settle_count = 0;
+
+	Point pos = odom::getPosition();
+	double ang = odom::getHeading();
+
+	if (fabs(pos.x - p_pos.x) > settle_thresh_linear) {
+		p_pos.x = pos.x;
+		settle_count = 0;
+	} else if (fabs(pos.y - p_pos.y) > settle_thresh_linear) {
+		p_pos.y = pos.y;
+		settle_count = 0;
+	} else if (fabs(ang - p_ang) > settle_thresh_angular) {
+		p_ang = ang;
+		settle_count = 0;
+	} else {
+		settle_count += 10;
+	}
+
+	if (settle_count > settle_time)
+		return true;
+	else
+		return false;
+}
+
 void waitUntilFinished(double exit_error) {
+	pros::delay(400); // minimum movement time
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(
-		           purepursuit::waypoints[purepursuit::waypoints.size() - 1]) >
-		       exit_error)
+		while (odom::getDistanceError(pid::pointTarget) > exit_error &&
+		       !settled()) {
 			pros::delay(10);
+		}
 		break;
 	case ANGULAR:
-		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error)
+		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error &&
+		       !settled())
 			pros::delay(10);
 		break;
 	}
@@ -93,30 +130,28 @@ void waitUntilFinished(double exit_error) {
 
 /**************************************************/
 // translational movement
-void move(std::vector<Point> waypoints, double max, double exit_error,
-          double lp, double ap, MoveFlags flags) {
+void move(Point target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
-	purepursuit::waypoints = std::vector{virtualPosition};
 
-	for (int i = 0; i < waypoints.size(); i++) {
-		if (flags & RELATIVE) {
-			Point p = odom::getPosition();     // robot position
-			double h = odom::getHeading(true); // robot heading in radians
-			waypoints[i].x += p.x * cos(h) + p.y * sin(h);
-			waypoints[i].y += p.y * cos(h) + p.x * sin(h);
-		}
-
-		purepursuit::waypoints.push_back(waypoints[i]);
+	if (flags & RELATIVE) {
+		Point p = odom::getPosition();     // robot position
+		double h = odom::getHeading(true); // robot heading in radians
+		target.x = p.x + target.x * cos(h) - target.y * sin(h);
+		target.y = p.y + target.x * sin(h) + target.y * cos(h);
 	}
 
-	purepursuit::reset(); // set the intialconditions
+	pid::pointTarget = target;
 
-	virtualPosition = waypoints[waypoints.size() - 1];
 	maxSpeed = max;
 	pid::linearKP = lp;
-	pid::angularKP = ap;
+	pid::trackingKP = ap;
 	pid::thru = (flags & THRU);
 	pid::reverse = (flags & REVERSE);
+
+	// reset the integrals
+	pid::in_lin = 0;
+	pid::in_ang = 0;
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
@@ -126,17 +161,16 @@ void move(std::vector<Point> waypoints, double max, double exit_error,
 	}
 }
 
-void move(std::vector<Point> waypoints, double max, double exit_error,
-          MoveFlags flags) {
-	move(waypoints, max, exit_error, -1, -1, flags);
+void move(Point target, double max, double exit_error, MoveFlags flags) {
+	move(target, max, exit_error, -1, -1, flags);
 }
 
-void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
-	move(waypoints, max, linear_exit_error, -1, -1, flags);
+void move(Point target, double max, MoveFlags flags) {
+	move(target, max, linear_exit_error, -1, -1, flags);
 }
 
-void move(std::vector<Point> waypoints, MoveFlags flags) {
-	move(waypoints, 100.0, linear_exit_error, -1, -1, flags);
+void move(Point target, MoveFlags flags) {
+	move(target, 100.0, linear_exit_error, -1, -1, flags);
 }
 
 /**************************************************/
@@ -145,20 +179,25 @@ void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	pid::mode = ANGULAR;
 
-	// convert from absolute to relative set point
-	target -= (int)odom::getHeading() % 360;
+	double bounded_heading = (int)(odom::getHeading()) % 360;
 
-	if (!(flags & RELATIVE)) {
-		// make sure all turns take most efficient route
-		if (target > 180)
-			target -= 360;
-		else if (target < -180)
-			target += 360;
+	double diff = target - bounded_heading;
+
+	if (diff > 180)
+		diff -= 360;
+	else if (diff < -180)
+		diff += 360;
+
+	if (flags & RELATIVE) {
+		diff = target;
 	}
 
-	pid::angularTarget = target;
+	double true_target = diff + odom::getHeading();
+
+	pid::angularTarget = true_target;
 	maxSpeed = max;
 	pid::angularKP = ap;
+	pid::in_ang = 0; // reset the integral value to zero
 
 	if (!(flags & ASYNC)) {
 		waitUntilFinished(exit_error);
@@ -211,7 +250,7 @@ int chassisTask() {
 		else if (pid::mode == ANGULAR)
 			speeds = pid::angular();
 		else
-			continue;
+			speeds = {leftDriveSpeed, rightDriveSpeed};
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);
@@ -232,7 +271,9 @@ int chassisTask() {
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
           double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error) {
+          double linear_exit_error, double angular_exit_error,
+          double settle_thresh_linear, double settle_thresh_angular,
+          int settle_time) {
 
 	// assign constants
 	chassis::distance_constant = distance_constant;
@@ -240,6 +281,9 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::slew_step = slew_step;
 	chassis::linear_exit_error = linear_exit_error;
 	chassis::angular_exit_error = angular_exit_error;
+	chassis::settle_thresh_linear = settle_thresh_linear;
+	chassis::settle_thresh_angular = settle_thresh_angular;
+	chassis::settle_time = settle_time;
 
 	// configure chassis motors
 	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
@@ -254,14 +298,16 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous tasks
-	motorMove(leftMotors, left_speed, velocity);
-	motorMove(rightMotors, right_speed, velocity);
+	maxSpeed = 100;
+	chassis::leftDriveSpeed = left_speed;
+	chassis::rightDriveSpeed = right_speed;
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
 	pid::mode = DISABLE; // turns off autonomous task
-	motorMove(leftMotors, vertical + horizontal, velocity);
-	motorMove(rightMotors, vertical - horizontal, velocity);
+	maxSpeed = 100;
+	chassis::leftDriveSpeed = vertical + horizontal;
+	chassis::rightDriveSpeed = vertical - horizontal;
 }
 
 } // namespace arms::chassis

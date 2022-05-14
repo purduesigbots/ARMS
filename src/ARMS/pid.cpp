@@ -12,14 +12,17 @@ double linearKI;
 double linearKD;
 double angularKI;
 double angularKD;
+double trackingKP;
+double minError;
+
+// integral
+double in_lin;
+double in_ang;
 
 // kp defaults
 double defaultLinearKP;
 double defaultAngularKP;
-
-// chassis scalling
-double minPower;
-double odomAngleScaling;
+double defaultTrackingKP;
 
 // flags
 bool reverse;
@@ -37,8 +40,8 @@ double pid(double error, double* pe, double* in, double kp, double ki,
 		*in = 0; // remove integral at zero error
 	double speed = error * kp + *in * ki + derivative * kd;
 
-	// scale back integral if over max windup
-	if (fabs(speed) < 100) {
+	// only let integral wind up if near the target
+	if (fabs(error) < 15) {
 		*in += error;
 	}
 
@@ -58,54 +61,48 @@ std::array<double, 2> translational() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
-	// integral values
-	static double in_lin;
-	static double in_ang;
-
-	// find the lookahead point
-	pointTarget = purepursuit::getLookaheadPoint();
-
 	// get current error
-	double lin_error = purepursuit::getDistanceError();
+	double lin_error = odom::getDistanceError(pointTarget);
 	double ang_error = odom::getAngleError(pointTarget);
 
 	// check for default kp
 	if (linearKP == -1)
 		linearKP = defaultLinearKP;
-	if (angularKP == -1)
-		angularKP = defaultAngularKP;
+	if (trackingKP == -1)
+		trackingKP = defaultTrackingKP;
 
+	// calculate speeds with PID
 	double lin_speed =
 	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
-	double ang_speed =
-	    pid(ang_error, &pe_ang, &in_ang, angularKP * odomAngleScaling, angularKI,
-	        angularKD * odomAngleScaling);
-
-	// apply direction
-	if (reverse) {
-		lin_speed = -lin_speed;
-	}
+	double ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
 
 	// disable PID for thru movement
 	if (thru)
 		lin_speed = chassis::maxSpeed;
 
-	// scale down angular speed as linear scales down
-	if (fabs(ang_speed) > fabs(lin_speed))
-		ang_speed = fabs(lin_speed) * ang_speed / fabs(ang_speed);
+	// cap linear speed
+	if (lin_speed > 100)
+		lin_speed = 100;
 
-	// reduce linear speed if ang_speed is really large
-	double scaling_factor = fabs(lin_speed) + fabs(ang_speed);
-	lin_speed = chassis::maxSpeed * lin_speed / (scaling_factor);
+	// overturn
+	double overturn = fabs(ang_speed) + lin_speed - 100;
+	if (overturn > 0)
+		lin_speed -= overturn;
 
-	// make we always move forward by the minimum power
-	if (fabs(lin_speed) < minPower)
-		lin_speed = minPower * lin_speed / fabs(lin_speed);
+	// apply direction
+	if (reverse)
+		lin_speed = -lin_speed;
 
-	// catch nan edge cases
-	if (isnan(lin_speed))
-		lin_speed = minPower;
+	// prevent spinning around the point
+	if (lin_error < minError) {
+		ang_speed = 0;
+		lin_speed *= cos(ang_error);
+		if (fabs(ang_error) > M_PI_2) {
+			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
+			lin_speed = -lin_speed;
+		}
+	}
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
@@ -116,20 +113,19 @@ std::array<double, 2> translational() {
 
 std::array<double, 2> angular() {
 	static double pe = 0; // previous error
-	static double in = 0; // integral
 
 	if (angularKP == -1)
 		angularKP = defaultAngularKP;
 
 	double sv = odom::getHeading();
 	double speed =
-	    pid(angularTarget, sv, &pe, &in, angularKP, angularKI, angularKD);
+	    pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
 	return {-speed, speed}; // clockwise positive
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double minPower,
-          double odomAngleScaling) {
+          double angularKI, double angularKD, double trackingKP,
+          double minError) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
@@ -137,8 +133,8 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::defaultAngularKP = angularKP;
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
-	pid::minPower = minPower;
-	pid::odomAngleScaling = odomAngleScaling;
+	pid::defaultTrackingKP = trackingKP;
+	pid::minError = minError;
 }
 
 } // namespace arms::pid
