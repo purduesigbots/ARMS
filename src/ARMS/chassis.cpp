@@ -92,9 +92,9 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
-// translational movement
-void move(std::vector<Point> waypoints, double max, double exit_error,
-          double lp, double ap, MoveFlags flags) {
+// 2D point-to-point movement
+void move(Point target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 	purepursuit::waypoints = std::vector{virtualPosition};
 
@@ -135,8 +135,22 @@ void move(std::vector<Point> waypoints, double max, MoveFlags flags) {
 	move(waypoints, max, linear_exit_error, -1, -1, flags);
 }
 
-void move(std::vector<Point> waypoints, MoveFlags flags) {
-	move(waypoints, 100.0, linear_exit_error, -1, -1, flags);
+void move(Point target, MoveFlags flags) {
+	move(target, 100, linear_exit_error, -1, -1, flags);
+}
+
+/**************************************************/
+// 1D movement
+void move(double target, double max, double exit_error, MoveFlags flags) {
+	move({target, 0}, max, exit_error, -1, -1, flags | RELATIVE);
+}
+
+void move(double target, double max, MoveFlags flags) {
+	move({target, 0}, max, linear_exit_error, -1, -1, flags | RELATIVE);
+}
+
+void move(double target, MoveFlags flags) {
+	move({target, 0}, 100, linear_exit_error, -1, -1, flags | RELATIVE);
 }
 
 /**************************************************/
@@ -180,6 +194,8 @@ void turn(double target, MoveFlags flags) {
 	turn(target, 100, angular_exit_error, -1, flags);
 }
 
+/**************************************************/
+// turn to point
 void turn(Point target, double max, double exit_error, double ap,
           MoveFlags flags) {
 	double angle_error = odom::getAngleError(target);
