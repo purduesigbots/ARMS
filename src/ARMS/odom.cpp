@@ -93,14 +93,13 @@ int odomTask() {
 void reset(Point point) {
 	position.x = point.x;
 	position.y = point.y;
-	chassis::virtualPosition = position;
 }
 
 void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	imu->set_heading(-angle);
+	imu->set_rotation(-angle);
 }
 
 Point getPosition() {

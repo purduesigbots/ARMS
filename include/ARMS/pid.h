@@ -18,6 +18,12 @@ extern double linearKD;
 extern double angularKP;
 extern double angularKI;
 extern double angularKD;
+extern double trackingKP;
+extern double minError;
+
+// integral
+extern double in_lin;
+extern double in_ang;
 
 // targets
 extern double angularTarget;
@@ -33,8 +39,7 @@ std::array<double, 2> angular();
 
 // initializer
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double minPower,
-          double odomAngleScaling);
+          double angularKI, double angularKD, double trackingKP, double minError);
 
 } // namespace arms::pid
 
