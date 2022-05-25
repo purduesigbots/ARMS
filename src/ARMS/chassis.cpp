@@ -129,6 +129,13 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
+// Go-to-pose movement
+void move(Pose target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
+	pid::mode = TRANSLATIONAL;
+}
+
+/**************************************************/
 // 2D point-to-point movement
 void move(Point target, double max, double exit_error, double lp, double ap,
           MoveFlags flags) {
