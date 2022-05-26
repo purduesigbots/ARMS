@@ -176,6 +176,7 @@ void move(double x, double y, double max, double exit_error, double lp, double a
 	}
 
 	pid::pointTarget = Point{x, y};
+	pid::angularTarget = NAN;
 
 	maxSpeed = max;
 	pid::linearKP = lp;
