@@ -129,26 +129,20 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
-// Go-to-pose movement
-void move(Pose target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
-	pid::mode = TRANSLATIONAL;
-}
-
-/**************************************************/
-// 2D point-to-point movement
-void move(Point target, double max, double exit_error, double lp, double ap,
+// pose movement
+void move(double x, double y, double theta, double max, double exit_error, double lp, double ap,
           MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 
 	if (flags & RELATIVE) {
 		Point p = odom::getPosition();     // robot position
 		double h = odom::getHeading(true); // robot heading in radians
-		target.x = p.x + target.x * cos(h) - target.y * sin(h);
-		target.y = p.y + target.x * sin(h) + target.y * cos(h);
+		x = p.x + x * cos(h) - y * sin(h);
+		y = p.y + x * sin(h) + y * cos(h);
 	}
 
-	pid::pointTarget = target;
+	pid::pointTarget = Point{x, y};
+	pid::angularTarget = theta;
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -168,15 +162,59 @@ void move(Point target, double max, double exit_error, double lp, double ap,
 	}
 }
 
-void move(Point target, double max, double exit_error, MoveFlags flags) {
+/**************************************************/
+// point movement
+void move(double x, double y, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
+	pid::mode = TRANSLATIONAL;
+
+	if (flags & RELATIVE) {
+		Point p = odom::getPosition();     // robot position
+		double h = odom::getHeading(true); // robot heading in radians
+		x = p.x + x * cos(h) - y * sin(h);
+		y = p.y + x * sin(h) + y * cos(h);
+	}
+
+	pid::pointTarget = Point{x, y};
+
+	maxSpeed = max;
+	pid::linearKP = lp;
+	pid::trackingKP = ap;
+	pid::thru = (flags & THRU);
+	pid::reverse = (flags & REVERSE);
+
+	// reset the integrals
+	pid::in_lin = 0;
+	pid::in_ang = 0;
+
+	if (!(flags & ASYNC)) {
+		waitUntilFinished(exit_error);
+		pid::mode = DISABLE;
+		if (!(flags & THRU))
+			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+	}
+}
+
+/**************************************************/
+// overload to determine if the movement is a pose or a point
+void move(std::vector<double> target, double max, double exit_error, double lp, double ap,
+          MoveFlags flags) {
+	if(target.size() == 2)
+		move(target.at(0), target.at(1), max, exit_error, lp, ap, flags);
+	else
+		move(target.at(0), target.at(1), target.at(2), max, exit_error, lp, ap, flags);
+	
+}
+
+void move(std::vector<double> target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
 
-void move(Point target, double max, MoveFlags flags) {
+void move(std::vector<double> target, double max, MoveFlags flags) {
 	move(target, max, linear_exit_error, -1, -1, flags);
 }
 
-void move(Point target, MoveFlags flags) {
+void move(std::vector<double> target, MoveFlags flags) {
 	move(target, 100, linear_exit_error, -1, -1, flags);
 }
 
