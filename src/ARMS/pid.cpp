@@ -62,9 +62,12 @@ std::array<double, 2> translational() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
+	// an angular target > 360 indicates no desired final pose angle
+	bool noPose = (angularTarget > 360);
+
 	// Determine target point
 	Point carrotPoint; // chasing the carrot
-	if(angularTarget == NAN) {
+	if(noPose) {
 		// point movement
 		carrotPoint = pointTarget;
 	} else {
@@ -103,7 +106,7 @@ std::array<double, 2> translational() {
 	// calculate angular speed
 	double ang_speed;
 	if (lin_error < minError) {
-		if (angularTarget == NAN) {
+		if (noPose) {
 			ang_speed = 0; // disable turning when close to the point to prevent spinning
 		} else {
 			// turn to face the finale pose angle if executing a pose movement

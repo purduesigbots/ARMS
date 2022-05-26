@@ -129,10 +129,14 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
-// pose movement
-void move(double x, double y, double theta, double max, double exit_error, double lp, double ap,
+// 2D movement
+void move(std::vector<double> target, double max, double exit_error, double lp, double ap,
           MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
+
+	double x = target.at(0);
+	double y = target.at(1);
+	double theta = target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
 	if (flags & RELATIVE) {
 		Point p = odom::getPosition();     // robot position
@@ -162,53 +166,6 @@ void move(double x, double y, double theta, double max, double exit_error, doubl
 	}
 }
 
-/**************************************************/
-// point movement
-void move(double x, double y, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
-	pid::mode = TRANSLATIONAL;
-
-	if (flags & RELATIVE) {
-		Point p = odom::getPosition();     // robot position
-		double h = odom::getHeading(true); // robot heading in radians
-		x = p.x + x * cos(h) - y * sin(h);
-		y = p.y + x * sin(h) + y * cos(h);
-	}
-
-	pid::pointTarget = Point{x, y};
-	pid::angularTarget = NAN;
-
-	maxSpeed = max;
-	pid::linearKP = lp;
-	pid::trackingKP = ap;
-	pid::thru = (flags & THRU);
-	pid::reverse = (flags & REVERSE);
-
-	// reset the integrals
-	pid::in_lin = 0;
-	pid::in_ang = 0;
-
-	if (!(flags & ASYNC)) {
-		waitUntilFinished(exit_error);
-		pid::mode = DISABLE;
-		if (!(flags & THRU))
-			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
-	}
-}
-
-/**************************************************/
-// overload to determine if the movement is a pose or a point
-void move(std::vector<double> target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
-	if(target.size() == 2)
-		move(target.at(0), target.at(1), max, exit_error, lp, ap, flags);
-	else
-		move(target.at(0), target.at(1), target.at(2), max, exit_error, lp, ap, flags);
-	
-}
-
-/**************************************************/
-// overloads fewer parameters
 void move(std::vector<double> target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
