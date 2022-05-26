@@ -51,7 +51,7 @@ bool settled();
 void waitUntilFinished(double exit_error);
 
 /**
- * Perform a chassis movement
+ * Perform 2D chassis movement
  */
 void move(std::vector<double> target, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);
@@ -59,6 +59,16 @@ void move(std::vector<double> target, double max, double exit_error,
           MoveFlags = NONE);
 void move(std::vector<double> target, double max, MoveFlags = NONE);
 void move(std::vector<double> target, MoveFlags = NONE);
+
+/**
+ * Perform 1D chassis movement
+ */
+void move(double target, double max, double exit_error,
+          double lp, double ap, MoveFlags = NONE);
+void move(double target, double max, double exit_error,
+          MoveFlags = NONE);
+void move(double target, double max, MoveFlags = NONE);
+void move(double target, MoveFlags = NONE);
 
 /**
  * Perform a turn movement

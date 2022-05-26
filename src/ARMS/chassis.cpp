@@ -206,6 +206,8 @@ void move(std::vector<double> target, double max, double exit_error, double lp, 
 	
 }
 
+/**************************************************/
+// overloads fewer parameters
 void move(std::vector<double> target, double max, double exit_error, MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
