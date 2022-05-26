@@ -67,15 +67,15 @@ std::array<double, 2> translational() {
 
 	// Determine target point
 	Point carrotPoint; // chasing the carrot
-	if(noPose) {
+	if (noPose) {
 		// point movement
 		carrotPoint = pointTarget;
 	} else {
 		// pose movement
 		double h = odom::getDistanceError(pointTarget);
-		double at = angularTarget * M_PI/180.0;
-		carrotPoint = {pointTarget.x-h*sin(at)*leadPct, pointTarget.y-h*cos(at)*leadPct};
-
+		double at = angularTarget * M_PI / 180.0;
+		carrotPoint = {pointTarget.x - h * sin(at) * leadPct,
+		               pointTarget.y - h * cos(at) * leadPct};
 	}
 
 	// get current error
@@ -107,12 +107,13 @@ std::array<double, 2> translational() {
 	double ang_speed;
 	if (lin_error < minError) {
 		if (noPose) {
-			ang_speed = 0; // disable turning when close to the point to prevent spinning
+			ang_speed =
+			    0; // disable turning when close to the point to prevent spinning
 		} else {
 			// turn to face the finale pose angle if executing a pose movement
 			double poseError = angularTarget - odom::getHeading();
 			while (fabs(poseError) > M_PI)
-				poseError -= 2*M_PI*poseError/fabs(poseError);
+				poseError -= 2 * M_PI * poseError / fabs(poseError);
 			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, 0, 0);
 		}
 

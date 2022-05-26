@@ -130,13 +130,14 @@ void waitUntilFinished(double exit_error) {
 
 /**************************************************/
 // 2D movement
-void move(std::vector<double> target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
+void move(std::vector<double> target, double max, double exit_error, double lp,
+          double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 
 	double x = target.at(0);
 	double y = target.at(1);
-	double theta = target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
+	double theta =
+	    target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
 	if (flags & RELATIVE) {
 		Point p = odom::getPosition();     // robot position
@@ -166,7 +167,8 @@ void move(std::vector<double> target, double max, double exit_error, double lp, 
 	}
 }
 
-void move(std::vector<double> target, double max, double exit_error, MoveFlags flags) {
+void move(std::vector<double> target, double max, double exit_error,
+          MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
 
