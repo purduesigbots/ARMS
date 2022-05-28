@@ -23,16 +23,16 @@ ARMS is a [PROS](https://pros.cs.purdue.edu/) library that makes writing autonom
 
 ## Quick start guide 
 ### Initializing & configuring ARMS 
-The file `ARMS/config.h` contains all the macros necessary to configure ARMS for your robot. There are many different macros to adjust to fine tune ARMS for your robot. Here are some examples:
+The file `ARMS/config.h` contains all the macros necessary to configure ARMS. There are many different macros to fine tune ARMS for your robot. Here are some examples:
 
-* `LEFT_MOTORS` - a list of motors used for the left wheels of the chassis
-* `RIGHT_MOTORS` - a list of motors used for the right wheels of the chassis
-* `GEAR_SET`	- The gear-set that the motors for the chassis use
+* `LEFT_MOTORS` - A list of motors used for the left wheels of the chassis.
+* `RIGHT_MOTORS` - A list of motors used for the right wheels of the chassis.
+* `GEAR_SET`	- The gear-set that the motors of the chassis uses.
 * `DISTANCE_CONSTANT` - Used to tune how far the robot travels for a given unit of distance. We tune this so that the robot travels 12 inches accurately.
-* `DEGREE_CONSTANT` - Used to tune how far the robot turns for a given unit of distance. We tune this so that the robot turns 90° accurately
-* `*_KP`, `*_KI`, `*_KD` - tunes the PID constants for linear, angular, or tracking movement.
+* `DEGREE_CONSTANT` - Used to tune how far the robot turns for a given unit of distance. We tune this so that the robot turns 90° accurately.
+* `*_KP`, `*_KI`, `*_KD` - Tunes the PID constants for linear, angular, or tracking movement.
 
-After modifying `ARMS/config.h`, recompile and upload your project and the changes will take effect. 
+After modifying `ARMS/config.h`, recompile and upload your project to your robot, then the changes will take effect. 
 To initialize arms, simply call `arms::init()` within the initialization section of your PROS project. This will initialize ARMS with the constants defined in `ARMS/config.h`
 ```cpp
 void initialize() {
@@ -41,16 +41,16 @@ void initialize() {
 ```
 ### Subsystems of ARMS
 * Chassis (`chassis.h`/`chassis.cpp`) - The API and code to control the robots movement
-* Odom (`odom.h`/`odom.cpp`) - The API and code to track the robots position.
+* Odom (`odom.h`/`odom.cpp`) - The API and code to track the robots position
 * Pid (`pid.h`/`pid.cpp`) - The API and code handling ARMS' PID controller
 
 These subsystems interact with each other to allow the robot to move accurately.
 
 ### Movement Guide
-After configuring ARMS, the chassis subsystem allows the user to tell the robot how to move. There are two functions used to control the movement of a robot:
+After configuring ARMS, the chassis subsystem allows the user to tell the robot how to move. There are two functions that are used to control most of the robot's movements:
 ```cpp 
-chassis::move(target, max, exit_error, lp, ap, flags);
-chassis::turn(target, max, exit_error, ap, flags);
+chassis::move(target, max, exit_error, lp, ap, flags)
+chassis::turn(target, max, exit_error, ap, flags)
 ```
 
 In both `move()` and `turn()`, only the `target` parameter is required. The other arguments are optionally used to fine tune the movement to use constants other than those specified in `ARMS/config.h`:
@@ -58,7 +58,7 @@ In both `move()` and `turn()`, only the `target` parameter is required. The othe
 * exit_error - Controls the distance from the target that is considered for completing the movement.
 * lp - The linear P constant to use for this movement's PID control. This is only applicable to the `move()` function.
 * ap - The angular P constant to use for this movement's PID control.
-* flags - Flags used to modify how the movement is carried out.
+* flags - Flags used to modify how the movement is carried out. See the _Movement Flags_ section bellow. 
 
 In `turn()`,  the target is an angle in degrees; however, `move()` has 3 variations for the target parameter:
 * `move(12.0, ...)` - Moves the robot forward by the specified amount. In this case, 12 inches forward.
@@ -67,10 +67,10 @@ In `turn()`,  the target is an angle in degrees; however, `move()` has 3 variati
 
 #### Movement Flags:
 By default, movement in ARMS is relative to where the robots position was last reset, performed using the PID controller, and blocks the calling function until the movement is finished. These behaviors can be changed by passing various flags to the movement functions:
-* ASYNC - Runs the movement without blocking the calling code. This is useful if you want the robot to move while performing another non-movement action, such as raising a lift or closing a claw. Calling `chassis::waitUntilFinished()` after an asynchronous movement will block until the movement is finished.
-* THRU - Runs the movement without using the PID controller. This 
+* ASYNC - Runs the movement without blocking the calling code. This is useful if you want the robot to move while performing another non-movement action, such as raising a lift or closing a claw. Calling `chassis::waitUntilFinished()` after an asynchronous movement will then block until the movement is finished.
+* THRU - Runs the movement without using the PID controller. This is useful if you want the robot to run at full speed for the entire movement. 
 * RELATIVE - Performs the movement relative to the current position of the robot, rather than where the origin was last reset.
-* REVERSE - Reverses the heading of the robot when moving. This is used to have the robot back up to a point rather than turn and then move to it. 
+* REVERSE - Reverses the heading of the robot when moving. This is used to have the robot back up to a point rather than turn first, then move to it. 
 
 These flags can  combined with the `|` operation. For example:
 ```cpp
