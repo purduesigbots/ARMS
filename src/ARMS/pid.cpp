@@ -74,8 +74,8 @@ std::array<double, 2> translational() {
 		// pose movement
 		double h = odom::getDistanceError(pointTarget);
 		double at = angularTarget * M_PI / 180.0;
-		carrotPoint = {pointTarget.x - h * sin(at) * leadPct,
-		               pointTarget.y - h * cos(at) * leadPct};
+		carrotPoint = {pointTarget.x - h * cos(at) * leadPct,
+		               pointTarget.y - h * sin(at) * leadPct};
 	}
 
 	// get current error
