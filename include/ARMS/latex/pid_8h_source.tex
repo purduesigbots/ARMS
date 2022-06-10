@@ -1,0 +1,51 @@
+\hypertarget{pid_8h_source}{}\doxysection{pid.\+h}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_ARMS\_PID\_H\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define \_ARMS\_PID\_H\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <array>}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }arms::pid \{}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{comment}{// pid mode enums}}
+\DoxyCodeLine{9 \textcolor{keyword}{extern} \textcolor{keywordtype}{int} mode;}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#define DISABLE 0}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#define TRANSLATIONAL 1}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{\#define ANGULAR 2}}
+\DoxyCodeLine{13 }
+\DoxyCodeLine{14 \textcolor{comment}{// pid constants}}
+\DoxyCodeLine{15 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} linearKP;}
+\DoxyCodeLine{16 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} linearKI;}
+\DoxyCodeLine{17 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} linearKD;}
+\DoxyCodeLine{18 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} angularKP;}
+\DoxyCodeLine{19 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} angularKI;}
+\DoxyCodeLine{20 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} angularKD;}
+\DoxyCodeLine{21 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} trackingKP;}
+\DoxyCodeLine{22 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} minError;}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 \textcolor{comment}{// integral}}
+\DoxyCodeLine{25 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} in\_lin;}
+\DoxyCodeLine{26 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} in\_ang;}
+\DoxyCodeLine{27 }
+\DoxyCodeLine{28 \textcolor{comment}{// targets}}
+\DoxyCodeLine{29 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} angularTarget;}
+\DoxyCodeLine{30 \textcolor{keyword}{extern} Point pointTarget;}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32 \textcolor{comment}{// flags}}
+\DoxyCodeLine{33 \textcolor{keyword}{extern} \textcolor{keywordtype}{bool} thru;}
+\DoxyCodeLine{34 \textcolor{keyword}{extern} \textcolor{keywordtype}{bool} reverse;}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \textcolor{comment}{// pid functions}}
+\DoxyCodeLine{37 std::array<double, 2> translational();}
+\DoxyCodeLine{38 std::array<double, 2> angular();}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{comment}{// initializer}}
+\DoxyCodeLine{41 \textcolor{keywordtype}{void} init(\textcolor{keywordtype}{double} linearKP, \textcolor{keywordtype}{double} linearKI, \textcolor{keywordtype}{double} linearKD, \textcolor{keywordtype}{double} angularKP,}
+\DoxyCodeLine{42           \textcolor{keywordtype}{double} angularKI, \textcolor{keywordtype}{double} angularKD, \textcolor{keywordtype}{double} trackingKP, \textcolor{keywordtype}{double} minError);}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44 \} \textcolor{comment}{// namespace arms::pid}}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,69 @@
+\hypertarget{chassis_8h_source}{}\doxysection{chassis.\+h}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_ARMS\_CHASSIS\_H\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define \_ARMS\_CHASSIS\_H\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include "{}ARMS/flags.h"{}}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}ARMS/point.h"{}}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include "{}okapi/api.hpp"{}}}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{keyword}{namespace }arms::chassis \{}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} maxSpeed;}
+\DoxyCodeLine{11 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} leftPrev;}
+\DoxyCodeLine{12 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} rightPrev;}
+\DoxyCodeLine{13 \textcolor{keyword}{extern} \textcolor{keywordtype}{double} slew\_step;}
+\DoxyCodeLine{14 \textcolor{keyword}{extern} std::shared\_ptr<okapi::MotorGroup> leftMotors;}
+\DoxyCodeLine{15 \textcolor{keyword}{extern} std::shared\_ptr<okapi::MotorGroup> rightMotors;}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{20 \textcolor{keywordtype}{void} motorMove(std::shared\_ptr<okapi::MotorGroup> motor, \textcolor{keywordtype}{double} speed,}
+\DoxyCodeLine{21                \textcolor{keywordtype}{bool} vel);}
+\DoxyCodeLine{22 }
+\DoxyCodeLine{26 \textcolor{keywordtype}{void} setBrakeMode(okapi::AbstractMotor::brakeMode b);}
+\DoxyCodeLine{27 }
+\DoxyCodeLine{31 \textcolor{keywordtype}{void} resetAngle(\textcolor{keywordtype}{double} angle = 0);}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{36 \textcolor{keywordtype}{double} limitSpeed(\textcolor{keywordtype}{double} speed, \textcolor{keywordtype}{double} max);}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{41 \textcolor{keywordtype}{double} slew(\textcolor{keywordtype}{double} speed, \textcolor{keywordtype}{double} step, \textcolor{keywordtype}{double} prev);}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{46 \textcolor{keywordtype}{bool} settled();}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{51 \textcolor{keywordtype}{void} waitUntilFinished(\textcolor{keywordtype}{double} exit\_error);}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{56 \textcolor{keywordtype}{void} move(Point target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error,}
+\DoxyCodeLine{57           \textcolor{keywordtype}{double} lp, \textcolor{keywordtype}{double} ap, MoveFlags = NONE);}
+\DoxyCodeLine{58 \textcolor{keywordtype}{void} move(Point target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error,}
+\DoxyCodeLine{59           MoveFlags = NONE);}
+\DoxyCodeLine{60 \textcolor{keywordtype}{void} move(Point target, \textcolor{keywordtype}{double} max, MoveFlags = NONE);}
+\DoxyCodeLine{61 \textcolor{keywordtype}{void} move(Point target, MoveFlags = NONE);}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{66 \textcolor{keywordtype}{void} turn(\textcolor{keywordtype}{double} target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error, \textcolor{keywordtype}{double} ap,}
+\DoxyCodeLine{67           MoveFlags = NONE);}
+\DoxyCodeLine{68 \textcolor{keywordtype}{void} turn(\textcolor{keywordtype}{double} target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error, MoveFlags = NONE);}
+\DoxyCodeLine{69 \textcolor{keywordtype}{void} turn(\textcolor{keywordtype}{double} target, \textcolor{keywordtype}{double} max, MoveFlags = NONE);}
+\DoxyCodeLine{70 \textcolor{keywordtype}{void} turn(\textcolor{keywordtype}{double} target, MoveFlags = NONE);}
+\DoxyCodeLine{71 }
+\DoxyCodeLine{75 \textcolor{keywordtype}{void} turn(Point target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error, \textcolor{keywordtype}{double} ap,}
+\DoxyCodeLine{76           MoveFlags = NONE);}
+\DoxyCodeLine{77 \textcolor{keywordtype}{void} turn(Point target, \textcolor{keywordtype}{double} max, \textcolor{keywordtype}{double} exit\_error, MoveFlags = NONE);}
+\DoxyCodeLine{78 \textcolor{keywordtype}{void} turn(Point target, \textcolor{keywordtype}{double} max, MoveFlags = NONE);}
+\DoxyCodeLine{79 \textcolor{keywordtype}{void} turn(Point target, MoveFlags = NONE);}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{84 \textcolor{keywordtype}{void} tank(\textcolor{keywordtype}{double} left, \textcolor{keywordtype}{double} right, \textcolor{keywordtype}{bool} velocity = \textcolor{keyword}{false});}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{89 \textcolor{keywordtype}{void} arcade(\textcolor{keywordtype}{double} vertical, \textcolor{keywordtype}{double} horizontal, \textcolor{keywordtype}{bool} velocity = \textcolor{keyword}{false});}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{94 \textcolor{keywordtype}{void} init(std::initializer\_list<okapi::Motor> leftMotors,}
+\DoxyCodeLine{95           std::initializer\_list<okapi::Motor> rightMotors, \textcolor{keywordtype}{int} gearset,}
+\DoxyCodeLine{96           \textcolor{keywordtype}{double} distance\_constant, \textcolor{keywordtype}{double} degree\_constant, \textcolor{keywordtype}{double} slew\_step,}
+\DoxyCodeLine{97           \textcolor{keywordtype}{double} linear\_exit\_error, \textcolor{keywordtype}{double} angular\_exit\_error, }
+\DoxyCodeLine{98           \textcolor{keywordtype}{double} settle\_thresh\_linear, \textcolor{keywordtype}{double} settle\_thresh\_angular,}
+\DoxyCodeLine{99           \textcolor{keywordtype}{int} settle\_time);}
+\DoxyCodeLine{100 }
+\DoxyCodeLine{101 \} \textcolor{comment}{// namespace arms::chassis}}
+\DoxyCodeLine{102 }
+\DoxyCodeLine{103 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

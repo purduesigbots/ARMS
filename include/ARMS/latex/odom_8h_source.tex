@@ -1,0 +1,39 @@
+\hypertarget{odom_8h_source}{}\doxysection{odom.\+h}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_ARMS\_ODOM\_H\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define \_ARMS\_ODOM\_H\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include "{}ARMS/point.h"{}}}
+\DoxyCodeLine{5 }
+\DoxyCodeLine{6 \textcolor{keyword}{namespace }arms::odom \{}
+\DoxyCodeLine{7 }
+\DoxyCodeLine{8 \textcolor{keyword}{enum} EncoderType \{ ENCODER\_ADI, ENCODER\_ROTATION \};}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{comment}{// sensors}}
+\DoxyCodeLine{11 \textcolor{keyword}{extern} std::shared\_ptr<okapi::ContinuousRotarySensor> leftEncoder;}
+\DoxyCodeLine{12 \textcolor{keyword}{extern} std::shared\_ptr<okapi::ContinuousRotarySensor> rightEncoder;}
+\DoxyCodeLine{13 \textcolor{keyword}{extern} std::shared\_ptr<okapi::ContinuousRotarySensor> middleEncoder;}
+\DoxyCodeLine{14 \textcolor{keyword}{extern} std::shared\_ptr<pros::Imu> imu;}
+\DoxyCodeLine{15 }
+\DoxyCodeLine{19 Point getPosition();}
+\DoxyCodeLine{20 }
+\DoxyCodeLine{24 \textcolor{keywordtype}{double} getHeading(\textcolor{keywordtype}{bool} radians = \textcolor{keyword}{false});}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{29 \textcolor{keywordtype}{void} reset(Point point = \{0, 0\});}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{34 \textcolor{keywordtype}{void} reset(Point point, \textcolor{keywordtype}{double} angle);}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{39 \textcolor{keywordtype}{double} getAngleError(Point point);}
+\DoxyCodeLine{40 }
+\DoxyCodeLine{44 \textcolor{keywordtype}{double} getDistanceError(Point point);}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{49 \textcolor{keywordtype}{void} init(\textcolor{keywordtype}{bool} debug, \textcolor{keywordtype}{int} encoderType, std::array<int, 3> encoderPorts,}
+\DoxyCodeLine{50           \textcolor{keywordtype}{int} expanderPort, \textcolor{keywordtype}{int} imuPort, \textcolor{keywordtype}{double} left\_right\_distance,}
+\DoxyCodeLine{51           \textcolor{keywordtype}{double} middle\_distance, \textcolor{keywordtype}{double} left\_right\_tpi, \textcolor{keywordtype}{double} middle\_tpi);}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53 \} \textcolor{comment}{// namespace arms::odom}}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}
