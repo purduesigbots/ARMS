@@ -2,6 +2,11 @@
 *.o
 *.obj
 
+# Doxygen stuff
+*.html
+*.idx
+*.tex
+
 # Executables
 *.bin
 *.elf

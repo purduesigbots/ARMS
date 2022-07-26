@@ -5,6 +5,13 @@
 #include "ARMS/point.h"
 #include "okapi/api.hpp"
 
+/*!
+
+    * @brief The chassis subsystem.
+    *
+    * @details This namespace stores all functions and motors used
+    * to control the chassis.
+    */
 namespace arms::chassis {
 
 extern double maxSpeed;
