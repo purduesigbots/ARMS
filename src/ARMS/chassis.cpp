@@ -9,10 +9,6 @@ namespace arms::chassis {
 std::shared_ptr<okapi::MotorGroup> leftMotors;
 std::shared_ptr<okapi::MotorGroup> rightMotors;
 
-// distance constants
-double distance_constant; // ticks per inch
-double degree_constant;   // ticks per degree
-
 // slew control (autonomous only)
 double slew_step; // smaller number = more slew
 
@@ -286,14 +282,11 @@ int chassisTask() {
 // initialization
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error,
+          double slew_step, double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time) {
 
 	// assign constants
-	chassis::distance_constant = distance_constant;
-	chassis::degree_constant = degree_constant;
 	chassis::slew_step = slew_step;
 	chassis::linear_exit_error = linear_exit_error;
 	chassis::angular_exit_error = angular_exit_error;
