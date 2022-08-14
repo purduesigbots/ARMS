@@ -16,7 +16,7 @@ namespace arms {
 
 // Unit constants
 #define TICKS_PER_DEGREE 1    // Encoder ticks per degree of robot turning (should be 1 if using an IMU)
-#define TICKS_PER_INCH 1      // Encoder ticks per inch of robot movment for the left and right wheels
+#define TICKS_PER_INCH 1      // Encoder ticks per inch of robot movement for the left and right wheels
 #define MIDDLE_TPI 1          // Ticks per inch for the middle wheel
 
 // Tracking wheel distances
