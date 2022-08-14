@@ -15,20 +15,19 @@ namespace arms {
 #define GEARSET 200 // RPM of chassis motors
 
 // Unit constants
-#define DISTANCE_CONSTANT 1 // Ticks per distance unit
-#define DEGREE_CONSTANT 1   // Ticks per degree (should be 1 if using an IMU)
+#define TICKS_PER_DEGREE 1    // Encoder ticks per degree of robot turning (should be 1 if using an IMU)
+#define TICKS_PER_INCH 1      // Encoder ticks per inch of robot movment for the left and right wheels
+#define MIDDLE_TPI 1          // Ticks per inch for the middle wheel
+
+// Tracking wheel distances
+#define LEFT_RIGHT_DISTANCE 0 // Half the distance between left and right tracking wheels
+#define MIDDLE_DISTANCE 0     // Distance from middle wheel to the robot turning center
 
 // Sensors
 #define IMU_PORT 0                           // Port 0 for disabled
 #define ENCODER_PORTS 0, 0, 0                // Port 0 for disabled,
 #define EXPANDER_PORT 0                      // Port 0 for disabled
 #define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
-
-// Odometry
-#define LEFT_RIGHT_DISTANCE 0 // Half the distance between left and right tracking wheels
-#define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
-#define LEFT_RIGHT_TPI 1      // Ticks per inch of left and right wheels
-#define MIDDLE_TPI 1          // Ticks per inch of middle wheel
 
 // Movement tuning
 #define SLEW_STEP 8          // Smaller number = more slew
@@ -54,12 +53,12 @@ namespace arms {
 // Initializer
 inline void init() {
 
-	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
-	              DEGREE_CONSTANT, SLEW_STEP, LINEAR_EXIT_ERROR,
+	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, TICKS_PER_INCH,
+	              TICKS_PER_DEGREE, SLEW_STEP, LINEAR_EXIT_ERROR,
 	              ANGULAR_EXIT_ERROR, SETTLE_THRESH_LINEAR, SETTLE_THRESH_ANGULAR, SETTLE_TIME);
 
 	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
-	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, LEFT_RIGHT_TPI,
+	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, TICKS_PER_INCH,
 	           MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
