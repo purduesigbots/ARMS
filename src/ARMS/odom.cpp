@@ -13,9 +13,10 @@ std::shared_ptr<pros::Imu> imu;
 bool debug;
 
 // tracker wheel configuration
+double track_width;
 double left_right_distance;
 double middle_distance;
-double left_right_tpi;
+double tpi;
 double middle_tpi;
 
 // odom position values
@@ -42,8 +43,8 @@ int odomTask() {
 		double middle_pos = middleEncoder ? middleEncoder->get() : 0;
 
 		// calculate change in each encoder
-		double delta_left = (left_pos - prev_left_pos) / left_right_tpi;
-		double delta_right = (right_pos - prev_right_pos) / left_right_tpi;
+		double delta_left = (left_pos - prev_left_pos) / tpi;
+		double delta_right = (right_pos - prev_right_pos) / tpi;
 		double delta_middle =
 		    middleEncoder ? (middle_pos - prev_middle_pos) / middle_tpi : 0;
 
@@ -53,7 +54,7 @@ int odomTask() {
 			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
-			delta_angle = (delta_right - delta_left) / (left_right_distance * 2);
+			delta_angle = (delta_right - delta_left) / track_width;
 
 			heading += delta_angle;
 		}
@@ -155,12 +156,13 @@ std::shared_ptr<okapi::ContinuousRotarySensor> initEncoder(int p1, int exp,
 }
 
 void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
-          int expanderPort, int imuPort, double left_right_distance,
-          double middle_distance, double left_right_tpi, double middle_tpi) {
+          int expanderPort, int imuPort, double track_width,
+          double middle_distance, double tpi, double middle_tpi) {
 	odom::debug = debug;
-	odom::left_right_distance = left_right_distance;
+	odom::track_width = track_width;
+	odom::left_right_distance = track_width / 2;
 	odom::middle_distance = middle_distance;
-	odom::left_right_tpi = left_right_tpi;
+	odom::tpi = tpi;
 	odom::middle_tpi = middle_tpi;
 
 	// encoders

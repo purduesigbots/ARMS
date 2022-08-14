@@ -47,8 +47,8 @@ double getDistanceError(Point point);
  * Initialize the odometry
  */
 void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
-          int expanderPort, int imuPort, double left_right_distance,
-          double middle_distance, double left_right_tpi, double middle_tpi);
+          int expanderPort, int imuPort, double track_width,
+          double middle_distance, double tpi, double middle_tpi);
 
 } // namespace arms::odom
 
