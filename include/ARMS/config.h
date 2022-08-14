@@ -25,8 +25,9 @@ namespace arms {
 #define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
 
 // Odometry
-#define LEFT_RIGHT_DISTANCE 0 // Distance between left and right tracking wheels
+#define LEFT_RIGHT_DISTANCE 0 // Half the distance between left and right tracking wheels
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to turning center
+#define LEFT_RIGHT_TPI 1      // Ticks per inch of left and right wheels
 #define MIDDLE_TPI 1          // Ticks per inch of middle wheel
 
 // Movement tuning
@@ -58,7 +59,7 @@ inline void init() {
 	              ANGULAR_EXIT_ERROR, SETTLE_THRESH_LINEAR, SETTLE_THRESH_ANGULAR, SETTLE_TIME);
 
 	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
-	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
+	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, LEFT_RIGHT_TPI,
 	           MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
