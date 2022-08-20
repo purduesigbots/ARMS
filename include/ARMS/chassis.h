@@ -100,8 +100,7 @@ void arcade(double vertical, double horizontal, bool velocity = false);
  */
 void init(std::initializer_list<okapi::Motor> leftMotors,
           std::initializer_list<okapi::Motor> rightMotors, int gearset,
-          double distance_constant, double degree_constant, double slew_step,
-          double linear_exit_error, double angular_exit_error, 
+          double slew_step, double linear_exit_error, double angular_exit_error, 
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time);
 

@@ -62,10 +62,10 @@ namespace arms {
 /*!
  * @brief Right chassis motors
  *
- * @param ports the motor ports on the right side of the chassis
  * 
- * <b> Example 1: </b>
+ * @param ports the motor ports on the right side of the chassis
  * @code
+ * <b> Example 1: </b>
  * // two motors on the right side of the chassis in ports 1 and 2
  * #define RIGHT_MOTORS 1, 2
  * @endcode
@@ -94,42 +94,13 @@ namespace arms {
  * @details Sets the robot's chassis gearset to \a rpm.
  */
 #define GEARSET rpm // RPM of chassis motors
+// Ticks per inch
+#define TPI 1      			  // Encoder ticks per inch of forward robot movement
+#define MIDDLE_TPI 1          // Ticks per inch for the middle wheel
 
-/*!
- * @brief Distance Constant
- *
- * @param dist the robot's distance constant
- * 
- * <b>Example 1:</b>
- * @code
- * //use 60 encoder ticks per unit
- * #define DISTANCE_CONSTANT 60
- * @endcode
- *
- * @details Sets the robot's distance constant to \a dist.
- */
-#define DISTANCE_CONSTANT dist // Ticks per distance unit
-
-// Unit constants
-/*!
- * @brief Degree Constant
- *
- * @param deg the robot's degree constant 
- * 
- * <b>Example 1:</b>
- * @code
- * //using an IMU for robot's heading
- * #define DEGREE_CONSTANT 1
- * @endcode
- * <b>Example 2:</b>
- * @code
- * //use 15 encoder ticks per degree
- * #define DEGREE_CONSTANT 15
- * @endcode
- *
- * @details Sets the robot's degree constant to \a deg.
- */
-#define DEGREE_CONSTANT deg   // Ticks per degree (should be 1 if using an IMU)
+// Tracking wheel distances
+#define TRACK_WIDTH 0 		  // The distance between left and right wheels (or tracker wheels)
+#define MIDDLE_DISTANCE 0     // Distance from middle wheel to the robot turning center
 
 // Sensors
 /*!
@@ -222,57 +193,6 @@ namespace arms {
  * This influences what the valid values for \ref ENCODER_PORTS are.
  */
 #define ENCODER_TYPE type // The type of encoders
-
-// Odometry
-
-/*!
- *
- * @brief Left Right Distance
- *
- * @param dist the distance between the left and right tracking wheels
- *
- * <b>Example 1:</b>
- * @code
- * //using a distance of 10 inches between the left and right tracking wheels
- * #define LEFT_RIGHT_DISTANCE 10
- * @endcode
- *
- * @details Sets the distance between the left and right tracking wheels to \a dist. Should be set to 0 if only using 1 tracker wheel
- */
-#define LEFT_RIGHT_DISTANCE dist // Distance between left and right tracking wheels
-
-/*!
- *
- * @brief Middle Distance
- *
- * @param dist the distance between the middle tracking wheel and the turning center of the chassis
- *
- * <b>Example 1:</b>
- * @code
- * //using a distance of 7 inches between the middle tracking wheel and the turning center of the chassis
- * #define MIDDLE_DISTANCE 7
- * @endcode
- *
- * @details Sets the distance between the middle tracking wheel and the turning center of the chassis to \a dist. Should be set to 0 if not using a middle tracker wheel.
- */
-#define MIDDLE_DISTANCE dist     // Distance from middle wheel to turning center
-
-/*!
- *
- * @brief Middle TPI
- *
- * @param tpi the ticks per inch of the middle encoder wheel
- *
- * <b>Example 1:</b>
- * @code
- * //using a TPI of 100
- * #define MIDDLE_TPI 100
- * @endcode
- *
-* @details Sets the TPI of the middle encoder wheel.
-*/
-#define MIDDLE_TPI tpi          // Ticks per inch of middle wheel
-
 // Movement tuning
 /*!
  *
@@ -556,12 +476,11 @@ namespace arms {
  */
 inline void init() {
 
-	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, DISTANCE_CONSTANT,
-	              DEGREE_CONSTANT, SLEW_STEP, LINEAR_EXIT_ERROR,
+	chassis::init({LEFT_MOTORS}, {RIGHT_MOTORS}, GEARSET, SLEW_STEP, LINEAR_EXIT_ERROR,
 	              ANGULAR_EXIT_ERROR, SETTLE_THRESH_LINEAR, SETTLE_THRESH_ANGULAR, SETTLE_TIME);
 
 	odom::init(ODOM_DEBUG, ENCODER_TYPE, {ENCODER_PORTS}, EXPANDER_PORT, IMU_PORT,
-	           LEFT_RIGHT_DISTANCE, MIDDLE_DISTANCE, DISTANCE_CONSTANT,
+	           TRACK_WIDTH, MIDDLE_DISTANCE, TPI,
 	           MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
