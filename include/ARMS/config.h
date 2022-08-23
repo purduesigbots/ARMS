@@ -14,6 +14,7 @@ namespace arms {
  * including the motors, the sensors, and constants.
  * This is also where you will setup autonomous selector.</B>
  *
+ * <B>YOU NEED TO REPLACE ALL OF THESE VALUES WITH THE CORRECT VALUES FOR YOUR ROBOT.</B>
  */
 
 // Debug
@@ -35,7 +36,7 @@ namespace arms {
  *
  * @details Enable/disable odometry debugging messages being sent to the terminal. This can be useful when trying to troubleshoot chassis movements.
  */
-#define ODOM_DEBUG db
+#define ODOM_DEBUG 0
 
 // Negative numbers mean reversed motor
 /*!
@@ -57,7 +58,7 @@ namespace arms {
  * 
  * @details Comma seperated ports that the chassis's left motors are in. Negative values reverse the motor on that port.
  */
-#define LEFT_MOTORS ports
+#define LEFT_MOTORS 0
 
 /*!
  * @brief Right chassis motors
@@ -78,7 +79,7 @@ namespace arms {
  * 
  * @details Comma seperated ports that the chassis's right motors are in. Negative values reverse the motor on that port.
  */
-#define RIGHT_MOTORS ports
+#define RIGHT_MOTORS 0
 
 /*!
  * @brief Chassis gearset
@@ -93,13 +94,67 @@ namespace arms {
  *
  * @details Sets the robot's chassis gearset to \a rpm.
  */
-#define GEARSET rpm // RPM of chassis motors
-// Ticks per inch
-#define TPI 1      			  // Encoder ticks per inch of forward robot movement
-#define MIDDLE_TPI 1          // Ticks per inch for the middle wheel
+#define GEARSET 0 // RPM of chassis motors
+
+/*!
+ * @brief Ticks per Inch
+ *
+ * @param tpi the number of encoder ticks per inch of forward robot movement.
+ * 
+ * <b>Example 1:</b>
+ * @code
+ * //using a tpi of 10.
+ * #define TPI 10
+ * @endcode
+ *
+ * @details Sets the number of encoder ticks per inch of forward robot movement to \a tpi.
+ */
+#define TPI 0      			  // Encoder ticks per inch of forward robot movement
+
+/*!
+ * @brief Middle Ticks Per Inch
+ *
+ * @param mtpi encoder ticks per inch of robot movement for the perpendicular middle wheel
+ * 
+ * <b>Example 1:</b>
+ * @code
+ * //using a middle tpi of 10.
+ * #define MIDDLE_TPI
+ * @endcode
+ *
+ * @details Sets the number of middle encoder ticks per inch of perpendicular robot movement to \a tpi.
+ */
+#define MIDDLE_TPI 0          // Ticks per inch for the middle wheel
 
 // Tracking wheel distances
+/*!
+ * @brief Track Width
+ *
+ * @param twidth The track width of the robot (distance between left and right weels)
+ * 
+ * <b>Example 1:</b>
+ * @code
+ * //using a track width of 16 inches.
+ * #define TRACK_WIDTH 16
+ * @endcode
+ *
+ * @details Sets the number of encoder ticks per inch of forward robot movement to \a tpi.
+ */
 #define TRACK_WIDTH 0 		  // The distance between left and right wheels (or tracker wheels)
+
+/*!
+ * @brief Middle Distance
+ *
+ * @param dist the distance between the middle wheel and the center of the robot
+ * 
+ * <b>Example 1:</b>
+ * @code
+ * //using a middle distance of 2 inches.
+ * #define MIDDLE_DISTANCE 2
+ * @endcode
+ *
+ * @details 
+ */
 #define MIDDLE_DISTANCE 0     // Distance from middle wheel to the robot turning center
 
 // Sensors
@@ -121,7 +176,7 @@ namespace arms {
  *
  * @details Sets the chassis' imu to the sensor in port \a port.
  */
-#define IMU_PORT port                           // Port 0 for disabled
+#define IMU_PORT 0                         // Port 0 for disabled
 
 /*!
  *
@@ -150,7 +205,7 @@ namespace arms {
  * valid smart ports if using the V5 rotation sensor, or odd numbered adi ports if using the optical shaft encoders. This is configured at \ref ENCODER_TYPE
  * If all encoders are disabled, the integrated encoders in the chassis motors will be used.
  */
-#define ENCODER_PORTS left, middle, right    // Port 0 for disabled
+#define ENCODER_PORTS 0, 0, 0    // Port 0 for disabled
 
 /*!
  *
@@ -161,17 +216,17 @@ namespace arms {
  * <b>Example 1:</b>
  * @code
  * //using an ADI expander in port 1
- * #define ADI_PORT 1
+ * #define EXPANDER_PORT 1
  * @endcode
  * <b>Example 2:</b>
  * @code
  * //don't use an ADI expander
- * #define ADI_PORT 0
+ * #define EXPANDER_PORT 0
  * @endcode
  *
  * @details Uses the expander port in port \a port for the encoder's configured at \ref ENCODER_PORTS.
  */
-#define EXPANDER_PORT port                     // Port 0 for disabled
+#define EXPANDER_PORT 0                     // Port 0 for disabled
 
 /*!
  * @brief Encoder Type
@@ -192,7 +247,7 @@ namespace arms {
  * @details Which type of vex encoder is being used on the chassis. Using a mixture of encoder types is not currently supported.
  * This influences what the valid values for \ref ENCODER_PORTS are.
  */
-#define ENCODER_TYPE type // The type of encoders
+#define ENCODER_TYPE 0 // The type of encoders
 // Movement tuning
 /*!
  *
@@ -208,7 +263,7 @@ namespace arms {
  *
  * @details Sets the slew step to \a step. A smaller value results more slew.
  */
-#define SLEW_STEP step         // Encoder ticks to move at each step
+#define SLEW_STEP 0         // Encoder ticks to move at each step
 
 /*!
  * 
@@ -224,7 +279,7 @@ namespace arms {
  *
  * @details Sets the error to use when exiting linear movement to \a error.
  */
-#define LINEAR_EXIT_ERROR error // Error to use when exiting linear movement
+#define LINEAR_EXIT_ERROR 0 // Error to use when exiting linear movement
 
 /*!
  *
@@ -240,7 +295,7 @@ namespace arms {
  *
  * @details Sets the error to use when exiting angular movement to \a error.
  */
-#define ANGULAR_EXIT_ERROR error // default exit distance for angular movements
+#define ANGULAR_EXIT_ERROR 0 // default exit distance for angular movements
 
 /*!
  * 
@@ -251,13 +306,13 @@ namespace arms {
  * <b>Example 1:</b>
  * @code
  * //using a threshold of 1 units
- * #define LINEAR_SETTLE_THRESHOLD 1
+ * #define SETTLE_THRESH_LINEAR 1
  * @endcode
  *
  * @details Sets the threshold to use when settling linear movement to \a threshold. The robot is considered settled if
  * it does not move this many units within the duration of \ref SETTLE_TIME.
  */
-#define SETTLE_THRESH_LINEAR .5      // amount of linear movement for settling
+#define SETTLE_THRESH_LINEAR 0      // amount of linear movement for settling
 
 /*!
  * 
@@ -268,13 +323,13 @@ namespace arms {
  * <b>Example 1:</b>
  * @code
  * //using a threshold of 1 units
- * #define ANGULAR_SETTLE_THRESHOLD 1
+ * #define SETTLE_THRESH_ANGULAR 1
  * @endcode
  *
  * @details Sets the threshold to use when settling angular movement to \a threshold. The robot is considered settled if
  * it does not move this many units within the duration of \ref SETTLE_TIME.
  */
-#define SETTLE_THRESH_ANGULAR 1      // amount of angular movement for settling
+#define SETTLE_THRESH_ANGULAR 0     // amount of angular movement for settling
 
 /*!
  * 
@@ -292,7 +347,7 @@ namespace arms {
  * A high settle time may make movements take too long to complete, where as a low settle time may cause 
  * the robot to exit its movement prematurely.
  */
-#define SETTLE_TIME time      // amount of time to count as settled
+#define SETTLE_TIME 0      // amount of time to count as settled
 
 /*!
  *
@@ -308,7 +363,7 @@ namespace arms {
  *
  * @details Sets the proportional constant for the linear motion PID controller to \a kp.
  */
-#define LINEAR_KP kp
+#define LINEAR_KP 0
 
 /*!
  *
@@ -324,7 +379,7 @@ namespace arms {
  *
  * @details Sets the integral constant for the linear motion PID controller to \a ki.
  */
-#define LINEAR_KI ki
+#define LINEAR_KI 0
 
  /*!
  *
@@ -340,10 +395,23 @@ namespace arms {
  *
  * @details Sets the derivative constant for the linear motion PID controller to \a kd.
  */
-#define LINEAR_KD kd
+#define LINEAR_KD 0
 
-
-#define TRACKING_KP 60		 // point tracking turning strength
+/*!
+ *
+ * @brief Tracking kP
+ *
+ * @param trackkp the proportional constant for turning strength during point to point movements
+ *
+ * <b>Example 1:</b>
+ * @code
+ * //using a Tracking kP of 60
+ * #define TRACKING_KP 60
+ * @endcode
+ *
+ * @details sets the proportional constant for turning strength during point to point movements to \a trackkp
+ */
+#define TRACKING_KP 0		 // point tracking turning strength
 
 /*!
  *
@@ -359,7 +427,7 @@ namespace arms {
  *
  * @details Sets the proportional constant for the angular motion PID controller to \a kp.
  */
-#define ANGULAR_KP kp
+#define ANGULAR_KP 0
 
  /*!
  *
@@ -375,7 +443,7 @@ namespace arms {
  *
  * @details Sets the integral constant for the angular motion PID controller to \a ki.
  */
-#define ANGULAR_KI ki
+#define ANGULAR_KI 0
 
  /*!
  *
@@ -391,7 +459,7 @@ namespace arms {
  *
  * @details Sets the derivative constant for the angular motion PID controller to \a kd.
  */
-#define ANGULAR_KD kd
+#define ANGULAR_KD 0
 
 /*!
  *
@@ -407,7 +475,7 @@ namespace arms {
  *
  * @details Sets the minimum error for the robot to be considered at the target position to \a error.
  */
-#define MIN_ERROR error
+#define MIN_ERROR 0
 
 // Auton selector configuration constants
 /*!
@@ -419,32 +487,30 @@ namespace arms {
  * <b>Example 1:</b>
  * @code
  * //using the autons "left", "middle", "right", and "nothing"
- * #define AUTON_NAMES "left", "middle", "right", "nothing", ""
+ * #define AUTONS "left", "middle", "right", "nothing"
  * @endcode
  *
  * @details Sets the auton names to run. The names should be seprated by commas. The maximum number of autons is 10.
  * This is part of the autonomous selector configuration. More details can be found at \ref selector.h
  */
 
-#define AUTONS auton_names // Names of autonomous routines, up to 10
+#define AUTONS 0 // Names of autonomous routines, up to 10
 
 /*!
  *
  * @brief Autonomous Selctor Hue
  *
- * @param hue the names of your autonomous routines.
- *
+ * @param hue the hue of your autonomous selector
  * <b>Example 1:</b>
  * @code
- * //using the autons "left", "middle", "right", and "nothing"
- * #define AUTON_NAMES "left", "middle", "right", "nothing", ""
+ * //using a hue of 60 (yellow)
+ * #define HUE 0
  * @endcode
  *
- * @details Sets the auton names to run. The names should be seprated by commas. The maximum number of autons is 10.
- * YOU MUST PUT AN EMPTY STRING AT THE END OF THE LIST.
+ * @details S
  * This is part of the autonomous selector configuration. More details can be found at \ref selector.h
  */
-#define HUE hue     // Color of theme from 0-359(H part of HSV)
+#define HUE 0     // Color of theme from 0-359(H part of HSV)
 
 /*!
  *
@@ -460,7 +526,7 @@ namespace arms {
  *
  * @details Sets the default auton to run. This is part of the autonomous selector configuration. More details can be found at \ref selector.h
  */
-#define DEFAULT index // Default auton selected
+#define DEFAULT 0 // Default auton selected
 
 // Initializer
 /*!
