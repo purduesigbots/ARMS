@@ -5,7 +5,7 @@ namespace arms::pid {
 
 int mode = DISABLE;
 
-// pid constants
+// constants
 double linearKP;
 double angularKP;
 double linearKI;
@@ -14,6 +14,7 @@ double angularKI;
 double angularKD;
 double trackingKP;
 double minError;
+double leadPct;
 
 // integral
 double in_lin;
@@ -61,9 +62,25 @@ std::array<double, 2> translational() {
 	static double pe_lin = 0;
 	static double pe_ang = 0;
 
+	// an angular target > 360 indicates no desired final pose angle
+	bool noPose = (angularTarget > 360);
+
+	// Determine target point
+	Point carrotPoint; // chasing the carrot
+	if (noPose) {
+		// point movement
+		carrotPoint = pointTarget;
+	} else {
+		// pose movement
+		double h = odom::getDistanceError(pointTarget);
+		double at = angularTarget * M_PI / 180.0;
+		carrotPoint = {pointTarget.x - h * cos(at) * leadPct,
+		               pointTarget.y - h * sin(at) * leadPct};
+	}
+
 	// get current error
-	double lin_error = odom::getDistanceError(pointTarget);
-	double ang_error = odom::getAngleError(pointTarget);
+	double lin_error = odom::getDistanceError(carrotPoint);
+	double ang_error = odom::getAngleError(carrotPoint);
 
 	// check for default kp
 	if (linearKP == -1)
@@ -71,38 +88,51 @@ std::array<double, 2> translational() {
 	if (trackingKP == -1)
 		trackingKP = defaultTrackingKP;
 
-	// calculate speeds with PID
-	double lin_speed =
-	    pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
-
-	double ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
-
-	// disable PID for thru movement
+	// calculate linear speed
+	double lin_speed;
 	if (thru)
-		lin_speed = chassis::maxSpeed;
+		lin_speed = chassis::maxSpeed; // disable PID for thru movement
+	else
+		lin_speed = pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
 	// cap linear speed
 	if (lin_speed > 100)
 		lin_speed = 100;
 
-	// overturn
-	double overturn = fabs(ang_speed) + lin_speed - 100;
-	if (overturn > 0)
-		lin_speed -= overturn;
-
 	// apply direction
 	if (reverse)
 		lin_speed = -lin_speed;
 
-	// prevent spinning around the point
+	// calculate angular speed
+	double ang_speed;
 	if (lin_error < minError) {
-		ang_speed = 0;
+		if (noPose) {
+			ang_speed =
+			    0; // disable turning when close to the point to prevent spinning
+		} else {
+			// turn to face the finale pose angle if executing a pose movement
+			double poseError = angularTarget - odom::getHeading();
+			while (fabs(poseError) > M_PI)
+				poseError -= 2 * M_PI * poseError / fabs(poseError);
+			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, 0, 0);
+		}
+
+		// reduce the linear speed if the bot is tangent to the target
 		lin_speed *= cos(ang_error);
+
+		// reverse on overshoot
 		if (fabs(ang_error) > M_PI_2) {
 			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 			lin_speed = -lin_speed;
 		}
+	} else {
+		ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
 	}
+
+	// overturn
+	double overturn = fabs(ang_speed) + lin_speed - 100;
+	if (overturn > 0)
+		lin_speed -= overturn;
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
@@ -125,7 +155,7 @@ std::array<double, 2> angular() {
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
           double angularKI, double angularKD, double trackingKP,
-          double minError) {
+          double minError, double leadPct) {
 
 	pid::defaultLinearKP = linearKP;
 	pid::linearKI = linearKI;
@@ -135,6 +165,7 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::angularKD = angularKD;
 	pid::defaultTrackingKP = trackingKP;
 	pid::minError = minError;
+	pid::leadPct = leadPct;
 }
 
 } // namespace arms::pid

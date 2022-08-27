@@ -43,6 +43,7 @@ namespace arms {
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
 #define MIN_ERROR 5          // Minimum distance to target before angular componenet is disabled
+#define LEAD_PCT .6			 // Go-to-pose lead distance ratio (0-1)
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
@@ -59,7 +60,7 @@ inline void init() {
 	           TRACK_WIDTH, MIDDLE_DISTANCE, TPI,
 	           MIDDLE_TPI);
 
-	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
+	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR, LEAD_PCT);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
