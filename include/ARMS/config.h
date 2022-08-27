@@ -460,7 +460,23 @@ namespace arms {
  * @details Sets the derivative constant for the angular motion PID controller to \a kd.
  */
 #define ANGULAR_KD 0
-#define LEAD_PCT .6			 // Go-to-pose lead distance ratio (0-1)
+
+/*!
+ *
+ * @brief Lead Percent
+ *
+ * @param pct the lead percent to use for go to pose movements (boomerang controller)
+ *
+ * <b>Example 1:</b>
+ * @code
+ * //using a pct of 0.3
+ * #define LEAD_PCT 0.3
+ * @endcode
+ *
+ * @details Sets the lead percent to use for go to pose movements to \a pct.
+ * In theory, lower percents will be more linear movements, while higher percents will be more curvy.
+ */
+#define LEAD_PCT 0			 // Go-to-pose lead distance ratio (0-1)
 
 /*!
  *
