@@ -115,6 +115,14 @@ void waitUntilFinished(double exit_error) {
 		       !settled()) {
 			pros::delay(10);
 		}
+
+		// if doing a pose movement, make sure we are at the target theta
+		if(pid::angularTarget == 361) {
+			while (fabs(odom::getHeading() - pid::angularTarget) > exit_error &&
+		       !settled())
+			pros::delay(10);
+		}
+		
 		break;
 	case ANGULAR:
 		while (fabs(odom::getHeading() - pid::angularTarget) > exit_error &&
@@ -150,6 +158,7 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 	pid::trackingKP = ap;
 	pid::thru = (flags & THRU);
 	pid::reverse = (flags & REVERSE);
+	pid::canReverse = false;
 
 	// reset the integrals
 	pid::in_lin = 0;

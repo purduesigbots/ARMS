@@ -33,6 +33,8 @@ bool thru;
 double angularTarget = 0;
 Point pointTarget{0, 0};
 
+bool canReverse;
+
 double pid(double error, double* pe, double* in, double kp, double ki,
            double kd) {
 
@@ -79,7 +81,7 @@ std::array<double, 2> translational() {
 	}
 
 	// get current error
-	double lin_error = odom::getDistanceError(carrotPoint);
+	double lin_error = odom::getDistanceError(pointTarget);
 	double ang_error = odom::getAngleError(carrotPoint);
 
 	// check for default kp
@@ -106,12 +108,14 @@ std::array<double, 2> translational() {
 	// calculate angular speed
 	double ang_speed;
 	if (lin_error < minError) {
+		canReverse = true;
+
 		if (noPose) {
 			ang_speed =
 			    0; // disable turning when close to the point to prevent spinning
 		} else {
 			// turn to face the finale pose angle if executing a pose movement
-			double poseError = angularTarget - odom::getHeading();
+			double poseError = (angularTarget * M_PI / 180) - odom::getHeading(true);
 			while (fabs(poseError) > M_PI)
 				poseError -= 2 * M_PI * poseError / fabs(poseError);
 			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, 0, 0);
@@ -120,12 +124,13 @@ std::array<double, 2> translational() {
 		// reduce the linear speed if the bot is tangent to the target
 		lin_speed *= cos(ang_error);
 
+	} else {
 		// reverse on overshoot
-		if (fabs(ang_error) > M_PI_2) {
+		if (fabs(ang_error) > M_PI_2 && canReverse) {
 			ang_error = ang_error - (ang_error / fabs(ang_error)) * M_PI;
 			lin_speed = -lin_speed;
 		}
-	} else {
+
 		ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, 0);
 	}
 
