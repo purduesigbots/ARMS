@@ -8,37 +8,13 @@
 namespace arms::chassis {
 
 extern double maxSpeed;
-extern double leftPrev;
-extern double rightPrev;
-extern double slew_step;
 extern std::shared_ptr<okapi::MotorGroup> leftMotors;
 extern std::shared_ptr<okapi::MotorGroup> rightMotors;
-
-/**
- * Set the speed of target motor
- */
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
-               bool vel);
 
 /**
  * Set the brake mode for all chassis motors
  */
 void setBrakeMode(okapi::AbstractMotor::brakeMode b);
-
-/**
- * Reset imu if it is being used
- */
-void resetAngle(double angle = 0);
-
-/**
- * Reduce an input speed if it exceeds the max value
- */
-double limitSpeed(double speed, double max);
-
-/**
- * Get a gradually accelerating speed towards the target input
- */
-double slew(double speed, double step, double prev);
 
 /**
  * Return true of the chassis is not moving
