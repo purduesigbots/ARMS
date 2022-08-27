@@ -125,19 +125,25 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
-// 2D point-to-point movement
-void move(Point target, double max, double exit_error, double lp, double ap,
-          MoveFlags flags) {
+// 2D movement
+void move(std::vector<double> target, double max, double exit_error, double lp,
+          double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
+
+	double x = target.at(0);
+	double y = target.at(1);
+	double theta =
+	    target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
 	if (flags & RELATIVE) {
 		Point p = odom::getPosition();     // robot position
 		double h = odom::getHeading(true); // robot heading in radians
-		target.x = p.x + target.x * cos(h) - target.y * sin(h);
-		target.y = p.y + target.x * sin(h) + target.y * cos(h);
+		x = p.x + x * cos(h) - y * sin(h);
+		y = p.y + x * sin(h) + y * cos(h);
 	}
 
-	pid::pointTarget = target;
+	pid::pointTarget = Point{x, y};
+	pid::angularTarget = theta;
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -157,15 +163,16 @@ void move(Point target, double max, double exit_error, double lp, double ap,
 	}
 }
 
-void move(Point target, double max, double exit_error, MoveFlags flags) {
+void move(std::vector<double> target, double max, double exit_error,
+          MoveFlags flags) {
 	move(target, max, exit_error, -1, -1, flags);
 }
 
-void move(Point target, double max, MoveFlags flags) {
+void move(std::vector<double> target, double max, MoveFlags flags) {
 	move(target, max, linear_exit_error, -1, -1, flags);
 }
 
-void move(Point target, MoveFlags flags) {
+void move(std::vector<double> target, MoveFlags flags) {
 	move(target, 100, linear_exit_error, -1, -1, flags);
 }
 

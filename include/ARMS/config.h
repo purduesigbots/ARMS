@@ -460,6 +460,7 @@ namespace arms {
  * @details Sets the derivative constant for the angular motion PID controller to \a kd.
  */
 #define ANGULAR_KD 0
+#define LEAD_PCT .6			 // Go-to-pose lead distance ratio (0-1)
 
 /*!
  *
@@ -549,7 +550,7 @@ inline void init() {
 	           TRACK_WIDTH, MIDDLE_DISTANCE, TPI,
 	           MIDDLE_TPI);
 
-	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR);
+	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD, TRACKING_KP, MIN_ERROR, LEAD_PCT);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);
