@@ -5,12 +5,19 @@
 
 namespace arms::odom {
 
-enum EncoderType { ENCODER_ADI, ENCODER_ROTATION };
+typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
+
+// Odom Configuration
+typedef struct config_data_s {
+	int expanderPort = 0;
+    int rightEncoderPort = 0;
+    int leftEncoderPort = 0;
+	int middleEncoderPort = 0;
+    int imuPort = 0;
+    EncoderType_e_t encoderType;
+} config_data_s_t;
 
 // sensors
-extern std::shared_ptr<okapi::ContinuousRotarySensor> leftEncoder;
-extern std::shared_ptr<okapi::ContinuousRotarySensor> rightEncoder;
-extern std::shared_ptr<okapi::ContinuousRotarySensor> middleEncoder;
 extern std::shared_ptr<pros::Imu> imu;
 
 /**
@@ -47,7 +54,7 @@ double getDistanceError(Point point);
  * Initialize the odometry
  */
 void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
-          int expanderPort, int imuPort, double track_width,
+          EncoderType_e_t expanderPort, int imuPort, double track_width,
           double middle_distance, double tpi, double middle_tpi);
 
 } // namespace arms::odom

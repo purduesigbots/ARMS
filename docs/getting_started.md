@@ -37,7 +37,7 @@ This example uses the values from a pros::controller object, but okapi controlle
 
 ### Hold Mode
 Some drivers prefer their drive motors be set to hold mode. This prevents the robot from being pushed around as much and generally reduces the effects of defense.  
-To achieve this effect, call the function `chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::hold);` at the top of your opcontrol function.
+To achieve this effect, call the function `chassis::setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);` at the top of your opcontrol function.
 
 ## Basic Autonomous Movement
 After the drive motors have been configured, autonomous control of the robot is possible. Two integral functions for autonomous movement are `chassis::move()` and `chassis::turn()`. `chassis::move()` takes a distance parameter, positive or negative, corresponding to forward or backward movement. `chassis::turn()` takes an angle parameter, positive corresponding to a right turn and negative to a left turn.  

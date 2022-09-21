@@ -1,13 +1,14 @@
 #include "ARMS/lib.h"
 #include "api.h"
+#include "pros/motors.h"
 
 #include <tuple>
 
 namespace arms::chassis {
 
 // chassis motors
-std::shared_ptr<okapi::MotorGroup> leftMotors;
-std::shared_ptr<okapi::MotorGroup> rightMotors;
+std::shared_ptr<pros::Motor_Group> leftMotors;
+std::shared_ptr<pros::Motor_Group> rightMotors;
 
 // slew control (autonomous only)
 double slew_step; // smaller number = more slew
@@ -30,12 +31,12 @@ double rightDriveSpeed = 0;
 
 /**************************************************/
 // motor control
-void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
+void motorMove(std::shared_ptr<pros::Motor_Group> motor, double speed,
                bool velocity) {
 	if (velocity)
-		motor->moveVelocity(speed * (double)motor->getGearing() / 100);
+		motor->move_velocity(speed * (double)motor->get_gearing()[0] / 100);
 	else
-		motor->moveVoltage(speed * 120);
+		motor->move_voltage(speed * 120);
 
 	if (motor == leftMotors)
 		leftPrev = speed;
@@ -43,9 +44,9 @@ void motorMove(std::shared_ptr<okapi::MotorGroup> motor, double speed,
 		rightPrev = speed;
 }
 
-void setBrakeMode(okapi::AbstractMotor::brakeMode b) {
-	leftMotors->setBrakeMode(b);
-	rightMotors->setBrakeMode(b);
+void setBrakeMode(pros::motor_brake_mode_e_t b) {
+	leftMotors->set_brake_modes((pros::motor_brake_mode_e_t)b);
+	rightMotors->set_brake_modes((pros::motor_brake_mode_e_t)b);
 	motorMove(leftMotors, 0, true);
 	motorMove(rightMotors, 0, true);
 }
@@ -170,7 +171,7 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
 		if (!(flags & THRU))
-			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+			chassis::setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
 	}
 }
 
@@ -231,7 +232,7 @@ void turn(double target, double max, double exit_error, double ap,
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
 		if (!(flags & THRU))
-			chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::brake);
+			chassis::setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
 	}
 }
 
@@ -298,8 +299,8 @@ int chassisTask() {
 
 /**************************************************/
 // initialization
-void init(std::initializer_list<okapi::Motor> leftMotors,
-          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+void init(std::initializer_list<pros::Motor> leftMotors,
+          std::initializer_list<pros::Motor> rightMotors, pros::motor_gearset_e_t gearset,
           double slew_step, double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time) {
@@ -313,10 +314,10 @@ void init(std::initializer_list<okapi::Motor> leftMotors,
 	chassis::settle_time = settle_time;
 
 	// configure chassis motors
-	chassis::leftMotors = std::make_shared<okapi::MotorGroup>(leftMotors);
-	chassis::rightMotors = std::make_shared<okapi::MotorGroup>(rightMotors);
-	chassis::leftMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
-	chassis::rightMotors->setGearing((okapi::AbstractMotor::gearset)gearset);
+	chassis::leftMotors = std::make_shared<pros::Motor_Group>(leftMotors);
+	chassis::rightMotors = std::make_shared<pros::Motor_Group>(rightMotors);
+	chassis::leftMotors->set_gearing(gearset);
+	chassis::rightMotors->set_gearing(gearset);
 
 	pros::Task chassis_task(chassisTask);
 }
