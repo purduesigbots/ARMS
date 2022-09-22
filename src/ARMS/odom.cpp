@@ -205,28 +205,29 @@ void init(bool debug, EncoderType_e_t encoderType,
 	case ENCODER_ADI:
 		if (expanderPort == 0) {
 			leftADIEncoder = std::make_shared<pros::ADIEncoder>(
-			    abs(configData.leftEncoderPort), abs(configData.leftEncoderPort + 1));
+			abs(configData.leftEncoderPort), 
+			abs(configData.leftEncoderPort + 1));
 			rightADIEncoder = std::make_shared<pros::ADIEncoder>(
-			    abs(configData.rightEncoderPort),
-			    abs(configData.rightEncoderPort + 1));
+			abs(configData.rightEncoderPort),
+			abs(configData.rightEncoderPort + 1));
 			if (configData.middleEncoderPort != 0)
 				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
-				    abs(configData.middleEncoderPort),
-				    abs(configData.middleEncoderPort + 1));
+			abs(configData.middleEncoderPort),
+			abs(configData.middleEncoderPort + 1));
 		} else {
 			leftADIEncoder =
 			    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
-			        {expanderPort, abs(configData.leftEncoderPort),
-			         abs(configData.leftEncoderPort + 1)}));
+			{expanderPort, abs(configData.leftEncoderPort),
+				abs(configData.leftEncoderPort + 1)}));
 			rightADIEncoder =
 			    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
-			        {expanderPort, abs(configData.rightEncoderPort),
-			         abs(configData.rightEncoderPort + 1)}));
+			{expanderPort, abs(configData.rightEncoderPort),
+				abs(configData.rightEncoderPort + 1)}));
 			if (configData.middleEncoderPort != 0)
 				middleADIEncoder =
 				    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
-				        {expanderPort, abs(configData.middleEncoderPort),
-				         abs(configData.middleEncoderPort + 1)}));
+			{expanderPort, abs(configData.middleEncoderPort),
+			abs(configData.middleEncoderPort + 1)}));
 		}
 		break;
 	case ENCODER_ROTATION:
@@ -236,7 +237,7 @@ void init(bool debug, EncoderType_e_t encoderType,
 		    configData.rightEncoderPort, configData.rightEncoderPort < 0);
 		if (configData.middleEncoderPort != 0)
 			middleRotation = std::make_shared<pros::Rotation>(
-			    configData.middleEncoderPort, configData.middleEncoderPort < 0);
+			configData.middleEncoderPort, configData.middleEncoderPort < 0);
 		break;
 	default:
 		break;
