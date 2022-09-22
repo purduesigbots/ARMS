@@ -10,7 +10,7 @@ std::shared_ptr<pros::Imu> imu = nullptr;
 std::shared_ptr<pros::Rotation> rightRotation = nullptr;
 std::shared_ptr<pros::Rotation> leftRotation = nullptr;
 std::shared_ptr<pros::Rotation> middleRotation = nullptr;
-std::shared_ptr<pros::ADIEncoder> rightADIEncoder = nullptr; 
+std::shared_ptr<pros::ADIEncoder> rightADIEncoder = nullptr;
 std::shared_ptr<pros::ADIEncoder> leftADIEncoder = nullptr;
 std::shared_ptr<pros::ADIEncoder> middleADIEncoder = nullptr;
 
@@ -34,27 +34,23 @@ double prev_right_pos = 0;
 double prev_middle_pos = 0;
 double prev_heading = 0;
 
-double getLeftEncoder () {
+double getLeftEncoder() {
 	if (configData.encoderType == ENCODER_ADI && leftADIEncoder != nullptr) {
 		return leftADIEncoder->get_value();
-	} 
-	else if (leftRotation != nullptr) {
+	} else if (leftRotation != nullptr) {
 		return leftRotation->get_position();
-	}
-	else if(chassis::leftMotors) {
+	} else if (chassis::leftMotors) {
 		return chassis::leftMotors->get_positions()[0];
 	}
 	return 0;
 }
 
-double getRightEncoder () {
+double getRightEncoder() {
 	if (configData.encoderType == ENCODER_ADI && rightADIEncoder != nullptr) {
 		return rightADIEncoder->get_value();
-	} 
-	else if (rightRotation != nullptr) {
+	} else if (rightRotation != nullptr) {
 		return rightRotation->get_position();
-	}
-	else if(chassis::rightMotors) {
+	} else if (chassis::rightMotors) {
 		return chassis::rightMotors->get_positions()[0];
 	}
 	return 0;
@@ -63,8 +59,7 @@ double getRightEncoder () {
 double getMiddleEncoder() {
 	if (configData.encoderType == ENCODER_ADI && rightADIEncoder != nullptr) {
 		return middleADIEncoder->get_value();
-	} 
-	else if (rightRotation != nullptr) {
+	} else if (rightRotation != nullptr) {
 		return middleRotation->get_position();
 	}
 	return 0;
@@ -85,8 +80,9 @@ int odomTask() {
 		// calculate change in each encoder
 		double delta_left = (left_pos - prev_left_pos) / tpi;
 		double delta_right = (right_pos - prev_right_pos) / tpi;
-		double delta_middle =
-		    configData.middleEncoderPort ? (middle_pos - prev_middle_pos) / middle_tpi : 0;
+		double delta_middle = configData.middleEncoderPort
+		                          ? (middle_pos - prev_middle_pos) / middle_tpi
+		                          : 0;
 
 		// calculate new heading
 		double delta_angle;
@@ -140,7 +136,8 @@ void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	if(imu) imu->set_rotation(-angle);
+	if (imu)
+		imu->set_rotation(-angle);
 }
 
 Point getPosition() {
@@ -184,15 +181,16 @@ double getDistanceError(Point point) {
 	return sqrt(x * x + y * y);
 }
 
-void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
-          int expanderPort, int imuPort, double track_width,
-          double middle_distance, double tpi, double middle_tpi) {
+void init(bool debug, EncoderType_e_t encoderType,
+          std::array<int, 3> encoderPorts, int expanderPort, int imuPort,
+          double track_width, double middle_distance, double tpi,
+          double middle_tpi) {
 	odom::debug = debug;
 	odom::track_width = track_width;
 	odom::left_right_distance = track_width / 2;
 	odom::middle_distance = middle_distance;
 	odom::tpi = tpi;
-	odom::middle_tpi = middle_tpi;	
+	odom::middle_tpi = middle_tpi;
 
 	pros::Task odom_task(odomTask);
 
@@ -203,40 +201,45 @@ void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPor
 	configData.encoderType = encoderType;
 
 	// Initialize devices
-	switch(encoderType) {
-		case ENCODER_ADI:
-			if(expanderPort == 0) {
-				leftADIEncoder = std::make_shared<pros::ADIEncoder>(abs(configData.leftEncoderPort), 
-																	abs(configData.leftEncoderPort + 1));
-				rightADIEncoder = std::make_shared<pros::ADIEncoder>(abs(configData.rightEncoderPort), 
-																	abs(configData.rightEncoderPort + 1));
-				if(configData.middleEncoderPort != 0) 
-					middleADIEncoder = std::make_shared<pros::ADIEncoder>(abs(configData.middleEncoderPort), 
-																		abs(configData.middleEncoderPort + 1));
-			}  
-			else {
-				leftADIEncoder = std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>({expanderPort,
-																	abs(configData.leftEncoderPort), 
-																	abs(configData.leftEncoderPort + 1)}));
-				rightADIEncoder = std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>({expanderPort,
-																	abs(configData.rightEncoderPort), 
-																	abs(configData.rightEncoderPort + 1)}));	
-				if(configData.middleEncoderPort != 0)
-					middleADIEncoder = std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>({expanderPort,
-																		abs(configData.middleEncoderPort),
-																		abs(configData.middleEncoderPort + 1)}));
-			}
-			break;
-		case ENCODER_ROTATION:
-			leftRotation = std::make_shared<pros::Rotation>(configData.leftEncoderPort, 
-															configData.leftEncoderPort < 0);
-			rightRotation = std::make_shared<pros::Rotation>(configData.rightEncoderPort, 
-															configData.rightEncoderPort < 0);
-			if(configData.middleEncoderPort != 0) 
-				middleRotation = std::make_shared<pros::Rotation>(configData.middleEncoderPort,
-															configData.middleEncoderPort < 0); 
-			break;
-		default: break;
+	switch (encoderType) {
+	case ENCODER_ADI:
+		if (expanderPort == 0) {
+			leftADIEncoder = std::make_shared<pros::ADIEncoder>(
+			    abs(configData.leftEncoderPort), abs(configData.leftEncoderPort + 1));
+			rightADIEncoder = std::make_shared<pros::ADIEncoder>(
+			    abs(configData.rightEncoderPort),
+			    abs(configData.rightEncoderPort + 1));
+			if (configData.middleEncoderPort != 0)
+				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
+				    abs(configData.middleEncoderPort),
+				    abs(configData.middleEncoderPort + 1));
+		} else {
+			leftADIEncoder =
+			    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
+			        {expanderPort, abs(configData.leftEncoderPort),
+			         abs(configData.leftEncoderPort + 1)}));
+			rightADIEncoder =
+			    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
+			        {expanderPort, abs(configData.rightEncoderPort),
+			         abs(configData.rightEncoderPort + 1)}));
+			if (configData.middleEncoderPort != 0)
+				middleADIEncoder =
+				    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
+				        {expanderPort, abs(configData.middleEncoderPort),
+				         abs(configData.middleEncoderPort + 1)}));
+		}
+		break;
+	case ENCODER_ROTATION:
+		leftRotation = std::make_shared<pros::Rotation>(
+		    configData.leftEncoderPort, configData.leftEncoderPort < 0);
+		rightRotation = std::make_shared<pros::Rotation>(
+		    configData.rightEncoderPort, configData.rightEncoderPort < 0);
+		if (configData.middleEncoderPort != 0)
+			middleRotation = std::make_shared<pros::Rotation>(
+			    configData.middleEncoderPort, configData.middleEncoderPort < 0);
+		break;
+	default:
+		break;
 	}
 	// initialize imu
 	if (imuPort != 0) {

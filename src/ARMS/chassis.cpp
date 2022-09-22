@@ -300,11 +300,12 @@ int chassisTask() {
 /**************************************************/
 // initialization
 void init(std::initializer_list<int8_t> leftMotors,
-          std::initializer_list<int8_t> rightMotors, pros::motor_gearset_e_t gearset,
-          double slew_step, double linear_exit_error, double angular_exit_error,
+          std::initializer_list<int8_t> rightMotors,
+          pros::motor_gearset_e_t gearset, double slew_step,
+          double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time) {
-	
+
 	// assign constants
 	chassis::slew_step = slew_step;
 	chassis::linear_exit_error = linear_exit_error;
@@ -314,8 +315,10 @@ void init(std::initializer_list<int8_t> leftMotors,
 	chassis::settle_time = settle_time;
 
 	// configure chassis motors
-	chassis::leftMotors = std::make_shared<pros::Motor_Group>(std::vector<int8_t>(leftMotors));
-	chassis::rightMotors = std::make_shared<pros::Motor_Group>(std::vector<int8_t>(rightMotors));
+	chassis::leftMotors =
+	    std::make_shared<pros::Motor_Group>(std::vector<int8_t>(leftMotors));
+	chassis::rightMotors =
+	    std::make_shared<pros::Motor_Group>(std::vector<int8_t>(rightMotors));
 	chassis::leftMotors->set_gearing(gearset);
 	chassis::rightMotors->set_gearing(gearset);
 
