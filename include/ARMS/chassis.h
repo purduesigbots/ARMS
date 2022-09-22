@@ -3,7 +3,8 @@
 
 #include "ARMS/flags.h"
 #include "ARMS/point.h"
-#include "okapi/api.hpp"
+#include <memory>
+#include "../api.h"
 
 namespace arms::chassis {
 
@@ -77,8 +78,8 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 /**
  * initialize the chassis
  */
-void init(std::initializer_list<pros::Motor> leftMotors,
-          std::initializer_list<pros::Motor> rightMotors, pros::motor_gearset_e_t gearset,
+void init(std::initializer_list<int8_t> leftMotors,
+          std::initializer_list<int8_t> rightMotors, pros::motor_gearset_e_t gearset,
           double slew_step, double linear_exit_error, double angular_exit_error, 
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time);

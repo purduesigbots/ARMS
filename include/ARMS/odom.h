@@ -2,6 +2,7 @@
 #define _ARMS_ODOM_H_
 
 #include "ARMS/point.h"
+#include <memory>
 
 namespace arms::odom {
 
@@ -53,8 +54,8 @@ double getDistanceError(Point point);
 /**
  * Initialize the odometry
  */
-void init(bool debug, int encoderType, std::array<int, 3> encoderPorts,
-          EncoderType_e_t expanderPort, int imuPort, double track_width,
+void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
+          int expanderPort, int imuPort, double track_width,
           double middle_distance, double tpi, double middle_tpi);
 
 } // namespace arms::odom
