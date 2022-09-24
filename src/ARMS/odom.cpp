@@ -209,8 +209,8 @@ void init(bool debug, EncoderType_e_t encoderType,
 					abs(configData.leftEncoderPort), 
 					abs(configData.leftEncoderPort + 1));
 				rightADIEncoder = std::make_shared<pros::ADIEncoder>(
-					abs(configData.rightEncoderPort),
-					abs(configData.rightEncoderPort + 1));
+				    abs(configData.rightEncoderPort),
+				    abs(configData.rightEncoderPort + 1));
 			}
 			if (configData.middleEncoderPort != 0)
 				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
