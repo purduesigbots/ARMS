@@ -207,31 +207,39 @@ void init(bool debug, EncoderType_e_t encoderType,
 			if (configData.leftEncoderPort != 0) {
 				leftADIEncoder = std::make_shared<pros::ADIEncoder>(
 				    abs(configData.leftEncoderPort),
-				    abs(configData.leftEncoderPort + 1));
+				    abs(configData.leftEncoderPort) + 1,
+					configData.leftEncoderPort < 0);
 				rightADIEncoder = std::make_shared<pros::ADIEncoder>(
 				    abs(configData.rightEncoderPort),
-				    abs(configData.rightEncoderPort + 1));
+				    abs(configData.rightEncoderPort) + 1,
+					configData.rightEncoderPort < 0);
 			}
-			if (configData.middleEncoderPort != 0)
+			if (configData.middleEncoderPort != 0) {
 				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
 				    abs(configData.middleEncoderPort),
-				    abs(configData.middleEncoderPort + 1));
+				    abs(configData.middleEncoderPort) + 1,
+					configData.middleEncoderPort < 0);
+			}
 		} else {
 			if (configData.leftEncoderPort != 0) {
 				leftADIEncoder =
 				    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
 				        {expanderPort, abs(configData.leftEncoderPort),
-				         abs(configData.leftEncoderPort + 1)}));
+				         abs(configData.leftEncoderPort) + 1}),
+						 configData.leftEncoderPort < 0);
 				rightADIEncoder =
 				    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
 				        {expanderPort, abs(configData.rightEncoderPort),
-				         abs(configData.rightEncoderPort + 1)}));
+				         abs(configData.rightEncoderPort) + 1}),
+						 configData.rightEncoderPort < 0);
 			}
-			if (configData.middleEncoderPort != 0)
+			if (configData.middleEncoderPort != 0) {
 				middleADIEncoder =
 				    std::make_shared<pros::ADIEncoder>(std::tuple<int, int, int>(
 				        {expanderPort, abs(configData.middleEncoderPort),
-				         abs(configData.middleEncoderPort + 1)}));
+				         abs(configData.middleEncoderPort) + 1}),
+						 configData.middleEncoderPort < 0);
+			}
 		}
 		break;
 	case ENCODER_ROTATION:
