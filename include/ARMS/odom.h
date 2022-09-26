@@ -22,6 +22,21 @@ typedef struct config_data_s {
 extern std::shared_ptr<pros::Imu> imu;
 
 /**
+ * Return the left encoder position
+ */
+double getLeftEncoder();
+
+/**
+ * Return the right encoder position
+ */
+double getRightEncoder();
+
+/**
+ * Return the middle encoder position
+ */
+double getMiddleEncoder();
+
+/**
  * Return the robot position coordinates
  */
 Point getPosition();
