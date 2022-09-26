@@ -57,9 +57,9 @@ double getRightEncoder() {
 }
 
 double getMiddleEncoder() {
-	if (configData.encoderType == ENCODER_ADI && rightADIEncoder != nullptr) {
+	if (configData.encoderType == ENCODER_ADI && middleADIEncoder != nullptr) {
 		return middleADIEncoder->get_value();
-	} else if (rightRotation != nullptr) {
+	} else if (middleRotation != nullptr) {
 		return middleRotation->get_position();
 	}
 	return 0;
