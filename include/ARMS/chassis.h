@@ -3,18 +3,19 @@
 
 #include "ARMS/flags.h"
 #include "ARMS/point.h"
-#include "okapi/api.hpp"
+#include <memory>
+#include "../api.h"
 
 namespace arms::chassis {
 
 extern double maxSpeed;
-extern std::shared_ptr<okapi::MotorGroup> leftMotors;
-extern std::shared_ptr<okapi::MotorGroup> rightMotors;
+extern std::shared_ptr<pros::Motor_Group> leftMotors;
+extern std::shared_ptr<pros::Motor_Group> rightMotors;
 
 /**
  * Set the brake mode for all chassis motors
  */
-void setBrakeMode(okapi::AbstractMotor::brakeMode b);
+void setBrakeMode(pros::motor_brake_mode_e_t b);
 
 /**
  * Return true of the chassis is not moving
@@ -77,8 +78,8 @@ void arcade(double vertical, double horizontal, bool velocity = false);
 /**
  * initialize the chassis
  */
-void init(std::initializer_list<okapi::Motor> leftMotors,
-          std::initializer_list<okapi::Motor> rightMotors, int gearset,
+void init(std::initializer_list<int8_t> leftMotors,
+          std::initializer_list<int8_t> rightMotors, pros::motor_gearset_e_t gearset,
           double slew_step, double linear_exit_error, double angular_exit_error, 
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time);

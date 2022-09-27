@@ -2,7 +2,7 @@
 #define _ARMS_CONFIG_H_
 
 #include "ARMS/lib.h"
-#include "okapi/api.hpp"
+
 
 namespace arms {
 
@@ -12,7 +12,7 @@ namespace arms {
 // Negative numbers mean reversed motor
 #define LEFT_MOTORS 1, 2
 #define RIGHT_MOTORS -3, -4
-#define GEARSET 200 // RPM of chassis motors
+#define GEARSET pros::E_MOTOR_GEAR_200 // RPM of chassis motors
 
 // Ticks per inch
 #define TPI 1      			  // Encoder ticks per inch of forward robot movement
