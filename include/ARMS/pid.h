@@ -38,6 +38,13 @@ std::array<double, 2> translational();
 std::array<double, 2> angular();
 
 // initializer
+
+/*!
+    * @fn void init()
+    *
+    * @details Initializes the pid constants.
+    */
+
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
           double angularKI, double angularKD, double trackingKP, double minError, double leadPct);
 

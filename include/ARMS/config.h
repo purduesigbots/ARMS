@@ -184,9 +184,9 @@ namespace arms {
  *
  * @param left the port the left encoder is plugged into. 0 for disabled.
  * 
- * @param middle the port the middle encoder is plugged into. 0 for disabled.
- *
  * @param right the port the right encoder is plugged into. 0 for disabled.
+ *
+ * @param middle the port the middle encoder is plugged into. 0 for disabled.
  *  
  * <b>Example 1:</b>
  * @code

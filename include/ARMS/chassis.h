@@ -31,7 +31,7 @@ extern std::shared_ptr<okapi::MotorGroup> rightMotors;
 void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 
 /*!
-    * @brief Check if the chassis is settled
+    * @fn bool settled()
     *
     * @return True if the chassis is settled, false otherwise
     *   
@@ -48,7 +48,7 @@ void setBrakeMode(okapi::AbstractMotor::brakeMode b);
 bool settled();
 
 /*!
-    * @brief wait for the chassis to finish a movement
+    * @fn void waitUntilFinished(double exit_error)
     *
     * @param exit_error The minimum error from the target point to exit the wait
     *   
@@ -65,7 +65,8 @@ bool settled();
 void waitUntilFinished(double exit_error);
 
 /*!
-    * @brief move the chassis to a target point
+    * @fn void move(std::vector<double> target, double max, double exit_error,
+          double lp, double ap, MoveFlags = NONE)
     *
     * @param target The target point to move to
     * @param max The maximum speed to move at
@@ -76,11 +77,23 @@ void waitUntilFinished(double exit_error);
     *   
     * <b>Example 1:</b>
     * @code
-    * //move the chassis to a point at speed 0.5
-    * chassis::move(Point(0, 0), MoveFlags::speed(0.5));
+    * //move the chassis to coordinate {50, 40} at 100% speed
+    * chassis::move({50, 40}, 100);
     * @endcode
     * 
-    * @details Moves the chassis to a target point. The \a flags parameter can be used to set the speed, relative, and async flags.
+    * <b>Example 2:</b>
+    * @code
+    * //move the chassis to coordinate {30, 72} at 100% backwards
+    * chassis::move({30, 72}, 100, arms::REVERSE);
+    * @endcode
+    * 
+    * @details Moves the chassis to a target point. 
+    * The \a target parameter is a vector of doubles that represents the target distance, point, or pose
+    * The \a max parameter can be used to set the maximum speed of the movement
+    * The \a exit_error parameter can be used to set the minimum error from the target point to exit the movement
+    * The \a lp parameter can be used to set the linear kP for the movement
+    * The \a ap parameter can be used to set the angular kP for the movement
+    * The \a flags parameter can be used to set the flags for the movement, such as \ref MoveFlags::async
     */
 void move(std::vector<double> target, double max, double exit_error,
           double lp, double ap, MoveFlags = NONE);
@@ -100,7 +113,8 @@ void move(std::vector<double> target, double max, MoveFlags = NONE);
     * <b>Example 1:</b>
     * @code
     * //move the chassis to a pose 
-    * chassis::move(Point(0, 0), MoveFlags::speed(0.5));
+    * chassis::move({40, 40, 90}, MoveFlags::speed(0.5));
+    * @endcode
     * 
 void move(std::vector<double> target, MoveFlags = NONE);
 
