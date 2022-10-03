@@ -182,7 +182,7 @@ double getDistanceError(Point point) {
 }
 
 void init(bool debug, EncoderType_e_t encoderType,
-          std::array<int, 3> encoderPorts, int expanderPort, int imuPort,
+          encoder_ports_s_t encoderPorts, int expanderPort, int imuPort,
           double track_width, double middle_distance, double tpi,
           double middle_tpi) {
 	odom::debug = debug;
@@ -195,9 +195,9 @@ void init(bool debug, EncoderType_e_t encoderType,
 	pros::Task odom_task(odomTask);
 
 	configData.expanderPort = expanderPort;
-	configData.leftEncoderPort = encoderPorts[0];
-	configData.rightEncoderPort = encoderPorts[1];
-	configData.middleEncoderPort = encoderPorts[2];
+	configData.leftEncoderPort = encoderPorts.leftEncoderPort;
+	configData.rightEncoderPort = encoderPorts.rightEncoderPort;
+	configData.middleEncoderPort = encoderPorts.middleEncoderPort;
 	configData.encoderType = encoderType;
 
 	// Initialize devices

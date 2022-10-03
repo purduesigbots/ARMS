@@ -8,12 +8,19 @@ namespace arms::odom {
 
 typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
 
-// Odom Configuration
-typedef struct config_data_s {
-	int expanderPort = 0;
+// Port Struct Datatype
+typedef struct encoder_ports_s {
     int rightEncoderPort = 0;
     int leftEncoderPort = 0;
-	int middleEncoderPort = 0;
+    int middleEncoderPort = 0;
+} encoder_ports_s_t;
+
+// Odom Configuration
+typedef struct config_data_s {
+    int expanderPort = 0;
+    int rightEncoderPort = 0; // todo: one day refractor this to use the struct above
+    int leftEncoderPort = 0;
+    int middleEncoderPort = 0;
     int imuPort = 0;
     EncoderType_e_t encoderType;
 } config_data_s_t;
@@ -69,10 +76,9 @@ double getDistanceError(Point point);
 /**
  * Initialize the odometry
  */
-void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
+void init(bool debug, EncoderType_e_t encoderType, encoder_ports_s_t encoderPorts,
           int expanderPort, int imuPort, double track_width,
           double middle_distance, double tpi, double middle_tpi);
-
 } // namespace arms::odom
 
 #endif
