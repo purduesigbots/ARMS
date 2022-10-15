@@ -107,7 +107,7 @@ int odomTask() {
 
 		if (delta_angle) {
 			double i = sin(delta_angle / 2.0) * 2.0;
-			local_x = (delta_right / delta_angle + left_right_distance) * i;
+			local_x = (delta_right / delta_angle - left_right_distance) * i;
 			local_y = (delta_middle / delta_angle + middle_distance) * i;
 		} else {
 			local_x = delta_right;

@@ -118,7 +118,7 @@ void waitUntilFinished(double exit_error) {
 		}
 
 		// if doing a pose movement, make sure we are at the target theta
-		if (pid::angularTarget == 361) {
+		if (pid::angularTarget != 361) {
 			while (fabs(odom::getHeading() - pid::angularTarget) > exit_error &&
 			       !settled())
 				pros::delay(10);
