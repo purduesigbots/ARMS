@@ -147,8 +147,10 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 	if (flags & RELATIVE) {
 		Point p = odom::getPosition();     // robot position
 		double h = odom::getHeading(true); // robot heading in radians
-		x = p.x + x * cos(h) - y * sin(h);
-		y = p.y + x * sin(h) + y * cos(h);
+		double x_new = p.x + x * cos(h) - y * sin(h);
+		double y_new = p.y + x * sin(h) + y * cos(h);
+		x = x_new;
+		y = y_new;
 		if (target.size() == 3)
 			theta += fmod(odom::getHeading(), 360);
 	}
