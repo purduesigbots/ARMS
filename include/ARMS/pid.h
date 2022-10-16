@@ -33,6 +33,8 @@ extern Point pointTarget;
 extern bool thru;
 extern bool reverse;
 
+extern bool canReverse;
+
 // pid functions
 std::array<double, 2> translational();
 std::array<double, 2> angular();

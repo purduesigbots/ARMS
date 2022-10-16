@@ -3,9 +3,8 @@
 
 /// @cond DO_NOT_DOCUMENT
 #include "ARMS/lib.h"
-#include "okapi/api.hpp"
-#include "pid.h"
 /// @endcond
+
 
 namespace arms {
 /*!
@@ -89,12 +88,12 @@ namespace arms {
  * <b>Example 1:</b>
  * @code
  * //using 200 rpm cartridges
- * #define GEARSET 200
+ * #define GEARSET pros::E_MOTOR_GEAR_200
  * @endcode
  *
  * @details Sets the robot's chassis gearset to \a rpm.
  */
-#define GEARSET 0 // RPM of chassis motors
+#define GEARSET pros::E_MOTOR_GEAR_200 // RPM of chassis motors
 
 /*!
  * @brief Ticks per Inch
