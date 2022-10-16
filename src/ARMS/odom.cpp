@@ -117,7 +117,7 @@ int odomTask() {
 		double p = heading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
-		position.x += cos(p) * local_x + sin(p) * local_y;
+		position.x += cos(p) * local_x - sin(p) * local_y;
 		position.y += cos(p) * local_y + sin(p) * local_x;
 
 		if (debug)
