@@ -5,6 +5,7 @@
 #include "ARMS/point.h"
 #include <memory>
 #include "../api.h"
+#include "pros/motors.h"
 
 /*!
     * @namespace arms::chassis
@@ -12,6 +13,11 @@
     * @details This namespace contains all of the functions and variables needed to control the chassis.
 */
 
+/*!
+ * @file chassis.h
+ * @brief This file contains all of the functions and variables needed to control the chassis.
+ * Look through the documentation \ref arms::chassis "here" for more information.
+ */
 namespace arms::chassis {
 
 /*!
@@ -29,7 +35,7 @@ extern std::shared_ptr<pros::Motor_Group> leftMotors;
 extern std::shared_ptr<pros::Motor_Group> rightMotors;
 
 /*!
-    * @fn void setBrakeMode(okapi::AbstractMotor::brakeMode b)
+    * @fn void setBrakeMode(pros::motor_brake_mode_e_t b)
     *
     *  Sets the chassis's brake mode
     *
@@ -38,10 +44,10 @@ extern std::shared_ptr<pros::Motor_Group> rightMotors;
     * <b>Example 1:</b>
     * @code
     * //set the chassis's brake mode to coast
-    * chassis::setBrakeMode(okapi::AbstractMotor::brakeMode::coast);
+    * chassis::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     * @endcode
     * 
-    * @details Sets the chassis's brake mode to a valid \ref okapi::AbstractMotor::brakeMode.
+    * @details Sets the chassis's brake mode to a valid \ref <a href="https://pros.cs.purdue.edu/v5/api/cpp/motors.html#pros-motor-brake-mode-e-t">PROS Brake Mode</a>
     * Options are coast, hold, and brake.
     */
 void setBrakeMode(pros::motor_brake_mode_e_t b);

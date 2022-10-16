@@ -16,7 +16,7 @@
 namespace arms::odom {
 
 /*!
-    * @enum EncoderType
+    * @typedef enum EncoderType_e_t
     * 
     * @details This enum is used to specify the type of encoder used. The options are:
     * ENCODER_ADI or ENCODER_ROTATION
@@ -27,26 +27,26 @@ typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
 
 // Odom Configuration
 /*!
-    * @struct config_data_s
+    * @typedef struct config_data_s
     *
     * @details This struct is used to store the configuration data for the odometry system.
     * 
-    * @var config_data_s_t.expanderPort
+    * @var config_data_s_t::expanderPort
     * The port that the expander is plugged into
     * 
-    * @var config_data_s_t.rightEncoderPort
+    * @var config_data_s_t::rightEncoderPort
     * The port that the right encoder is plugged into
     * 
-    * @var config_data_s_t.leftEncoderPort
+    * @var config_data_s_t::leftEncoderPort
     * The port that the left encoder is plugged into
     * 
-    * @var config_data_s_t.middleEncoderPort
+    * @var config_data_s_t::middleEncoderPort
     * The port that the middle encoder is plugged into
     * 
-    * @var config_data_s_t.imuPort
+    * @var config_data_s_t::imuPort
     * The port that the IMU is plugged into
     * 
-    * @var config_data_s_t.encoderType
+    * @var config_data_s_t::encoderType
     * The type of encoder used. This is used to determine how to read the encoder values
 */
 typedef struct config_data_s {
@@ -94,9 +94,11 @@ double getMiddleEncoder();
 Point getPosition();
 
 /*!
-    * @fn double getHeading()
+    * @fn double getHeading(bool radians = false)
+    *
+    * @param radians If true, the heading will be returned in radians. If false, the heading will be returned in degrees.
     * 
-    * @details Return the robot's heading in degrees
+    * @details Return the robot's heading based in degrees or radians, depending on the \a radians option
 */
 double getHeading(bool radians = false);
 

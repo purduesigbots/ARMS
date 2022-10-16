@@ -9,11 +9,11 @@
 namespace arms {
 /*!
  * @file config.h
- * @brief <B>The ARMS configuration file. This file is where you setup everything about your chassis,
+ * @brief The ARMS configuration file. This file is where you setup everything about your chassis,
  * including the motors, the sensors, and constants.
- * This is also where you will setup autonomous selector.</B>
+ * This is also where you will setup autonomous selector.
  *
- * <B>YOU NEED TO REPLACE ALL OF THESE VALUES WITH THE CORRECT VALUES FOR YOUR ROBOT.</B>
+ * YOU NEED TO REPLACE ALL OF THESE VALUES WITH THE CORRECT VALUES FOR YOUR ROBOT.
  */
 
 // Debug
