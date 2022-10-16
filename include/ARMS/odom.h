@@ -2,13 +2,53 @@
 #define _ARMS_ODOM_H_
 
 #include "ARMS/point.h"
+#include "pros/imu.hpp"
 #include <memory>
 
+/*!
+    * @namespace arms::odom
+    *
+    * @details This namespace deals with the odometry system. 
+    * It is used to track the robot's position on the field.
+    * 
+    * 
+*/
 namespace arms::odom {
 
+/*!
+    * @enum EncoderType
+    * 
+    * @details This enum is used to specify the type of encoder used. The options are:
+    * ENCODER_ADI or ENCODER_ROTATION
+    * 
+    * This is used for setup in \ref arms::config::ENCODER_TYPE
+*/
 typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
 
 // Odom Configuration
+/*!
+    * @struct config_data_s
+    *
+    * @details This struct is used to store the configuration data for the odometry system.
+    * 
+    * @var config_data_s_t.expanderPort
+    * The port that the expander is plugged into
+    * 
+    * @var config_data_s_t.rightEncoderPort
+    * The port that the right encoder is plugged into
+    * 
+    * @var config_data_s_t.leftEncoderPort
+    * The port that the left encoder is plugged into
+    * 
+    * @var config_data_s_t.middleEncoderPort
+    * The port that the middle encoder is plugged into
+    * 
+    * @var config_data_s_t.imuPort
+    * The port that the IMU is plugged into
+    * 
+    * @var config_data_s_t.encoderType
+    * The type of encoder used. This is used to determine how to read the encoder values
+*/
 typedef struct config_data_s {
 	int expanderPort = 0;
     int rightEncoderPort = 0;
@@ -19,59 +59,114 @@ typedef struct config_data_s {
 } config_data_s_t;
 
 // sensors
+/*!
+    * @var std::shared_ptr<pros::Imu> imu
+    * The IMU sensor. This is used by odom to get the robot's heading.
+*/
 extern std::shared_ptr<pros::Imu> imu;
 
-/**
- * Return the left encoder position
- */
+/*!
+    * @fn double getLeftEncoder()
+    * 
+    * @details Return the left encoder position
+*/
 double getLeftEncoder();
 
-/**
- * Return the right encoder position
- */
+/*!
+    * @fn double getRightEncoder()
+    * 
+    * @details Return the right encoder position
+*/
 double getRightEncoder();
 
-/**
- * Return the middle encoder position
- */
+/*!
+    * @fn double getMiddleEncoder()
+    * 
+    * @details Return the middle encoder position
+*/
 double getMiddleEncoder();
 
-/**
- * Return the robot position coordinates
- */
+/*!
+    * @fn Point getPosition()
+    * 
+    * @details Return a \ref Point representing the robot's position on the field
+*/
 Point getPosition();
 
-/**
- * Return the robot heading
- */
+/*!
+    * @fn double getHeading()
+    * 
+    * @details Return the robot's heading in degrees
+*/
 double getHeading(bool radians = false);
 
-/**
- * Reset the robot position to a desired coordinate
- */
+/*!
+    * @fn void reset(Point point = {0, 0})
+    * 
+    * @param point The position to reset the robot to
+    * 
+    * <b>Example:</b>
+    * @code
+    * // reset the robot's position to be at x: 24 inches, y: 0 inches 
+    * arms::odom::reset({24, 0});
+    * @endcode
+    * 
+    * @details Reset the odometry system to the provided position.
+*/
 void reset(Point point = {0, 0});
 
-/**
- * Reset the robot position and heading to desired values
- */
+/*!
+    * @fn void reset(Point point, double angle)
+    *
+    * @param point The position to reset the robot to
+    * 
+    * @param angle The angle to reset the robot to
+    * 
+    * <b>Example:</b>
+    * @code
+    * // reset the robot's position to be at x: 24 inches, y: 0 inches, and angle: 90 degrees
+    * arms::odom::reset({24, 0}, 90);
+    * @endcode
+    * 
+    * @details Reset the odometry system to the provided position and angle.
+*/
 void reset(Point point, double angle);
 
-/**
- * Return the angle between the robots current heading and a point
- */
+/*!
+    * @fn double getAngleError(Point point)
+    *
+    * @param point The point we want to get the angle error of
+    * 
+    * <b>Example:</b>
+    * @code
+    * // get the angle error of the point (24, 0)
+    * double error = arms::odom::getAngleError({24, 0});
+    * @endcode
+    * 
+    * @details Return the angle error between the robot's current heading and the angle to the provided point.
+*/
 double getAngleError(Point point);
 
-/**
- * Return the distance between the robot and a point
- */
+/*!
+    * @fn double getDistanceError(Point point)
+    *
+    * @param point The point we want to get the distance error of
+    * 
+    * <b>Example:</b>
+    * @code
+    * // get the distance error of the point (24, 0)
+    * double error = arms::odom::getDistanceError({24, 0});
+    * @endcode
+    *   
+    * @details Return the distance error between the robot's current position and the provided point.
+*/
 double getDistanceError(Point point);
 
-/**
- * Initialize the odometry
- */
+/// @cond DO_NOT_DOCUMENT
 void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
           int expanderPort, int imuPort, double track_width,
           double middle_distance, double tpi, double middle_tpi);
+/// @endcond
 
 } // namespace arms::odom
 

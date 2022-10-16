@@ -64,8 +64,9 @@ namespace arms {
  *
  * 
  * @param ports the motor ports on the right side of the chassis
- * @code
+ * 
  * <b> Example 1: </b>
+ * @code
  * // two motors on the right side of the chassis in ports 1 and 2
  * #define RIGHT_MOTORS 1, 2
  * @endcode
@@ -198,9 +199,9 @@ namespace arms {
  * #define ENCODER_PORTS 1, 3, 5
  * @endcode
  *
- * @details Sets up the 1-3 encoders being used on the bot. At least 1 encoder parrallel to the chassis must be used for odometry to work.
- * If either left or right encoder is set to 0, an IMU must also be used. An encoder perpindicular to the chassis (middle) should be used if the robot
- * is expected to be pushed sideways. Negative values reverse the direction of the encoder. A value of 0 disables the encoder. The values should be 
+ * @details Sets up the 1-3 encoders being used on the bot. 
+ * An \ref IMU_PORT should be set if you do not use all 3 encoders. An encoder perpindicular to the chassis (middle) should be used if the robot
+ * is expected to be pushed sideways. Negative values reverse the direction of the encoder. A value of 0 disables the encoder and uses the integrated motor encoders instead. The values should be 
  * valid smart ports if using the V5 rotation sensor, or odd numbered adi ports if using the optical shaft encoders. This is configured at \ref ENCODER_TYPE
  * If all encoders are disabled, the integrated encoders in the chassis motors will be used.
  */
@@ -246,7 +247,7 @@ namespace arms {
  * @details Which type of vex encoder is being used on the chassis. Using a mixture of encoder types is not currently supported.
  * This influences what the valid values for \ref ENCODER_PORTS are.
  */
-#define ENCODER_TYPE 0 // The type of encoders
+#define ENCODER_TYPE arms::odom::ENCODER_ADI // The type of encoders
 // Movement tuning
 /*!
  *

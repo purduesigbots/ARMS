@@ -6,9 +6,24 @@
 #include <memory>
 #include "../api.h"
 
+/*!
+    * @namespace arms::chassis
+    *
+    * @details This namespace contains all of the functions and variables needed to control the chassis.
+*/
 
 namespace arms::chassis {
 
+/*!
+    * @var double maxSpeed;
+    * This variable is used to set the maximum speed of the chassis.
+    * 
+    * @var std::shared_ptr<pros::Motor_Group> leftMotors;
+    * This variable is a pointer to a Motor_Group object that contains all of the left motors.
+    * 
+    * @var std::shared_ptr<pros::Motor_Group> rightMotors;
+    * This variable is a pointer to a Motor_Group object that contains all of the right motors.
+*/
 extern double maxSpeed;
 extern std::shared_ptr<pros::Motor_Group> leftMotors;
 extern std::shared_ptr<pros::Motor_Group> rightMotors;
@@ -99,7 +114,7 @@ void waitUntilFinished(double exit_error);
     * @details Moves the chassis to a target point. Almost all parameters are optional. 
     * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
     *
-    * The \a target parameter is a vector of doubles that represents the target point (x, y), or pose (x, y, θ). For a target point, our standard point-point odometry motion is used. For a target pose, our Boomerang controller is used. More information on these can be seen at \ref MotionControl.\n
+    * The \a target parameter is a vector of doubles that represents the target point (x, y), or pose (x, y, theta). For a target point, our standard point-point odometry motion is used. For a target pose, our Boomerang controller is used. More information on these can be seen at \ref MotionControl.\n
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
     * The \a exit_error parameter can be used to set the minimum error from the target point to exit the movement. It will default to what is provided in \ref config.h::MIN_ERROR if not provided.\n
     * The \a lp parameter can be used to set the linear kP for the movement. It will default to what is provided in \ref config.h if not provided.\n
@@ -209,7 +224,7 @@ void move(double target, MoveFlags = NONE);
     * @details Turns the chassis a target angle. Almost all parameters are optional.
     * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
     * 
-    * The \a target parameter is a double that represents the target angle (θ). We use our PID controller to turn to the target angle. More information on this can be seen at \ref MotionControl.\n
+    * The \a target parameter is a double that represents the target angle (theta). We use our PID controller to turn to the target angle. More information on this can be seen at \ref MotionControl.\n
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
     * The \a exit_error parameter can be used to set the minimum error from the target point to exit the movement. It will default to what is provided in \ref config.h::MIN_ERROR if not provided.\n
     * The \a ap parameter can be used to set the angular kP for the movement. It will default to what is provided in \ref config.h if not provided.\n

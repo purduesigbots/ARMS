@@ -6,17 +6,29 @@
 
 namespace arms {
 
-/**
- * This is a helper union that defines a 2d point or vector. It defines a
+/*!
+ * @union Point
+ *
+ * @details This is a helper union that defines a 2d point or vector. It defines a
  * set of operators that can be used to perform vector operations more
  * consisely.
  *
  * A union was chosen to represent the point so that a couple different names
- * can be used to access the same elements. For example:
- *      point.x, point.data[0], and point[0]
- * refer to the same variable.
+ * can be used to access the same elements. For example:\n
+ * point.x, point.data[0], and point[0]\n
+ * all refer to the same variable.
+ * 
+ * @var Point::x
+ * The x coordinate of the point
+ * 
+ * @var Point::y
+ * The y coordinate of the point
+ * 
+ * @var Point::data
+ * An array of the point's coordinates in the form {x, y}
  */
 union Point {
+	/// @cond DO_NOT_DOCUMENT
 	Point operator-() {
 		return {-x, -y};
 	}
@@ -68,13 +80,16 @@ union Point {
 	std::array<double, 2> std() {
 		return {x, y};
 	}
-
+	
 	struct {
 		double x, y;
 	};
 	double data[2];
+	/// @endcond
 };
 
+
+/// @cond DO_NOT_DOCUMENT
 inline Point operator*(double s, const Point& v) {
 	return {s * v.x, s * v.y};
 }
@@ -131,7 +146,7 @@ inline Point normalize(Point& a) {
 inline Point normalize(Point&& a) {
 	return a / length(a);
 }
-
+/// @endcond
 } // namespace arms
 
 #endif //_ARMS_POINT_H_
