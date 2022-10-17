@@ -10,9 +10,9 @@ namespace arms {
 	* There are 4 different flags for this struct, each of which is a boolean value.\n
 	*
 	* The \a ASYNC flag will cause the movement to be asynchronous, meaning that the robot will not wait for the movement to finish before continuing the code.\n
-	* The \a RELATIVE flag will cause the movement to be relative to the robot's current position, instead of global odom coordinates.\n
-	* The \a THRU flag will disable PID control for the movement, causing the robot to move at maximum speed for that movement.\n
-	* The \a REVERSE flag will cause the robot to move towards the movement using it's "back" instead of it's "front". If you tell the robot to move to a point behind it without this flag, it will turn around and move to the point instead of moving backwards.\n 
+	* The \a RELATIVE flag will cause the movement to be relative to the robot's current position, instead of global to where the last odom::reset() call was made\n
+	* The \a THRU flag will disable PID control for the movement, causing the robot to move at maximum speed for the entire movement. This results in slightly less accurate movement, but you get a higher acceleration/deceleration\n
+	* The \a REVERSE flag will cause the robot to move towards the movement using it's "back" instead of it's "front". If you tell the robot to move to a point behind it without this flag, it will turn around and move to the point instead of just moving backwards to it. \n 
 	*
 	* <b>Example 1:</b>
 	* @code

@@ -34,6 +34,8 @@ namespace arms {
  * @endcode
  *
  * @details Enable/disable odometry debugging messages being sent to the terminal. This can be useful when trying to troubleshoot chassis movements.
+ *          Note: Enabling odom debug prints the robot's x, y, and angle to the termal 100 times a second. Make sure to connect to your brain with a
+ *          wire when using this. Connecting wirelessly through the controller will cause values to take dozons of seconds to show up.
  */
 #define ODOM_DEBUG 0
 
@@ -190,12 +192,12 @@ namespace arms {
  *  
  * <b>Example 1:</b>
  * @code
- * //using one parrallel encoder. IMU for heading and not worried about sidways movement
+ * //using one parrallel encoder, IMU for heading, and not worring about sidways movement
  * #define ENCODER_PORTS 1, 0, 0
  * @endcode
  * <b>Example 2:</b>
  * @code
- * //using all three encoders. No IMU for heading, so we will need to get our heading through encoders
+ * //using all three encoders and no IMU for heading. Heading will be calculated using all 3 encoders.
  * #define ENCODER_PORTS 1, 3, 5
  * @endcode
  *
