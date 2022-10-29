@@ -131,4 +131,8 @@ void init(int hue, int default_auton, const char** autons) {
 	pros::Task tabWatcher_task(tabWatcher);
 }
 
+void destroy() {
+	lv_obj_del(tabview);
+}
+
 } // namespace arms::selector
