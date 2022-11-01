@@ -11,7 +11,7 @@ lv_obj_t* tabview;
 lv_obj_t* redBtnm;
 lv_obj_t* blueBtnm;
 
-pros::Task tabWatcher_task = (pros::task_t)NULL;
+pros::task_t tabWatcher_task = (pros::task_t)NULL;
 
 lv_res_t redBtnmAction(lv_obj_t* btnm, const char* txt) {
 	// printf("red button: %s released\n", txt);
@@ -130,7 +130,7 @@ void init(int hue, int default_auton, const char** autons) {
 	lv_obj_align(skillsBtn, NULL, LV_ALIGN_CENTER, 0, 0);
 
 	// start tab watcher
-	tabWatcher_task = pros::Task(tabWatcher);
+	tabWatcher_task = pros::task_t(tabWatcher);
 }
 
 void destroy() {
