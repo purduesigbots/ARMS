@@ -134,9 +134,11 @@ void init(int hue, int default_auton, const char** autons) {
 }
 
 void destroy() {
-	lv_obj_del(tabview);
+	if(tabWatcher_task != (pros::task_t)NULL) {
+		lv_obj_del(tabview);
 
-	tabWatcher_task = (pros::task_t)NULL;
+		tabWatcher_task = (pros::task_t)NULL;
+	}
 }
 
 } // namespace arms::selector
