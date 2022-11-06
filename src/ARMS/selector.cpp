@@ -134,7 +134,7 @@ void init(int hue, int default_auton, const char** autons) {
 }
 
 void destroy() {
-	if(tabWatcher_task != (pros::task_t)NULL) {
+	if (tabWatcher_task != (pros::task_t)NULL) {
 		lv_obj_del(tabview);
 
 		tabWatcher_task = (pros::task_t)NULL;
