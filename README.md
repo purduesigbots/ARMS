@@ -12,13 +12,17 @@ ARMS is a [PROS](https://pros.cs.purdue.edu/) library that makes writing autonom
 
 1. Download the most recent [template](https://github.com/purduesigbots/ARMS/releases)
 
-2. Run this command from terminal `prosv5 c fetch ARMS@1.1.0.zip`
+2. Run this command from terminal `pros c fetch ARMS@3.1.0.zip`
 
 3.  `cd` into your pros project directory in your terminal
 
-4. Apply the library to the project `prosv5 c apply ARMS`
+4. Apply the library to the project `pros c apply ARMS`
 
 5. Put `#include "ARMS/api.h"` in your main.h
+
+6. Put `#include "ARMS/config.h"` in your main.cpp
+
+7. Call `arms::init()` in your initialize()
 
 
 ## Quick start guide 
@@ -74,7 +78,7 @@ By default, movement in ARMS is relative to where the robots position was last r
 
 These flags can  combined with the `|` operation. For example:
 ```cpp
-chassis::move({12, 13}, arms::ASYNC | arms::THRU); 
+chassis::move({12, 13}, ASYNC | THRU); 
 ```
 will move the robot to the coordinate `(12,13)` at full speed and without blocking the auton's code. 
 
@@ -90,8 +94,6 @@ _COMING SOON_
   
 
 ## How to use:
-
-* Place `selector::init();` in `void initazlize(){}` in your main.cpp file.
 
 * Use if statements in `void autonomous() {}` to check which auton is selected, for example:
 
@@ -119,7 +121,7 @@ _COMING SOON_
 
 ## How to customize the selector
 
-All configuration is done from the `autoSelect/selection.h` file.
+All configuration is done from the `ARMS/config.h` file.
 
 ```
 
