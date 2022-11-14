@@ -1,5 +1,6 @@
 #include "ARMS/lib.h"
 #include "api.h"
+#include "pros/rtos.hpp"
 
 namespace arms::odom {
 
@@ -245,13 +246,13 @@ void init(bool debug, EncoderType_e_t encoderType,
 	case ENCODER_ROTATION:
 		if (configData.leftEncoderPort != 0) {
 			leftRotation = std::make_shared<pros::Rotation>(
-			    configData.leftEncoderPort, configData.leftEncoderPort < 0);
+			    abs(configData.leftEncoderPort), configData.leftEncoderPort < 0);
 			rightRotation = std::make_shared<pros::Rotation>(
-			    configData.rightEncoderPort, configData.rightEncoderPort < 0);
+			    abs(configData.rightEncoderPort), configData.rightEncoderPort < 0);
 		}
 		if (configData.middleEncoderPort != 0)
 			middleRotation = std::make_shared<pros::Rotation>(
-			    configData.middleEncoderPort, configData.middleEncoderPort < 0);
+			    abs(configData.middleEncoderPort), configData.middleEncoderPort < 0);
 		break;
 	default:
 		break;
@@ -260,6 +261,7 @@ void init(bool debug, EncoderType_e_t encoderType,
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
 		imu->reset(true);
+		while (imu->is_calibrating()) pros::delay(5);
 	}
 	pros::delay(100);
 	reset();
