@@ -261,7 +261,8 @@ void init(bool debug, EncoderType_e_t encoderType,
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
 		imu->reset(true);
-		while (imu->is_calibrating()) pros::delay(5);
+		while (imu->is_calibrating())
+			pros::delay(5);
 	}
 	pros::delay(100);
 	reset();
