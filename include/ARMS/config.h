@@ -1,7 +1,7 @@
 #ifndef _ARMS_CONFIG_H_
 #define _ARMS_CONFIG_H_
 
-#include "ARMS/lib.h"
+#include "ARMS/api.h"
 
 
 namespace arms {
