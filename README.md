@@ -87,7 +87,7 @@ In depth documentation of configuration, namespaces, and function is located [He
 
 Please note that this documentation is still a work in progress, and updates will be made overtime to provide more information and specifics.
 
-If you want to learn about concepts such as PID and Odometry, please visit [The Purdue SIGBots Wiki](https://wiki.purduesigbots.com/)
+If you want to learn about concepts such as PID and Odometry, please visit [The Purdue SIGBots Wiki](https://wiki.purduesigbots.com/).
 
 # Vex Autonomous Selector
 
