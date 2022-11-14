@@ -7,7 +7,6 @@
 #include "ARMS/api.h"
 #include "api.h"
 
-// subsystems
 using namespace pros;
 
 #ifdef __cplusplus
