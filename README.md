@@ -83,9 +83,9 @@ chassis::move({12, 13}, ASYNC | THRU);
 will move the robot to the coordinate `(12,13)` at full speed and without blocking the auton's code. 
 
 ## In Depth Documentation
-_COMING SOON_
-
-  
+In depth documentation of configuration, namespaces, and function is located [Here](https://purduesigbots.github.io/ARMS-doxygen-docs/)
+Please note that this documentation is still a work in progress, and updates will be made overtime to provide more information and specifics.
+If you want to learn about concepts such as PID and Odometry, please visit [The Purdue SIGBots Wiki](https://wiki.purduesigbots.com/)
 
 # Vex Autonomous Selector
 
