@@ -91,7 +91,7 @@ int odomTask() {
 			heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
-			delta_angle = (delta_right - delta_left) / track_width;
+			delta_angle = (delta_left - delta_right) / track_width;
 
 			heading += delta_angle;
 		}
