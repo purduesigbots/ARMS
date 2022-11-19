@@ -1,5 +1,6 @@
 #include "ARMS/api.h"
 #include "api.h"
+#include "chassis.h"
 
 namespace arms::pid {
 
@@ -98,8 +99,8 @@ std::array<double, 2> translational() {
 		lin_speed = pid(lin_error, &pe_lin, &in_lin, linearKP, linearKI, linearKD);
 
 	// cap linear speed
-	if (lin_speed > 100)
-		lin_speed = 100;
+	if (lin_speed > chassis::maxSpeed)
+		lin_speed = chassis::maxSpeed;
 
 	// apply direction
 	if (reverse)
@@ -135,9 +136,9 @@ std::array<double, 2> translational() {
 	}
 
 	// overturn
-	double overturn = fabs(ang_speed) + lin_speed - 100;
+	double overturn = fabs(ang_speed) + fabs(lin_speed) - chassis::maxSpeed;
 	if (overturn > 0)
-		lin_speed -= overturn;
+		lin_speed -= lin_speed > 0 ? overturn : -overturn;
 
 	// add speeds together
 	double left_speed = lin_speed - ang_speed;
