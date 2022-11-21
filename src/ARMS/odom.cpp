@@ -261,7 +261,7 @@ void init(bool debug, EncoderType_e_t encoderType,
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
 		int rtn = imu->reset(true);
-		if(rtn != 1) {
+		if (rtn != 1) {
 			printf("ARMS ERROR: IMU reset failed with error code %d", errno);
 		}
 	}
