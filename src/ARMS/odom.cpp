@@ -260,9 +260,10 @@ void init(bool debug, EncoderType_e_t encoderType,
 	// initialize imu
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
-		imu->reset(true);
-		while (imu->is_calibrating())
-			pros::delay(5);
+		int rtn = imu->reset(true);
+		if(rtn != 1) {
+			printf("ARMS ERROR: IMU reset failed with error code %d", errno);
+		}
 	}
 	pros::delay(100);
 	reset();
