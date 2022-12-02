@@ -2,6 +2,7 @@
 #define _ARMS_ODOM_H_
 
 #include "ARMS/point.h"
+#include "../api.h"
 #include <memory>
 
 namespace arms::odom {
