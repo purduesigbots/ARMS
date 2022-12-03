@@ -14,8 +14,11 @@ extern std::shared_ptr<pros::Motor_Group> rightMotors;
 
 /**
  * Set the brake mode for all chassis motors
+ *
+ * The 'brakeAfter' flag defaults to true to avoid a breaking change, since
+ * older versions of ARMS tells the motors to stop moving
  */
-void setBrakeMode(pros::motor_brake_mode_e_t b);
+void setBrakeMode(pros::motor_brake_mode_e_t mode, bool brakeAfter = true);
 
 /**
  * Return true of the chassis is not moving

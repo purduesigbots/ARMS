@@ -44,11 +44,14 @@ void motorMove(std::shared_ptr<pros::Motor_Group> motor, double speed,
 		rightPrev = speed;
 }
 
-void setBrakeMode(pros::motor_brake_mode_e_t b) {
-	leftMotors->set_brake_modes((pros::motor_brake_mode_e_t)b);
-	rightMotors->set_brake_modes((pros::motor_brake_mode_e_t)b);
-	motorMove(leftMotors, 0, true);
-	motorMove(rightMotors, 0, true);
+void setBrakeMode(pros::motor_brake_mode_e_t mode, bool brakeAfter) {
+	leftMotors->set_brake_modes(mode);
+	rightMotors->set_brake_modes(mode);
+
+	if(brakeAfter) {
+		motorMove(leftMotors, 0, true);
+		motorMove(rightMotors, 0, true);
+	}
 }
 
 /**************************************************/
