@@ -17,9 +17,10 @@ void autonomous() {
 	using namespace arms::chassis;
 	move({{24, 0}}, 50, arms::THRU | arms::ASYNC);
 }
-
 void opcontrol() {
-
+	arms::Bezier curve = arms::Bezier({15,15},{50,13},{30,54},{14,37});
+	arms::follow_bezier(curve, 80);
+	
 	while (true) {
 		if (master.get_digital(DIGITAL_LEFT) && !competition::is_connected())
 			autonomous();

@@ -1,6 +1,9 @@
+#ifndef _ARMS_BEZIER_H_
+#define _ARMS_BEZIER_H_
+
 #include "point.h"
 #include <vector>
-using namespace arms;
+namespace arms{
 struct Pose{
     Point pos; double heading;
     std::vector<double> returnPose(){
@@ -42,5 +45,9 @@ int get_point_num();
 std::vector<Pose> returnPoseList();
 
 
-
 };
+void follow_bezier(Bezier path, double max_vel);
+
+
+}//namespace arms
+#endif

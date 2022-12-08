@@ -44,6 +44,9 @@ namespace arms {
 #define ANGULAR_KD 0
 #define MIN_ERROR 5          // Minimum distance to target before angular componenet is disabled
 #define LEAD_PCT .6			 // Go-to-pose lead distance ratio (0-1)
+#define ACCEL 100			 // Acceleration of robot in inches / second / second
+#define DECEL 100 			 // Decelleration of robot in inches / second / second (negative)
+#define MIN_VELOCITY 0.5	 // Minimum speed in inches per second
 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
