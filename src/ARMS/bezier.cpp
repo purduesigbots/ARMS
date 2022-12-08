@@ -1,5 +1,7 @@
-#include "bezier.hpp"
-#include "point.h"
+#include "ARMS/api.h"
+#include "ARMS/chassis.h"
+#include "api.h"
+#include <vector>
 Point Bezier::getPoint(double t) {
     double tt = t * t;
     double ttt = tt * t;
@@ -69,6 +71,9 @@ Pose Bezier::getPose(double t){
     Pose p = {getPoint(t),getHeading(t)};
     return p;
 }
+std::vector<Pose> Bezier::returnPoseList(){
+    return pose_list;
+}
 Point Bezier::getPointAtLength(double length) {
     double t = 0;
 
@@ -96,5 +101,24 @@ double Bezier::getClosestPoint(Point p) {
 
     return t;
 }
+int Bezier::get_point_num(){
+    return pose_list.size();
+}
 
 
+
+
+void follow_bezier(Bezier path){
+    path.getPoses();
+    std::vector<Pose> pose_list = path.returnPoseList();
+    int size = path.get_point_num();
+    double exit_error = 2; //in
+    double target_vel = 0;
+    for (int i = 0; i < size; i++){
+
+        chassis::move(pose_list[i].returnPose(),target_vel);
+        chassis::waitUntilFinished(exit_error);
+
+    }
+
+}

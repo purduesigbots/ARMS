@@ -6,3 +6,4 @@
 #include "ARMS/pid.h"
 #include "ARMS/point.h"
 #include "ARMS/selector.h"
+#include "ARMS/bezier.hpp"

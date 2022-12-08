@@ -3,6 +3,9 @@
 using namespace arms;
 struct Pose{
     Point pos; double heading;
+    std::vector<double> returnPose(){
+        return {pos.x,pos.y,heading};
+    }
 };
 
 class Bezier {
@@ -35,6 +38,8 @@ Pose getPose(double t);
 Point getPointAtLength(double length);
 
 double getClosestPoint(Point p);
+int get_point_num();
+std::vector<Pose> returnPoseList();
 
 
 

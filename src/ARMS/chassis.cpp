@@ -134,6 +134,7 @@ void waitUntilFinished(double exit_error) {
 }
 
 /**************************************************/
+
 // 2D movement
 void move(std::vector<double> target, double max, double exit_error, double lp,
           double ap, MoveFlags flags) {
