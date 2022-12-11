@@ -100,7 +100,7 @@ void follow_bezier(Bezier path, double max_vel) {
     for (int i = 0; i < size; i++){
         target_vel = sqrt(DELTA_D * target_acc * 2 + prev_vel * prev_vel);
         if ((size-i) * DELTA_D * DECEL * 2 + target_vel * target_vel < MIN_VELOCITY * MIN_VELOCITY) {
-            target_acc = DECEL;
+            target_acc = -DECEL;
         }
         if (target_vel > max_vel) {
             target_vel = max_vel;
