@@ -93,21 +93,23 @@ void follow_bezier(Bezier path, double max_vel) {
     std::vector<Pose> pose_list = path.returnPoseList();
     int size = path.get_point_num();
     double exit_error = 2; // in
-    double target_vel = 0; // Din/sec
+    double target_vel =0; // in/sec
     double target_acc = ACCEL; // in/sec^2
     double prev_vel = 0;
-    
+    const float d2_req = DELTA_D;
+    float max_speed = std::fmin(max_vel/100.0*MAX_VELOCITY, sqrt(2*ACCEL*DECEL*(std::abs(size*DELTA_D)-d2_req)/(ACCEL+DECEL))); //Limits max speed
+    float dist_switch = (max_speed*max_speed-MIN_VELOCITY*MIN_VELOCITY)/(2*DECEL); // deceleration distance from end
     for (int i = 0; i < size; i++){
-        target_vel = sqrt(DELTA_D * target_acc * 2 + prev_vel * prev_vel);
-        if ((size-i) * DELTA_D * DECEL * 2 + target_vel * target_vel < MIN_VELOCITY * MIN_VELOCITY) {
+        target_vel = sqrt(DELTA_D * target_acc * 2.0 + prev_vel * prev_vel);
+        if ((size-i-1) * DELTA_D <= dist_switch) {
             target_acc = -DECEL;
         }
-        if (target_vel > max_vel) {
-            target_vel = max_vel;
+        if (target_vel > max_speed) {
+            target_vel = max_speed;
         }
         // chassis::move(pose_list[i].returnPose(),target_vel);
         // chassis::waitUntilFinished(exit_error);
-        printf("vel: %f, acc: %f, i: %d\n", target_vel, target_acc, i);
+        printf("vel: %f, acc: %f, i: %d,cond: %f\n", target_vel, target_acc, i, (size-i) * DELTA_D * -DECEL * 2.0);
         prev_vel = target_vel;
     }
 }

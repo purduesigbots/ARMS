@@ -47,7 +47,7 @@ namespace arms {
 #define ACCEL 100			 // Acceleration of robot in inches / second / second
 #define DECEL 100 			 // Decelleration of robot in inches / second / second (negative)
 #define MIN_VELOCITY 0.5	 // Minimum speed in inches per second
-
+#define MAX_VELOCITY 50	 	 // Maximum speed in inches per second 
 // Auton selector configuration constants
 #define AUTONS "Front", "Back", "Do Nothing" // Names of autonomi, up to 10
 #define HUE 0     // Color of theme from 0-359(H part of HSV)
