@@ -24,7 +24,7 @@ jobs:
       - name: PIP Installer
         uses: BSFishy/pip-action@v1
         with:
-          packages: https://github.com/purduesigbots/pros-cli/releases/download/3.1.4/pros_cli_v5-3.1.4-py3-none-any.whl
+          packages: pros-cli
       - name: Testing PROS Install 
         run: prosv5 --version
       - name: Checkout
