@@ -151,7 +151,7 @@ Credit also to Sully|80508X
 
 ## Additional Resources
 
-With the basics covered in the [Getting Started guide](https://arms.readthedocs.io/), your team should be able to create a competitive program for your competition robot. For people who are interested in more advanced programming such as programming skills runs, there is a lot of potential customization with this library. The following resources may interest people who want to take their programming skills further:
+By following the [In Depth Documentation](https://purduesigbots.github.io/ARMS-doxygen-docs/), your team should be able to create a competitive program for your competition robot. For people who are interested in more advanced programming such as programming skills runs, there is a lot of potential customization with this library. The following resources may interest people who want to take their programming skills further:
 
 - [Take a C++ programming course.](https://www.codecademy.com/learn/learn-c-plus-plus)
 
