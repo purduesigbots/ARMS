@@ -167,14 +167,14 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 
 	pid::pointTarget = Point{x, y};
 	pid::angularTarget = theta;
-	printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
+	/*printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
 	       odom::getPosition().y, odom::getHeading());
 	printf("Current Desired Position: (%f, %f, %f)\n",
 	       odom::getDesiredPosition().x, odom::getDesiredPosition().y,
 	       odom::getDesiredHeading());
 
 	printf("Target Position: (%f, %f, %f)\n", x, y, theta);
-
+	*/
 	odom::setDesiredPosition(Point{x, y});
 	// convert theta to radians
 	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading() : theta * M_PI / 180);
@@ -255,10 +255,11 @@ void turn(double target, double max, double exit_error, double ap,
 
 	double true_target = diff + unbounded_heading;
 
+	/*
 	printf("Current Heading: %f\n", odom::getHeading());
 	printf("Current Desired Heading: %f\n", odom::getDesiredHeading());
 	printf("Target Heading: %f\n", true_target);
-
+	*/
 	odom::setDesiredHeading(true_target * M_PI / 180);
 
 	pid::angularTarget = true_target;
