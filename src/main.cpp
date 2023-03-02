@@ -28,6 +28,40 @@ void opcontrol() {
 		                      master.get_analog(ANALOG_RIGHT_X) * (double)100 /
 		                          127);
 
+		if(master.get_digital_new_press(DIGITAL_A)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({0,0}, 50);
+		}
+		if(master.get_digital_new_press(DIGITAL_B)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({24,24}, 50, arms::RELATIVE);
+		}
+		if(master.get_digital_new_press(DIGITAL_X)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({24,24}, 50, arms::TRUE_RELATIVE);
+		}
+
+		if(master.get_digital_new_press(DIGITAL_LEFT)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({24, 24, 45}, 50);
+		}
+		if(master.get_digital_new_press(DIGITAL_RIGHT)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({24, 24, 45}, 50, arms::RELATIVE);
+		}
+		if(master.get_digital_new_press(DIGITAL_UP)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move({24, 24, 45}, 50, arms::TRUE_RELATIVE);
+		}
+
+		if(master.get_digital(DIGITAL_R1)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move(24, 50);
+		}
+		if(master.get_digital_new_press(DIGITAL_L1)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::move(24, 50, arms::TRUE_RELATIVE);
+		}
 		pros::delay(10);
 	}
 }

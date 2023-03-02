@@ -29,6 +29,10 @@ double middle_tpi;
 Point position;
 double heading;
 
+
+Point desired_pos = {0, 0};
+double desired_heading = 0;
+
 // previous values
 double prev_left_pos = 0;
 double prev_right_pos = 0;
@@ -131,12 +135,15 @@ int odomTask() {
 void reset(Point point) {
 	position.x = point.x;
 	position.y = point.y;
+	desired_pos.x = point.x;
+	desired_pos.y = point.y;
 }
 
 void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
+	desired_heading = angle;
 	if (imu)
 		imu->set_rotation(-angle);
 }
@@ -145,10 +152,28 @@ Point getPosition() {
 	return position;
 }
 
+Point getDesiredPosition() {
+	return desired_pos;
+}
+
+void setDesiredPosition(Point point) {
+	desired_pos = point;
+}
+
+void setDesiredHeading(double angle) {
+	desired_heading = angle;
+}
+
 double getHeading(bool radians) {
 	if (radians)
 		return heading;
 	return heading * 180 / M_PI;
+}
+
+double getDesiredHeading(bool radians) {
+	if (radians)
+		return desired_heading;
+	return desired_heading * 180 / M_PI;
 }
 
 double getAngleError(Point point) {

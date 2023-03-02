@@ -144,7 +144,8 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 	double theta =
 	    target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
-	if (flags & RELATIVE) {
+	if (flags & TRUE_RELATIVE) {
+		// This will do relative movements based on our current position, and adjust the coordinate plane based on our current heading
 		Point p = odom::getPosition();     // robot position
 		double h = odom::getHeading(true); // robot heading in radians
 		double x_new = p.x + x * cos(h) - y * sin(h);
@@ -153,10 +154,29 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		y = y_new;
 		if (target.size() == 3)
 			theta += fmod(odom::getHeading(), 360);
+	} else if(flags & RELATIVE) {
+		// This will do relative movements based on our desired position, and will ignore our current heading
+		Point p = odom::getDesiredPosition(); // robot position
+		double h = odom::getDesiredHeading(true); // robot heading in radians
+		double x_new = p.x + x * cos(h) - y * sin(h);
+		double y_new = p.y + x * sin(h) + y * cos(h);
+		x = x_new;
+		y = y_new;
 	}
 
 	pid::pointTarget = Point{x, y};
 	pid::angularTarget = theta;
+	printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
+	       odom::getPosition().y, odom::getHeading());
+	printf("Current Desired Position: (%f, %f, %f)\n",
+	       odom::getDesiredPosition().x, odom::getDesiredPosition().y,
+	       odom::getDesiredHeading());
+
+	printf("Target Position: (%f, %f, %f)\n", x, y, theta);
+
+	odom::setDesiredPosition(Point{x, y});
+	// convert theta to radians
+	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading() : theta * M_PI / 180);
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -212,18 +232,26 @@ void turn(double target, double max, double exit_error, double ap,
 
 	double bounded_heading = (int)(odom::getHeading()) % 360;
 
-	double diff = target - bounded_heading;
 
-	if (diff > 180)
-		diff -= 360;
-	else if (diff < -180)
-		diff += 360;
-
-	if (flags & RELATIVE) {
-		diff = target;
+	if(flags & RELATIVE) {
+		bounded_heading = (int)(odom::getDesiredHeading()) % 360;
 	}
 
+	double diff = target - bounded_heading;
+
+	while (diff > 180)
+		diff -= 360;
+	while (diff < -180)
+		diff += 360;
+
+
 	double true_target = diff + odom::getHeading();
+
+	printf("Current Heading: %f\n", odom::getHeading());
+	printf("Current Desired Heading: %f\n", odom::getDesiredHeading());
+	printf("Target Heading: %f\n", true_target);
+
+	odom::setDesiredHeading(true_target * M_PI / 180);
 
 	pid::angularTarget = true_target;
 	maxSpeed = max;
