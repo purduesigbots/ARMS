@@ -30,15 +30,19 @@ void opcontrol() {
 
 		if(master.get_digital_new_press(DIGITAL_A)) {
 			printf("-----------------------------------------\n");
-			arms::chassis::move({0,0}, 50);
+			arms::chassis::turn(0, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_B)) {
 			printf("-----------------------------------------\n");
-			arms::chassis::move({24,24}, 50, arms::RELATIVE);
+			arms::chassis::turn(90, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_X)) {
 			printf("-----------------------------------------\n");
-			arms::chassis::move({24,24}, 50, arms::TRUE_RELATIVE);
+			arms::chassis::turn(90, 50, arms::TRUE_RELATIVE);
+		}
+		if(master.get_digital_new_press(DIGITAL_Y)) {
+			printf("-----------------------------------------\n");
+			arms::chassis::turn(90, 50, arms::RELATIVE);
 		}
 
 		if(master.get_digital_new_press(DIGITAL_LEFT)) {

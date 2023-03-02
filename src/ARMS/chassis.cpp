@@ -4,6 +4,7 @@
 
 #include <tuple>
 
+
 namespace arms::chassis {
 
 // chassis motors
@@ -212,6 +213,11 @@ void move(std::vector<double> target, MoveFlags flags) {
 
 /**************************************************/
 // 1D movement
+void move(double target, double max, double exit_error, double lp,
+		  MoveFlags flags) {
+	move({target, 0}, max, exit_error, lp, -1, flags | RELATIVE);
+}
+
 void move(double target, double max, double exit_error, MoveFlags flags) {
 	move({target, 0}, max, exit_error, -1, -1, flags | RELATIVE);
 }
@@ -231,21 +237,23 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::mode = ANGULAR;
 
 	double bounded_heading = (int)(odom::getHeading()) % 360;
-
+	double unbounded_heading = odom::getHeading();
 
 	if(flags & RELATIVE) {
 		bounded_heading = (int)(odom::getDesiredHeading()) % 360;
+		unbounded_heading = odom::getDesiredHeading();
 	}
 
 	double diff = target - bounded_heading;
-
+	
+	diff = ((flags & TRUE_RELATIVE) || (flags & RELATIVE)) ? target : diff;
 	while (diff > 180)
 		diff -= 360;
 	while (diff < -180)
 		diff += 360;
 
 
-	double true_target = diff + odom::getHeading();
+	double true_target = diff + unbounded_heading;
 
 	printf("Current Heading: %f\n", odom::getHeading());
 	printf("Current Desired Heading: %f\n", odom::getDesiredHeading());
@@ -296,6 +304,49 @@ void turn(Point target, double max, MoveFlags flags) {
 
 void turn(Point target, MoveFlags flags) {
 	turn(target, 100, angular_exit_error, -1, flags);
+}
+
+void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
+                   double lp, double ap, MoveFlags flags) {
+	double target_heading = ((flags & RELATIVE) ? odom::getDesiredHeading() : (flags & TRUE_RELATIVE) ? odom::getHeading() : 0) + angle;
+
+	Point target = Point{magnitude * cos(target_heading), magnitude * sin(target_heading)};
+	move({target.x, target.y}, max, exit_error, lp, ap, arms::RELATIVE | flags);
+}
+
+void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
+				   MoveFlags flags) {
+	moveVectorEnd(magnitude, angle, max, exit_error, -1, -1, flags);
+}
+
+void moveVectorEnd(double magnitude, double angle, double max, MoveFlags flags) {
+	moveVectorEnd(magnitude, angle, max, linear_exit_error, -1, -1, flags);
+}
+
+void moveVectorEnd(double magnitude, double angle, MoveFlags flags) {
+	moveVectorEnd(magnitude, angle, 100, linear_exit_error, -1, -1, flags);
+}
+
+
+void moveVectorPath(double magnitude, double angle, double max, double exit_error,
+				    double lp, double ap, MoveFlags flags) {
+	// turn to the target heading
+	turn(angle, max, exit_error, ap, flags);
+	// move forward our magnitude
+	move(magnitude, max, exit_error, lp, flags | RELATIVE);
+}
+
+void moveVectorPath(double magnitude, double angle, double max, double exit_error,
+				    MoveFlags flags) {
+	moveVectorPath(magnitude, angle, max, exit_error, -1, -1, flags);
+}
+
+void moveVectorPath(double magnitude, double angle, double max, MoveFlags flags) {
+	moveVectorPath(magnitude, angle, max, linear_exit_error, -1, -1, flags);
+}
+
+void moveVectorPath(double magnitude, double angle, MoveFlags flags) {
+	moveVectorPath(magnitude, angle, 100, linear_exit_error, -1, -1, flags);
 }
 
 /**************************************************/

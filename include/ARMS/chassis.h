@@ -65,6 +65,22 @@ void turn(Point target, double max, double exit_error, MoveFlags = NONE);
 void turn(Point target, double max, MoveFlags = NONE);
 void turn(Point target, MoveFlags = NONE);
 
+void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
+                   double lp, double ap, MoveFlags = NONE);
+void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
+                   MoveFlags = NONE);
+void moveVectorEnd(double magnitude, double angle, double max, MoveFlags = NONE);
+void moveVectorEnd(double magnitude, double angle, MoveFlags = NONE);
+
+void moveVectorPath(double magnitude, double angle, double max, double exit_error,
+                    double lp, double ap, MoveFlags = NONE);
+void moveVectorPath(double magnitude, double angle, double max, double exit_error,
+                    MoveFlags = NONE);
+void moveVectorPath(double magnitude, double angle, double max, MoveFlags = NONE);
+void moveVectorPath(double magnitude, double angle, MoveFlags = NONE);
+
+
+
 /**
  * Assign a power to the left and right motors
  */
