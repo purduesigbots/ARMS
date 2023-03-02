@@ -1,14 +1,16 @@
 #ifndef _ARMS_CHASSIS_H_
 #define _ARMS_CHASSIS_H_
 
+#include "../api.h"
 #include "ARMS/flags.h"
 #include "ARMS/point.h"
 #include <memory>
-#include "../api.h"
 
 namespace arms::chassis {
 
 extern double maxSpeed;
+extern double min_linear_speed;
+extern double min_angular_speed;
 extern std::shared_ptr<pros::Motor_Group> leftMotors;
 extern std::shared_ptr<pros::Motor_Group> rightMotors;
 
@@ -30,8 +32,8 @@ void waitUntilFinished(double exit_error);
 /**
  * Perform 2D chassis movement
  */
-void move(std::vector<double> target, double max, double exit_error,
-          double lp, double ap, MoveFlags = NONE);
+void move(std::vector<double> target, double max, double exit_error, double lp,
+          double ap, MoveFlags = NONE);
 void move(std::vector<double> target, double max, double exit_error,
           MoveFlags = NONE);
 void move(std::vector<double> target, double max, MoveFlags = NONE);
@@ -40,10 +42,9 @@ void move(std::vector<double> target, MoveFlags = NONE);
 /**
  * Perform 1D chassis movement
  */
-void move(double target, double max, double exit_error,
-          double lp, double ap, MoveFlags = NONE);
-void move(double target, double max, double exit_error,
+void move(double target, double max, double exit_error, double lp, double ap,
           MoveFlags = NONE);
+void move(double target, double max, double exit_error, MoveFlags = NONE);
 void move(double target, double max, MoveFlags = NONE);
 void move(double target, MoveFlags = NONE);
 
@@ -79,10 +80,11 @@ void arcade(double vertical, double horizontal, bool velocity = false);
  * initialize the chassis
  */
 void init(std::initializer_list<int8_t> leftMotors,
-          std::initializer_list<int8_t> rightMotors, pros::motor_gearset_e_t gearset,
-          double slew_step, double linear_exit_error, double angular_exit_error, 
+          std::initializer_list<int8_t> rightMotors,
+          pros::motor_gearset_e_t gearset, double slew_step,
+          double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
-          int settle_time);
+          int settle_time, double min_linear_speed, double min_angular_speed);
 
 } // namespace arms::chassis
 

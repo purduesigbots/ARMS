@@ -102,6 +102,9 @@ std::array<double, 2> translational() {
 	if (lin_speed > chassis::maxSpeed)
 		lin_speed = chassis::maxSpeed;
 
+	if (lin_speed < chassis::min_linear_speed)
+		lin_speed = chassis::min_linear_speed;
+
 	// apply direction
 	if (reverse)
 		lin_speed = -lin_speed;
@@ -120,6 +123,11 @@ std::array<double, 2> translational() {
 			while (fabs(poseError) > M_PI)
 				poseError -= 2 * M_PI * poseError / fabs(poseError);
 			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, 0, 0);
+
+			if (fabs(ang_speed) < chassis::min_angular_speed) {
+				ang_speed =
+				    (std::signbit(ang_speed) ? -1 : 1) * chassis::min_angular_speed;
+			}
 		}
 
 		// reduce the linear speed if the bot is tangent to the target
