@@ -30,6 +30,8 @@ double rightPrev = 0;
 double leftDriveSpeed = 0;
 double rightDriveSpeed = 0;
 
+bool previous_end_angle_unknown = false;
+
 /**************************************************/
 // motor control
 void motorMove(std::shared_ptr<pros::Motor_Group> motor, double speed,
@@ -140,11 +142,18 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
           double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 
+	if(previous_end_angle_unknown) {
+		// we need to set the desired angle to the current angle
+		odom::setDesiredHeading(odom::getHeading(true));
+		previous_end_angle_unknown = false;
+	}
+
 	double x = target.at(0);
 	double y = target.at(1);
 	double theta =
 	    target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
+	
 	if (flags & TRUE_RELATIVE) {
 		// This will do relative movements based on our current position, and adjust the coordinate plane based on our current heading
 		Point p = odom::getPosition();     // robot position
@@ -163,21 +172,24 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		double y_new = p.y + x * sin(h) + y * cos(h);
 		x = x_new;
 		y = y_new;
+	} else {
+		if(theta == 361)
+			previous_end_angle_unknown = true;
 	}
 
 	pid::pointTarget = Point{x, y};
 	pid::angularTarget = theta;
-	/*printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
+	printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
 	       odom::getPosition().y, odom::getHeading());
 	printf("Current Desired Position: (%f, %f, %f)\n",
 	       odom::getDesiredPosition().x, odom::getDesiredPosition().y,
 	       odom::getDesiredHeading());
 
 	printf("Target Position: (%f, %f, %f)\n", x, y, theta);
-	*/
+	
 	odom::setDesiredPosition(Point{x, y});
 	// convert theta to radians
-	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading() : theta * M_PI / 180);
+	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading(true) : theta);
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -237,16 +249,18 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::mode = ANGULAR;
 
 	double bounded_heading = (int)(odom::getHeading()) % 360;
-	double unbounded_heading = odom::getHeading();
+	double unbounded_heading = (int)odom::getHeading();
 
 	if(flags & RELATIVE) {
 		bounded_heading = (int)(odom::getDesiredHeading()) % 360;
-		unbounded_heading = odom::getDesiredHeading();
+		unbounded_heading = (int)odom::getDesiredHeading();
 	}
 
 	double diff = target - bounded_heading;
+	printf("DIFF: %f\n", diff);
 	
 	diff = ((flags & TRUE_RELATIVE) || (flags & RELATIVE)) ? target : diff;
+	printf("DIFF2: %f\n", diff);
 	while (diff > 180)
 		diff -= 360;
 	while (diff < -180)
@@ -255,11 +269,15 @@ void turn(double target, double max, double exit_error, double ap,
 
 	double true_target = diff + unbounded_heading;
 
-	/*
+	
 	printf("Current Heading: %f\n", odom::getHeading());
 	printf("Current Desired Heading: %f\n", odom::getDesiredHeading());
 	printf("Target Heading: %f\n", true_target);
-	*/
+	
+	// convert true target to radians
+
+
+
 	odom::setDesiredHeading(true_target * M_PI / 180);
 
 	pid::angularTarget = true_target;
@@ -331,8 +349,8 @@ void moveVectorEnd(double magnitude, double angle, MoveFlags flags) {
 
 void moveVectorPath(double magnitude, double angle, double max, double exit_error,
 				    double lp, double ap, MoveFlags flags) {
-	// turn to the target heading
-	turn(angle, max, exit_error, ap, flags);
+	// turn to the target heading, make sure we are not relative
+	turn(angle, max, exit_error, ap, flags & NOT_RELATIVE);
 	// move forward our magnitude
 	move(magnitude, max, exit_error, lp, flags | RELATIVE);
 }

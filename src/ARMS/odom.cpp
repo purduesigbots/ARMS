@@ -143,7 +143,7 @@ void reset(Point point, double angle) {
 	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
-	desired_heading = angle;
+	desired_heading = heading;
 	if (imu)
 		imu->set_rotation(-angle);
 }
