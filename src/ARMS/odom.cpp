@@ -206,40 +206,46 @@ void init(bool debug, EncoderType_e_t encoderType,
 	case ENCODER_ADI:
 		if (expanderPort == 0) {
 			if (configData.leftEncoderPort != 0) {
-				leftADIEncoder = std::make_shared<pros::ADIEncoder>(
-				    abs(configData.leftEncoderPort),
+				std::shared_ptr<pros::ADIEncoder> left_ptr(new pros::ADIEncoder(
+					abs(configData.leftEncoderPort),
 				    abs(configData.leftEncoderPort) + 1,
-				    configData.leftEncoderPort < 0);
-				rightADIEncoder = std::make_shared<pros::ADIEncoder>(
+				    configData.leftEncoderPort < 0));
+				leftADIEncoder = left_ptr;
+				std::shared_ptr<pros::ADIEncoder> right_ptr(new pros::ADIEncoder(
 				    abs(configData.rightEncoderPort),
 				    abs(configData.rightEncoderPort) + 1,
-				    configData.rightEncoderPort < 0);
+				    configData.rightEncoderPort < 0));
+					rightADIEncoder = right_ptr;
 			}
 			if (configData.middleEncoderPort != 0) {
-				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
+				std::shared_ptr<pros::ADIEncoder> mid_ptr(new pros::ADIEncoder(
 				    abs(configData.middleEncoderPort),
 				    abs(configData.middleEncoderPort) + 1,
-				    configData.middleEncoderPort < 0);
+				    configData.middleEncoderPort < 0));
+				middleADIEncoder = mid_ptr;
 			}
 		} else {
 			if (configData.leftEncoderPort != 0) {
-				leftADIEncoder = std::make_shared<pros::ADIEncoder>(
+				std::shared_ptr<pros::ADIEncoder> left_ptr(new pros::ADIEncoder(
 				    std::tuple<int, int, int>({expanderPort,
 				                               abs(configData.leftEncoderPort),
 				                               abs(configData.leftEncoderPort) + 1}),
-				    configData.leftEncoderPort < 0);
-				rightADIEncoder = std::make_shared<pros::ADIEncoder>(
+				    							configData.leftEncoderPort < 0));
+				leftADIEncoder = left_ptr;
+				std::shared_ptr<pros::ADIEncoder> right_ptr(new pros::ADIEncoder(
 				    std::tuple<int, int, int>({expanderPort,
 				                               abs(configData.rightEncoderPort),
 				                               abs(configData.rightEncoderPort) + 1}),
-				    configData.rightEncoderPort < 0);
+				    							configData.rightEncoderPort < 0));
+				rightADIEncoder = right_ptr;
 			}
 			if (configData.middleEncoderPort != 0) {
-				middleADIEncoder = std::make_shared<pros::ADIEncoder>(
+				std::shared_ptr<pros::ADIEncoder> mid_ptr(new pros::ADIEncoder(
 				    std::tuple<int, int, int>({expanderPort,
 				                               abs(configData.middleEncoderPort),
 				                               abs(configData.middleEncoderPort) + 1}),
-				    configData.middleEncoderPort < 0);
+				    configData.middleEncoderPort < 0));
+				middleADIEncoder = mid_ptr;
 			}
 		}
 		break;
