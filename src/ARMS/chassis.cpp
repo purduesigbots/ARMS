@@ -172,6 +172,8 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		double y_new = p.y + x * sin(h) + y * cos(h);
 		x = x_new;
 		y = y_new;
+		if (target.size() == 3)
+			theta += fmod(odom::getDesiredHeading(), 360);
 	} else {
 		if(theta == 361)
 			previous_end_angle_unknown = true;
@@ -179,17 +181,10 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 
 	pid::pointTarget = Point{x, y};
 	pid::angularTarget = theta;
-	printf("Current Position: (%f, %f, %f)\n", odom::getPosition().x,
-	       odom::getPosition().y, odom::getHeading());
-	printf("Current Desired Position: (%f, %f, %f)\n",
-	       odom::getDesiredPosition().x, odom::getDesiredPosition().y,
-	       odom::getDesiredHeading());
-
-	printf("Target Position: (%f, %f, %f)\n", x, y, theta);
 	
 	odom::setDesiredPosition(Point{x, y});
 	// convert theta to radians
-	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading(true) : theta);
+	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading(true) : theta * M_PI / 180);
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -257,10 +252,8 @@ void turn(double target, double max, double exit_error, double ap,
 	}
 
 	double diff = target - bounded_heading;
-	printf("DIFF: %f\n", diff);
 	
 	diff = ((flags & TRUE_RELATIVE) || (flags & RELATIVE)) ? target : diff;
-	printf("DIFF2: %f\n", diff);
 	while (diff > 180)
 		diff -= 360;
 	while (diff < -180)
@@ -268,16 +261,8 @@ void turn(double target, double max, double exit_error, double ap,
 
 
 	double true_target = diff + unbounded_heading;
-
-	
-	printf("Current Heading: %f\n", odom::getHeading());
-	printf("Current Desired Heading: %f\n", odom::getDesiredHeading());
-	printf("Target Heading: %f\n", true_target);
 	
 	// convert true target to radians
-
-
-
 	odom::setDesiredHeading(true_target * M_PI / 180);
 
 	pid::angularTarget = true_target;
