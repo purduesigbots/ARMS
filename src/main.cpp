@@ -63,6 +63,17 @@ void autonomous() {
 
 }
 
+void debugInfoPrint() {
+	arms::Point current = arms::odom::getPosition();
+	arms::Point desired = arms::odom::getDesiredPosition();
+
+	double current_heading = arms::odom::getHeading();
+	double desired_heading = arms::odom::getDesiredHeading();
+
+	printf("Current: (%f, %f) | Desired: (%f, %f)\n", current.x, current.y,
+	       desired.x, desired.y);
+}
+
 void opcontrol() {
 	arms::chassis::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 	while (true) {
@@ -75,44 +86,55 @@ void opcontrol() {
 
 		if(master.get_digital_new_press(DIGITAL_A)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::turn(0, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_B)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::turn(90, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_X)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::turn(90, 50, arms::TRUE_RELATIVE);
 		}
 		if(master.get_digital_new_press(DIGITAL_Y)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::turn(90, 50, arms::RELATIVE);
 		}
 
 		if(master.get_digital_new_press(DIGITAL_LEFT)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::move({24, 24, 45}, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_RIGHT)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::move({24, 24, 45}, 50, arms::RELATIVE);
 		}
 		if(master.get_digital_new_press(DIGITAL_UP)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::move({24, 24, 45}, 50, arms::TRUE_RELATIVE);
 		}
 
 		if(master.get_digital(DIGITAL_DOWN)) {
-			autonomous();
+			printf("-----------------------------------------\n");
+			debugInfoPrint();
+			arms::chassis::move({0,0,0}, 50);
 		}
 
 		if(master.get_digital(DIGITAL_R1)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::move(24, 50);
 		}
 		if(master.get_digital_new_press(DIGITAL_L1)) {
 			printf("-----------------------------------------\n");
+			debugInfoPrint();
 			arms::chassis::move(24, 50, arms::TRUE_RELATIVE);
 		}
 		pros::delay(10);
