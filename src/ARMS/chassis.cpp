@@ -4,7 +4,6 @@
 
 #include <tuple>
 
-
 namespace arms::chassis {
 
 // chassis motors
@@ -142,7 +141,7 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
           double ap, MoveFlags flags) {
 	pid::mode = TRANSLATIONAL;
 
-	if(previous_end_angle_unknown) {
+	if (previous_end_angle_unknown) {
 		// we need to set the desired angle to the current angle
 		odom::setDesiredHeading(odom::getHeading(true));
 		previous_end_angle_unknown = false;
@@ -153,9 +152,9 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 	double theta =
 	    target.size() == 3 ? fmod(target.at(2), 360) : 361; // setinel value
 
-	
 	if (flags & TRUE_RELATIVE) {
-		// This will do relative movements based on our current position, and adjust the coordinate plane based on our current heading
+		// This will do relative movements based on our current position, and adjust
+		// the coordinate plane based on our current heading
 		Point p = odom::getPosition();     // robot position
 		double h = odom::getHeading(true); // robot heading in radians
 		double x_new = p.x + x * cos(h) - y * sin(h);
@@ -164,9 +163,10 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		y = y_new;
 		if (target.size() == 3)
 			theta += fmod(odom::getHeading(), 360);
-	} else if(flags & RELATIVE) {
-		// This will do relative movements based on our desired position, and will ignore our current heading
-		Point p = odom::getDesiredPosition(); // robot position
+	} else if (flags & RELATIVE) {
+		// This will do relative movements based on our desired position, and will
+		// ignore our current heading
+		Point p = odom::getDesiredPosition();     // robot position
 		double h = odom::getDesiredHeading(true); // robot heading in radians
 		double x_new = p.x + x * cos(h) - y * sin(h);
 		double y_new = p.y + x * sin(h) + y * cos(h);
@@ -175,16 +175,17 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 		if (target.size() == 3)
 			theta += fmod(odom::getDesiredHeading(), 360);
 	} else {
-		if(theta == 361)
+		if (theta == 361)
 			previous_end_angle_unknown = true;
 	}
 
 	pid::pointTarget = Point{x, y};
 	pid::angularTarget = theta;
-	
+
 	odom::setDesiredPosition(Point{x, y});
 	// convert theta to radians
-	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading(true) : theta * M_PI / 180);
+	odom::setDesiredHeading(theta == 361 ? odom::getDesiredHeading(true)
+	                                     : theta * M_PI / 180);
 
 	maxSpeed = max;
 	pid::linearKP = lp;
@@ -221,7 +222,7 @@ void move(std::vector<double> target, MoveFlags flags) {
 /**************************************************/
 // 1D movement
 void move(double target, double max, double exit_error, double lp,
-		  MoveFlags flags) {
+          MoveFlags flags) {
 	move({target, 0}, max, exit_error, lp, -1, flags | RELATIVE);
 }
 
@@ -246,22 +247,21 @@ void turn(double target, double max, double exit_error, double ap,
 	double bounded_heading = (int)(odom::getHeading()) % 360;
 	double unbounded_heading = (int)odom::getHeading();
 
-	if(flags & RELATIVE) {
+	if (flags & RELATIVE) {
 		bounded_heading = (int)(odom::getDesiredHeading()) % 360;
 		unbounded_heading = (int)odom::getDesiredHeading();
 	}
 
 	double diff = target - bounded_heading;
-	
+
 	diff = ((flags & TRUE_RELATIVE) || (flags & RELATIVE)) ? target : diff;
 	while (diff > 180)
 		diff -= 360;
 	while (diff < -180)
 		diff += 360;
 
-
 	double true_target = diff + unbounded_heading;
-	
+
 	// convert true target to radians
 	odom::setDesiredHeading(true_target * M_PI / 180);
 
@@ -310,20 +310,25 @@ void turn(Point target, MoveFlags flags) {
 	turn(target, 100, angular_exit_error, -1, flags);
 }
 
-void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
-                   double lp, double ap, MoveFlags flags) {
-	double target_heading = ((flags & RELATIVE) ? odom::getDesiredHeading() : (flags & TRUE_RELATIVE) ? odom::getHeading() : 0) + angle;
+void moveVectorEnd(double magnitude, double angle, double max,
+                   double exit_error, double lp, double ap, MoveFlags flags) {
+	double target_heading = ((flags & RELATIVE)        ? odom::getDesiredHeading()
+	                         : (flags & TRUE_RELATIVE) ? odom::getHeading()
+	                                                   : 0) +
+	                        angle;
 
-	Point target = Point{magnitude * cos(target_heading), magnitude * sin(target_heading)};
+	Point target =
+	    Point{magnitude * cos(target_heading), magnitude * sin(target_heading)};
 	move({target.x, target.y}, max, exit_error, lp, ap, arms::RELATIVE | flags);
 }
 
-void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
-				   MoveFlags flags) {
+void moveVectorEnd(double magnitude, double angle, double max,
+                   double exit_error, MoveFlags flags) {
 	moveVectorEnd(magnitude, angle, max, exit_error, -1, -1, flags);
 }
 
-void moveVectorEnd(double magnitude, double angle, double max, MoveFlags flags) {
+void moveVectorEnd(double magnitude, double angle, double max,
+                   MoveFlags flags) {
 	moveVectorEnd(magnitude, angle, max, linear_exit_error, -1, -1, flags);
 }
 
@@ -331,21 +336,21 @@ void moveVectorEnd(double magnitude, double angle, MoveFlags flags) {
 	moveVectorEnd(magnitude, angle, 100, linear_exit_error, -1, -1, flags);
 }
 
-
-void moveVectorPath(double magnitude, double angle, double max, double exit_error,
-				    double lp, double ap, MoveFlags flags) {
+void moveVectorPath(double magnitude, double angle, double max,
+                    double exit_error, double lp, double ap, MoveFlags flags) {
 	// turn to the target heading, make sure we are not relative
 	turn(angle, max, exit_error, ap, flags & NOT_RELATIVE);
 	// move forward our magnitude
 	move(magnitude, max, exit_error, lp, flags | RELATIVE);
 }
 
-void moveVectorPath(double magnitude, double angle, double max, double exit_error,
-				    MoveFlags flags) {
+void moveVectorPath(double magnitude, double angle, double max,
+                    double exit_error, MoveFlags flags) {
 	moveVectorPath(magnitude, angle, max, exit_error, -1, -1, flags);
 }
 
-void moveVectorPath(double magnitude, double angle, double max, MoveFlags flags) {
+void moveVectorPath(double magnitude, double angle, double max,
+                    MoveFlags flags) {
 	moveVectorPath(magnitude, angle, max, linear_exit_error, -1, -1, flags);
 }
 

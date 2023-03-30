@@ -29,7 +29,6 @@ double middle_tpi;
 Point position;
 double heading;
 
-
 Point desired_pos = {0, 0};
 double desired_heading = 0;
 
