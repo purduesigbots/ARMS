@@ -5,7 +5,11 @@
 #include "ARMS/lib.h"
 /// @endcond
 
-
+/*!
+    * @namespace arms
+    *
+    * @brief The ARMS namespace.
+*/
 namespace arms {
 /*!
  * @file config.h

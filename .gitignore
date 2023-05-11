@@ -6,6 +6,7 @@
 *.html
 *.idx
 *.tex
+doxygen-output/
 
 # Executables
 *.bin

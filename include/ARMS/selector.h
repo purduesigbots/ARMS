@@ -4,7 +4,8 @@
 /*!
     * @namespace arms::selector
     *
-    * @details This namespace deals with setting up and displaying the autonomous selector. 
+    * @brief This namespace deals with setting up and displaying the autonomous selector.
+    * @details
     * Almost all of it's variables and functions are private, with the exception being the \a auton variables.
     * 
     * The arms selector will handle everything in the back end, so all you need to worry about is which autonomous is selected.

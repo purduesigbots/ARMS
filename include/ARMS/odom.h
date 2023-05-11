@@ -8,7 +8,8 @@
 /*!
     * @namespace arms::odom
     *
-    * @details This namespace deals with the odometry system. 
+    * @brief This namespace deals with the odometry system.
+    * @details 
     * It is used to track the robot's position on the field.
     * 
     * 

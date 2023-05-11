@@ -10,7 +10,7 @@
 /*!
     * @namespace arms::chassis
     *
-    * @details This namespace contains all of the functions and variables needed to control the chassis.
+    * @brief This namespace contains all of the functions and variables needed to control the chassis.
 */
 
 /*!
@@ -35,7 +35,7 @@ extern std::shared_ptr<pros::Motor_Group> leftMotors;
 extern std::shared_ptr<pros::Motor_Group> rightMotors;
 
 /*!
-    * @fn void setBrakeMode(pros::motor_brake_mode_e_t b)
+    * @fn void setBrakeMode(pros::motor_brake_mode_e_t brakeMode)
     *
     *  Sets the chassis's brake mode
     *
@@ -47,7 +47,7 @@ extern std::shared_ptr<pros::Motor_Group> rightMotors;
     * chassis::setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     * @endcode
     * 
-    * @details Sets the chassis's brake mode to a valid \ref <a href="https://pros.cs.purdue.edu/v5/api/cpp/motors.html#pros-motor-brake-mode-e-t">PROS Brake Mode</a>
+    * @details Sets the chassis's brake mode to a valid <a href="https://pros.cs.purdue.edu/v5/api/cpp/motors.html#pros-motor-brake-mode-e-t">PROS Brake Mode</a>
     * Options are coast, hold, and brake.
     */
 void setBrakeMode(pros::motor_brake_mode_e_t b);
@@ -88,7 +88,7 @@ void waitUntilFinished(double exit_error);
 
 /*!
     * @fn void move(std::vector<double> target, double max, double exit_error,
-          double lp, double ap, MoveFlags = NONE)
+          double lp, double ap, MoveFlags flags = NONE)
     *
     * Perform a 2D chassis movement based on the parameters provided.
     * @param target The target point to move to.
@@ -139,7 +139,7 @@ void move(std::vector<double> target, MoveFlags = NONE);
 
 /*!
     * @fn void move(double target, double max, double exit_error,
-          double lp, double ap, MoveFlags = NONE)
+          double lp, double ap, MoveFlags flags = NONE)
     *
     * @brief move the chassis a target distance forward
     *
@@ -197,7 +197,7 @@ void move(double target, MoveFlags = NONE);
 
 /*!
     * @fn void turn(double target, double max, double exit_error,
-          double ap, MoveFlags = NONE)
+          double ap, MoveFlags flags = NONE)
     * @brief turn the chassis a target angle
     *
     * @param target The target angle to turn to.
@@ -249,7 +249,7 @@ void turn(double target, MoveFlags = NONE);
 
 /*!
     * @fn void turn(Point target, double max, double exit_error,
-          double ap, MoveFlags = NONE)
+          double ap, MoveFlags flags = NONE)
     * @brief turn the chassis to face a target point
     *
     * @param target The target point to turn to.
