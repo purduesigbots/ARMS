@@ -11,7 +11,8 @@
  * `MIDDLE_TPI`: If using middle tracking wheel, follow same procedure as for `TPI`.
  *
  * `TRACK_WIDTH`: If using left and right tracking wheels, this is the distance between the left and right tracking wheel.
- * If using no tracking wheels, this is the distance between the left and right drivetrain wheels.
+ * If using no tracking wheels, this is the distance between the left and right drivetrain wheels. If using a single parallel tracking wheel,
+ * see \ref single_tracker.
  *
  * `MIDDLE_DISTANCE`: If using a middle tracking wheel, this is the distance from the tracking wheel to the center of
  * rotation of the drivetrain. If the middle tracking wheel is in front of the center of rotation, `MIDDLE_DISTANCE` has to be
@@ -70,7 +71,7 @@
  * 3. Set the new TPI as `OLD_TPI * ODOM_X / FORWARD_DISTANCE`.
  * 4. Repeat until the X position from odom matches the distance pushed.
  *
- * To tune `MIDDLE_TPI`, you follow the same procedure as stated above, except you move the robot sideways to the left instead of forwards, and
+ * To tune `MIDDLE_TPI`, follow the same procedure as stated above, except move the robot sideways to the left instead of forwards, and
  * record the robot's Y position instead of its X position.
  *
  * \subsection tuning_track_width Tuning Track Width
