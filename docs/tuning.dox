@@ -1,0 +1,90 @@
+/*! \page tuning_guide Tuning Guide
+ * Figuring out the right ARMS configuration for your robot is not always easy.
+ * On this page are guides on some of the more complicated parts of this process.
+ * It is recommended to follow these guides in order.
+ *
+ * \section odometry_setup Odometry Setup
+ * `TPI`: While this will require further tuning later, we can calculate TPI initially as `TICKS_PER_REVOLUTION / WHEEL_CIRCUMFERENCE`.
+ * `TICKS_PER_REVOLUTION` is 360 for motors and ADI encoders and is 36000 for rotation sensors.
+ * `WHEEL_CIRCUMFERENCE` is pi times the diameter of your tracking wheel, if using tracking wheels, or of your drivetrain wheel if otherwise.
+ *
+ * `MIDDLE_TPI`: If using middle tracking wheel, follow same procedure as for `TPI`.
+ *
+ * `TRACK_WIDTH`: If using left and right tracking wheels, this is the distance between the left and right tracking wheel.
+ * If using no tracking wheels, this is the distance between the left and right drivetrain wheels.
+ *
+ * `MIDDLE_DISTANCE`: If using a middle tracking wheel, this is the distance from the tracking wheel to the center of
+ * rotation of the drivetrain. If the middle tracking wheel is in front of the center of rotation, `MIDDLE_DISTANCE` has to be
+ * negative. If it is behind the center of rotation, it can stay positive.
+ * \subsection legal_configs Legal Sensor Configurations
+ * In order for odometry to work properly, you must have one of the following sensor setups:
+ * 1. No Sensors (using motor encoders)
+ * 2. IMU
+ * 3. Left and Right Tracking Wheels
+ * 4. IMU + Left and Right Tracking Wheels
+ * 5. IMU + Parallel Tracking Wheel
+ *
+ * A middle tracking wheel may be added to any of the above setups.
+ * \subsection single_tracker Using a Single Parallel Tracking Wheel
+ * Some special tricks are required to use a single parallel tracking wheel with ARMS:
+ * 1. Set both the left and right encoder ports to the parallel tracking wheel's encoder port
+ * 2. Set the `TRACK_WIDTH` to twice the distance from the parallel tracking wheel to the center of the drivetrain.
+ * If the parallel tracking wheel is on the left side of the drivetrain, the `TRACK_WIDTH` has to be negative. If it is
+ * on the right side, it can stay positive.
+ *
+ * \section odometry_tuning Odometry Tuning
+ * \subsection llemu_setup LLEMU Setup
+ * While odometry information is accessible through the PROS terminal by setting `ODOM_DEBUG` to 1, it may be preferable to
+ * display information on the brain using LLEMU while tuning. Here is some code that will do that:
+ * @code
+ * void initialize() {
+ *   arms::init();
+ *   // initialize LLEMU after ARMS so that it doesn't get covered by the ARMS auton selector
+ *   pros::lcd::initialize();
+ * }
+ *
+ * void opcontrol() {
+ *   while (true) {
+ *     // insert other opcontrol code here
+ *     pros::lcd::set_text(0, "X: " + std::to_string(arms::odom::getPosition().x));
+ *     pros::lcd::set_text(1, "Y: " + std::to_string(arms::odom::getPosition().y));
+ *     pros::lcd::set_text(2, "H: " + std::to_string(arms::odom::getHeading()));
+ *     pros::lcd::set_text(3, "Left: " + std::to_string(arms::odom::getLeftEncoder()));
+ *     pros::lcd::set_text(4, "Right: " + std::to_string(arms::odom::getRightEncoder()));
+ *     pros::lcd::set_text(5, "Middle: " + std::to_string(arms::odom::getMiddleEncoder()));
+ *     pros::delay(10);
+ *   }
+ * }
+ * @endcode
+ * \subsection encoder_directions Checking Encoders
+ * Before we even start looking at odometry data, we should make sure all of our encoders are configured correctly.
+ * 1. The left and right encoder values should increase when moving the robot forwards, and decrease when moving backwards.
+ * 2. When turning the robot counterclockwise, the left and middle encoder values should decrease and the right encoder value should increase.
+ *
+ * Note: these are the steps for checking that a 3 tracking wheel setup is working correctly. You should modify the procedure according
+ * to your specific odometry setup.
+ *
+ * \subsection tuning_tpi Tuning TPI
+ * 1. Move robot forwards a known number of inches.
+ * 2. Record the robot's X position from odom.
+ * 3. Set the new TPI as `OLD_TPI * ODOM_X / FORWARD_DISTANCE`.
+ * 4. Repeat until the X position from odom matches the distance pushed.
+ *
+ * To tune `MIDDLE_TPI`, you follow the same procedure as stated above, except you move the robot sideways to the left instead of forwards, and
+ * record the robot's Y position instead of its X position.
+ *
+ * \subsection tuning_track_width Tuning Track Width
+ * Note: this is the track with tuning procedure for using motor encoders or left and right tracking wheels. If you have an IMU, disable it
+ * while tuning this part. For tuning track width for a single parallel tracking wheel, follow a similar procedure as \ref tuning_middle_distance
+ * , but using the X position from odom rather than the Y position.
+ * 1. Turn robot counterclockwise a known number of degrees.
+ * 2. Record the robot's heading from odom.
+ * 3. Set the new TRACK_WIDTH as `OLD_TRACK_WIDTH * ODOM_HEADING / TURN_DEGREES`.
+ * 4. Repeat until the heading from odom matches the degrees turned.
+ *
+ * \subsection tuning_middle_distance Tuning Middle Distance
+ * 1. Turn robot 90 degrees counterclockwise.
+ * 2. Record the robot's Y position and heading from odom.
+ * 3. Set the new MIDDLE_DISTANCE as `OLD_MIDDLE_DISTANCE + (ODOM_Y / ODOM_HEADING)`.
+ * 4. Repeat until the robot's Y position after the turn is close to zero.
+ */
