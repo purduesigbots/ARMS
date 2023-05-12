@@ -87,4 +87,46 @@
  * 2. Record the robot's Y position and heading from odom.
  * 3. Set the new MIDDLE_DISTANCE as `OLD_MIDDLE_DISTANCE + (ODOM_Y / ODOM_HEADING)`.
  * 4. Repeat until the robot's Y position after the turn is close to zero.
+ *
+ * \section pid_tuning PID Tuning
+ * \subsection general_pid_tuning General PID Tuning Principles
+ * For drivetrain PID, PD control is generally fine, with a little bit of I if necessary.
+ * 1. Increase kP until the robot oscillates around the target.
+ * 2. Increase kD until the robot no longer overshoots the target.
+ * 3. If the robot is still a little bit off from the target, increase kI until this no longer happens.
+ *
+ * \subsection angular_pid_tuning Angular PID Tuning
+ * When tuning angular PID, it helps to first tune in ASYNC mode to remove interference from the settler.
+ * @code
+ * // insert this code snippet into your opcontrol
+ * if (master.get_digital_new_press(DIGITAL_A)) {
+ *   arms::odom::reset({0, 0}, 0);
+ *   arms::chassis::turn(90, arms::ASYNC);
+ *   pros::delay(3000);
+ * }
+ * @endcode
+ * Once the angular PID looks good in ASYNC mode, remove the ASYNC flag and the delay and check if it's still fine.
+ *
+ * \subsection linear_pid_tuning Linear PID Tuning
+ * Follow a similar procedure as for \ref angular_pid_tuning.
+ * @code
+ * // insert this code snippet into your opcontrol
+ * if (master.get_digital_new_press(DIGITAL_A)) {
+ *   arms::odom::reset({0, 0}, 0);
+ *   arms::chassis::move(24, arms::ASYNC);
+ *   pros::delay(5000);
+ * }
+ * @endcode
+ *
+ * \subsection boomerang_tuning Boomerang Tuning
+ * @code
+ * // insert this code snippet into your opcontrol
+ * if (master.get_digital_new_press(DIGITAL_A)) {
+ *   arms::odom::reset({0, 0}, 0);
+ *   arms::chassis::move({24, 24, 90});
+ * }
+ * @endcode
+ * Increase `TRACKING_KP` if the robot doesn't reach the target point and decrease it if the robot starts oscillating too much.
+ *
+ * Increase `LEAD_PCT` to make boomerang more aggressive and decrease it to make boomerang less aggressive.
  */
