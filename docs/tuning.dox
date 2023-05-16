@@ -19,17 +19,17 @@
  * negative. If it is behind the center of rotation, it can stay positive.
  * \subsection legal_configs Legal Sensor Configurations
  * In order for odometry to work properly, you must have one of the following sensor setups:
- * 1. No Sensors (using motor encoders)
- * 2. IMU
- * 3. Left and Right Tracking Wheels
- * 4. IMU + Left and Right Tracking Wheels
- * 5. IMU + Parallel Tracking Wheel
+ * - No Sensors (using motor encoders)
+ * - IMU
+ * - Left and Right Tracking Wheels
+ * - IMU + Left and Right Tracking Wheels
+ * - IMU + Parallel Tracking Wheel
  *
  * A middle tracking wheel may be added to any of the above setups.
  * \subsection single_tracker Using a Single Parallel Tracking Wheel
  * Some special tricks are required to use a single parallel tracking wheel with ARMS:
- * 1. Set both the left and right encoder ports to the parallel tracking wheel's encoder port
- * 2. Set the `TRACK_WIDTH` to twice the distance from the parallel tracking wheel to the center of the drivetrain.
+ * - Set both the left and right encoder ports to the parallel tracking wheel's encoder port
+ * - Set the `TRACK_WIDTH` to twice the distance from the parallel tracking wheel to the center of the drivetrain.
  * If the parallel tracking wheel is on the left side of the drivetrain, the `TRACK_WIDTH` has to be negative. If it is
  * on the right side, it can stay positive.
  *
@@ -59,17 +59,26 @@
  * @endcode
  * \subsection encoder_directions Checking Encoders
  * Before we even start looking at odometry data, we should make sure all of our encoders are configured correctly.
- * 1. The left and right encoder values should increase when moving the robot forwards, and decrease when moving backwards.
- * 2. When turning the robot counterclockwise, the left and middle encoder values should decrease and the right encoder value should increase.
+ * - The left and right encoder values should increase when moving the robot forwards, and decrease when moving backwards.
+ * - When turning the robot counterclockwise, the left and middle encoder values should decrease and the right encoder value should increase.
  *
  * Note: these are the steps for checking that a 3 tracking wheel setup is working correctly. You should modify the procedure according
  * to your specific odometry setup.
+ *
+ * \subsection tuning_general General Tuning Notes
+ * - Due to sensor noise and other random factors, the distance reported by odometry may be slightly lower on some runs and slightly higher on
+ * other runs. To account for this, you may want to run the tuning procedure several times and use the average of the results instead of changing
+ * the constants after every run.
+ * - Due to the relative nature of odometry, small errors will build up over time. Thus, when tuning, it is good to tune over large distances
+ * and turns so that errors are more noticeable. Additionally, if using tracking wheels, make sure there is nothing mechanically that could
+ * impede the rotation of the tracking wheels.
  *
  * \subsection tuning_tpi Tuning TPI
  * 1. Move robot forwards a known number of inches.
  * 2. Record the robot's X position from odom.
  * 3. Set the new TPI as `OLD_TPI * ODOM_X / FORWARD_DISTANCE`.
- * 4. Repeat until the X position from odom matches the distance pushed.
+ * 4. Reupload code with new TPI.
+ * 5. Repeat until the X position from odom matches the distance pushed.
  *
  * To tune `MIDDLE_TPI`, follow the same procedure as stated above, except move the robot sideways to the left instead of forwards, and
  * record the robot's Y position instead of its X position.
@@ -81,13 +90,16 @@
  * 1. Turn robot counterclockwise a known number of degrees.
  * 2. Record the robot's heading from odom.
  * 3. Set the new TRACK_WIDTH as `OLD_TRACK_WIDTH * ODOM_HEADING / TURN_DEGREES`.
- * 4. Repeat until the heading from odom matches the degrees turned.
+ * 4. Reupload code with new TRACK_WIDTH.
+ * 5. Repeat until the heading from odom matches the degrees turned.
  *
  * \subsection tuning_middle_distance Tuning Middle Distance
  * 1. Turn robot 90 degrees counterclockwise.
  * 2. Record the robot's Y position and heading from odom.
- * 3. Set the new MIDDLE_DISTANCE as `OLD_MIDDLE_DISTANCE + (ODOM_Y / ODOM_HEADING)`.
- * 4. Repeat until the robot's Y position after the turn is close to zero.
+ * 3. Set the new MIDDLE_DISTANCE as `OLD_MIDDLE_DISTANCE + (ODOM_Y / (ODOM_HEADING * PI / 180))`. (`ODOM_HEADING * PI / 180` is the heading of
+ * the robot in radians)
+ * 4. Reupload code with new MIDDLE_DISTANCE.
+ * 5. Repeat until the robot's Y position after the turn is close to zero.
  *
  * \section pid_tuning PID Tuning
  * \subsection general_pid_tuning General PID Tuning Principles
