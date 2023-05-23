@@ -16,4 +16,9 @@
  * After setting up ARMS, you can use the methods in the arms::chassis namespace to control your chassis,
  * the methods in arms::odom to access odometry information, and arms::selector::auton to get the currently
  * selected autonomous.
+ *
+ * \section explanation How ARMS Works
+ * While you do not need to know how ARMS works in order to use it, knowing how ARMS works can help with debugging weird issues with ARMS,
+ * modyfing the ARMS source code yourself, or writing your own drivetrain movement libraries. For information on the ARMS implementation of
+ * odometry, see the \ref odometry. For information on how `arms::chassis::turn` and `arms::chassis::move` work, see \ref motion_control.
  */
