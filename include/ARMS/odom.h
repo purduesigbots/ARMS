@@ -17,7 +17,7 @@
 namespace arms::odom {
 
 /*!
-    * @typedef enum EncoderType_e_t
+    * @enum EncoderType_e_t
     * 
     * @details This enum is used to specify the type of encoder used. The options are:
     * ENCODER_ADI or ENCODER_ROTATION
@@ -28,7 +28,7 @@ typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
 
 // Odom Configuration
 /*!
-    * @typedef struct config_data_s
+    * @struct config_data_s
     *
     * @details This struct is used to store the configuration data for the odometry system.
     * 

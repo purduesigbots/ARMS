@@ -1,5 +1,5 @@
 /*! \page odometry Odometry Explanation
- * The ARMS implementation of odometry follows the <a href="https://wiki.purduesigbots.com/software/odometry">PiLons odometry algorithm</a>,
+ * The ARMS implementation of odometry follows the <a href="http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf">PiLons odometry algorithm</a>,
  * with a couple of modifications.
  * \section odometry_steps Odometry Steps
  * \subsection step_1 Step 1: Calculate Encoder Deltas

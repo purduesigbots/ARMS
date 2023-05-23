@@ -80,12 +80,13 @@ union Point {
 	std::array<double, 2> std() {
 		return {x, y};
 	}
-	
+	/// @endcond
+
 	struct {
 		double x, y;
 	};
 	double data[2];
-	/// @endcond
+	
 };
 
 
