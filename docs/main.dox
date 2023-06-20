@@ -1,24 +1,24 @@
 /*! \mainpage Main Page
- * \image html scoop-jr-boomerang.gif Behold, the power of ARMS!
- * \section getting_started Getting Started
- * \subsection installation Installing ARMS
- * 1. Download the most recent <a href="https://github.com/purduesigbots/ARMS/releases">template</a>
- * 2. Add ARMS to your local templates from the terminal with the command `pros c fetch ARMS@3.1.1`
- * 3. `cd` into your PROS project directory from your terminal
- * 4. Apply the library to your project using `pros c apply ARMS`
- * 5. Put `#include "ARMS/api.h"` in your `main.h`
- * 6. Put `#include "ARMS/config.h"` in your `main.cpp`
- * 7. Call `arms::init()` in your `initialize()` function
- * \subsection usage Using ARMS
- * Before using ARMS, you will have to set up your robot's configuration in the config.h file.
- * More information about setting up/tuning ARMS can be found in our \ref tuning_guide.
- *
- * After setting up ARMS, you can use the methods in the arms::chassis namespace to control your chassis,
- * the methods in arms::odom to access odometry information, and arms::selector::auton to get the currently
- * selected autonomous.
- *
- * \section explanation How ARMS Works
- * While you do not need to know how ARMS works in order to use it, knowing how ARMS works can help with debugging weird issues with ARMS,
- * modyfing the ARMS source code yourself, or writing your own drivetrain movement libraries. For information on the ARMS implementation of
- * odometry, see the \ref odometry. For information on how `arms::chassis::turn` and `arms::chassis::move` work, see \ref motion_control.
+\image html scoop-jr-boomerang.gif Behold, the power of ARMS!
+\section getting_started Getting Started
+\subsection installation Installing ARMS
+1. Download the most recent <a href="https://github.com/purduesigbots/ARMS/releases">template</a>
+2. Add ARMS to your local templates from the terminal with the command `pros c fetch ARMS@3.1.1`
+3. `cd` into your PROS project directory from your terminal
+4. Apply the library to your project using `pros c apply ARMS`
+5. Put `#include "ARMS/api.h"` in your `main.h`
+6. Put `#include "ARMS/config.h"` in your `main.cpp`
+7. Call `arms::init()` in your `initialize()` function
+\subsection usage Using ARMS
+Before using ARMS, you will have to set up your robot's configuration in the config.h file.
+More information about setting up/tuning ARMS can be found in our \ref tuning_guide.
+
+After setting up ARMS, you can use the methods in the arms::chassis namespace to control your chassis,
+the methods in arms::odom to access odometry information, and arms::selector::auton to get the currently
+selected autonomous.
+
+\section explanation How ARMS Works
+While you do not need to know how ARMS works in order to use it, knowing how ARMS works can help with debugging weird issues with ARMS,
+modyfing the ARMS source code yourself, or writing your own drivetrain movement libraries. For information on the ARMS implementation of
+odometry, see the \ref odometry. For information on how `arms::chassis::turn` and `arms::chassis::move` work, see \ref motion_control.
  */
