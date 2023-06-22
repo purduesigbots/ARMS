@@ -4,14 +4,14 @@
 If the target vector has 2 elements (x and y), the standard move to point algorithm will be used.
 If the target vector has 3 elements (x y and heading), the \ref boomerang will be used.
 
-If the `arms::RELATIVE` flag is specified, the target will be converted from relative to global coordinates.
+If the `arms::RELATIVE` flag is specified, the target will be positioned relative to the robot's current position, rather than globaly
 \subsection calculate_error Calculating Linear and Angular Error
 Linear error is calculated as the Euclidean distance between the current and target positions.
 To calculate angular error, we first calculate the target heading using the atan2 function, then calculate the error as the
 difference between the current and target headings.
 \subsection lin_speed Calculating Linear Speed
-If the `arms::THRU` flag is specified, the linear speed will be set to the maximum speed. Otherwise, the linear speed is
-calculated by the linear PID controller.
+If the `arms::THRU` flag is specified, the linear speed will be set to the maximum speed, ignoring the linear PID controller. 
+Otherwise, the linear speed is calculated by the linear PID controller.
 If the `arms::REVERSE` flag is specified, the linear speed will be made negative so the chassis moves backwards.
 \subsection ang_speed Calculating Angular Speed
 Angular speed is calculated using a simple proportional controller, as `TRACKING_KP * ang_error`.
