@@ -12,7 +12,7 @@ ARMS is a [PROS](https://pros.cs.purdue.edu/) library that makes writing autonom
 
 1. Download the most recent [template](https://github.com/purduesigbots/ARMS/releases)
 
-2. Run this command from terminal `pros c fetch ARMS@3.1.0.zip`
+2. Run this command from terminal `pros c fetch ARMS@3.1.1.zip`
 
 3.  `cd` into your pros project directory in your terminal
 
