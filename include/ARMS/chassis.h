@@ -8,7 +8,7 @@
 
 namespace arms::chassis {
 
-extern double maxSpeed;
+extern std::atomic<double> maxSpeed;
 extern std::shared_ptr<pros::Motor_Group> leftMotors;
 extern std::shared_ptr<pros::Motor_Group> rightMotors;
 

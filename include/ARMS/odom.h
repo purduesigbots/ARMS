@@ -6,7 +6,10 @@
 
 namespace arms::odom {
 
-typedef enum EncoderType { ENCODER_ADI, ENCODER_ROTATION } EncoderType_e_t;
+typedef enum EncoderType { 
+    ENCODER_ADI = 0, 
+    ENCODER_ROTATION
+} EncoderType_e_t;
 
 // Odom Configuration
 typedef struct config_data_s {

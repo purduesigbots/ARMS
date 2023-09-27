@@ -1,8 +1,11 @@
 #include "ARMS/api.h"
 #include "api.h"
+#include "chassis.h"
 #include "pros/motors.h"
-
+#include "pros/rtos.hpp"
 #include <tuple>
+#include <mutex>
+#include <atomic>
 
 namespace arms::chassis {
 
@@ -10,29 +13,33 @@ namespace arms::chassis {
 std::shared_ptr<pros::Motor_Group> leftMotors;
 std::shared_ptr<pros::Motor_Group> rightMotors;
 
+// thread safety mutex
+pros::Mutex chassisMutex;
+
 // slew control (autonomous only)
 double slew_step; // smaller number = more slew
 
 // default exit error
-double linear_exit_error;
-double angular_exit_error;
+std::atomic<double> linear_exit_error;
+std::atomic<double> angular_exit_error;
 
 // settling
-double settle_thresh_linear;
-double settle_thresh_angular;
-int settle_time;
+std::atomic<double> settle_thresh_linear;
+std::atomic<double> settle_thresh_angular;
+std::atomic<int> settle_time;
 
 // chassis variables
-double maxSpeed = 100;
-double leftPrev = 0;
-double rightPrev = 0;
-double leftDriveSpeed = 0;
-double rightDriveSpeed = 0;
+std::atomic<double> maxSpeed = 100;
+std::atomic<double> leftPrev = 0;
+std::atomic<double> rightPrev = 0;
+std::atomic<double> leftDriveSpeed = 0;
+std::atomic<double> rightDriveSpeed = 0;
 
 /**************************************************/
 // motor control
 void motorMove(std::shared_ptr<pros::Motor_Group> motor, double speed,
                bool velocity) {
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	if (velocity)
 		motor->move_velocity(speed * (double)motor->get_gearing()[0] / 100);
 	else
@@ -54,6 +61,7 @@ void setBrakeMode(pros::motor_brake_mode_e_t b) {
 /**************************************************/
 // speed control
 double limitSpeed(double speed, double max) {
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	if (speed > max)
 		speed = max;
 	if (speed < -max)
@@ -63,7 +71,7 @@ double limitSpeed(double speed, double max) {
 }
 
 double slew(double target_speed, double step, double current_speed) {
-
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	if (fabs(current_speed) > fabs(target_speed))
 		step = 200;
 
@@ -80,6 +88,8 @@ double slew(double target_speed, double step, double current_speed) {
 /**************************************************/
 // settling
 bool settled() {
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
+	
 	// previous position values
 	static Point p_pos = {0, 0};
 	static double p_ang = 0;
@@ -137,6 +147,8 @@ void waitUntilFinished(double exit_error) {
 // 2D movement
 void move(std::vector<double> target, double max, double exit_error, double lp,
           double ap, MoveFlags flags) {
+	chassisMutex.take();
+
 	pid::mode = TRANSLATIONAL;
 
 	double x = target.at(0);
@@ -170,11 +182,19 @@ void move(std::vector<double> target, double max, double exit_error, double lp,
 	pid::in_ang = 0;
 
 	if (!(flags & ASYNC)) {
+		
+		chassisMutex.give();
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		if (!(flags & THRU))
+		chassisMutex.take();
+
+		if (!(flags & THRU)) {
+			chassisMutex.give();
 			chassis::setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
+			chassisMutex.take();
+		}
 	}
+	chassisMutex.give();
 }
 
 void move(std::vector<double> target, double max, double exit_error,
@@ -208,6 +228,7 @@ void move(double target, MoveFlags flags) {
 // rotational movement
 void turn(double target, double max, double exit_error, double ap,
           MoveFlags flags) {
+	chassisMutex.take();	
 	pid::mode = ANGULAR;
 
 	double bounded_heading = (int)(odom::getHeading()) % 360;
@@ -231,11 +252,19 @@ void turn(double target, double max, double exit_error, double ap,
 	pid::in_ang = 0; // reset the integral value to zero
 
 	if (!(flags & ASYNC)) {
+
+		chassisMutex.give();
 		waitUntilFinished(exit_error);
 		pid::mode = DISABLE;
-		if (!(flags & THRU))
+		chassisMutex.take();
+
+		if (!(flags & THRU)) {
+			chassisMutex.give();
 			chassis::setBrakeMode(pros::E_MOTOR_BRAKE_BRAKE);
+			chassisMutex.take();
+		}
 	}
+	chassisMutex.give();
 }
 
 void turn(double target, double max, double exit_error, MoveFlags flags) {
@@ -276,6 +305,7 @@ int chassisTask() {
 	while (1) {
 		pros::delay(10);
 
+		chassisMutex.take();
 		std::array<double, 2> speeds = {0, 0}; // left, right
 
 		if (pid::mode == TRANSLATIONAL)
@@ -284,6 +314,7 @@ int chassisTask() {
 			speeds = pid::angular();
 		else
 			speeds = {leftDriveSpeed, rightDriveSpeed};
+		chassisMutex.give();
 
 		// speed limiting
 		speeds[0] = limitSpeed(speeds[0], maxSpeed);
@@ -307,7 +338,7 @@ void init(std::initializer_list<int8_t> leftMotors,
           double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
           int settle_time) {
-
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	// assign constants
 	chassis::slew_step = slew_step;
 	chassis::linear_exit_error = linear_exit_error;
@@ -330,6 +361,7 @@ void init(std::initializer_list<int8_t> leftMotors,
 /**************************************************/
 // operator control
 void tank(double left_speed, double right_speed, bool velocity) {
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	pid::mode = DISABLE; // turns off autonomous tasks
 	maxSpeed = 100;
 	chassis::leftDriveSpeed = left_speed;
@@ -337,6 +369,7 @@ void tank(double left_speed, double right_speed, bool velocity) {
 }
 
 void arcade(double vertical, double horizontal, bool velocity) {
+	const std::lock_guard<pros::Mutex> lock(chassisMutex);
 	pid::mode = DISABLE; // turns off autonomous task
 	maxSpeed = 100;
 	chassis::leftDriveSpeed = vertical + horizontal;

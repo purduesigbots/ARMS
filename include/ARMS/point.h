@@ -3,7 +3,7 @@
 
 #include <array>
 #include <cmath>
-
+#include <atomic> 
 namespace arms {
 
 /**

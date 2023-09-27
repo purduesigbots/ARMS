@@ -2,6 +2,8 @@
 #define _ARMS_PID_H_
 
 #include <array>
+#include <mutex>
+#include <atomic>
 
 namespace arms::pid {
 
@@ -12,21 +14,21 @@ extern int mode;
 #define ANGULAR 2
 
 // pid constants
-extern double linearKP;
-extern double linearKI;
-extern double linearKD;
-extern double angularKP;
-extern double angularKI;
-extern double angularKD;
-extern double trackingKP;
-extern double minError;
+extern std::atomic<double> linearKP;
+extern std::atomic<double> linearKI;
+extern std::atomic<double> linearKD;
+extern std::atomic<double> angularKP;
+extern std::atomic<double> angularKI;
+extern std::atomic<double> angularKD;
+extern std::atomic<double> trackingKP;
+extern std::atomic<double> minError;
 
 // integral
-extern double in_lin;
-extern double in_ang;
+extern std::atomic<double> in_lin;
+extern std::atomic<double> in_ang;
 
 // targets
-extern double angularTarget;
+extern std::atomic<double> angularTarget;
 extern Point pointTarget;
 
 // flags

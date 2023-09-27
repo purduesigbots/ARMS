@@ -1,6 +1,8 @@
 #include "ARMS/api.h"
 #include "api.h"
 #include "pros/rtos.hpp"
+#include <mutex>
+#include <atomic>
 
 namespace arms::odom {
 
@@ -15,24 +17,27 @@ std::shared_ptr<pros::ADIEncoder> rightADIEncoder = nullptr;
 std::shared_ptr<pros::ADIEncoder> leftADIEncoder = nullptr;
 std::shared_ptr<pros::ADIEncoder> middleADIEncoder = nullptr;
 
+// Mutex protection across all methods in this namespace
+pros::Mutex odomMutex;
+
 // output the odometry data to the terminal
 bool debug;
 
 // tracker wheel configuration
-double track_width;
-double left_right_distance;
-double middle_distance;
-double tpi;
-double middle_tpi;
+std::atomic<double> track_width;
+std::atomic<double> left_right_distance;
+std::atomic<double> middle_distance;
+std::atomic<double> tpi;
+std::atomic<double> middle_tpi;
 
 // odom position values
 Point position;
-double heading;
+std::atomic<double> heading;
 
 // previous values
-double prev_left_pos = 0;
-double prev_right_pos = 0;
-double prev_middle_pos = 0;
+std::atomic<double> prev_left_pos = 0;
+std::atomic<double> prev_right_pos = 0;
+std::atomic<double> prev_middle_pos = 0;
 double prev_heading = 0;
 
 double getLeftEncoder() {
@@ -67,12 +72,15 @@ double getMiddleEncoder() {
 }
 
 int odomTask() {
-
+	
 	position.x = 0;
 	position.y = 0;
 	heading = 0;
 
 	while (true) {
+		// Thread safety mutex take
+		odomMutex.take(TIMEOUT_MAX);
+
 		// get positions of each encoder
 		double left_pos = getLeftEncoder();
 		double right_pos = getRightEncoder();
@@ -93,7 +101,7 @@ int odomTask() {
 		} else {
 			delta_angle = (delta_right - delta_left) / track_width;
 
-			heading += delta_angle;
+			heading = heading + delta_angle;
 		}
 
 		// store previous positions
@@ -123,35 +131,51 @@ int odomTask() {
 
 		if (debug)
 			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
+		
+		// Thread safety mutex give
+		odomMutex.give();
 
 		pros::delay(10);
 	}
 }
 
 void reset(Point point) {
+	odomMutex.take(TIMEOUT_MAX);
 	position.x = point.x;
 	position.y = point.y;
+	odomMutex.give();
 }
 
 void reset(Point point, double angle) {
 	reset(point);
+
+	odomMutex.take(TIMEOUT_MAX);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
+	odomMutex.give();
+	
 	if (imu)
 		imu->set_rotation(-angle);
 }
 
 Point getPosition() {
+	const std::lock_guard<pros::Mutex> lock(odomMutex);
 	return position;
 }
 
 double getHeading(bool radians) {
+	if(!debug) odomMutex.take(TIMEOUT_MAX);
+	double rtv = PROS_ERR_F;
 	if (radians)
-		return heading;
-	return heading * 180 / M_PI;
+		rtv = heading;
+	else
+		rtv = heading * 180 / M_PI;
+	if(!debug) odomMutex.give();
+	return rtv;
 }
 
 double getAngleError(Point point) {
+	const std::lock_guard<pros::Mutex> lock(odomMutex);
 	double x = point.x;
 	double y = point.y;
 
@@ -174,6 +198,7 @@ double getAngleError(Point point) {
 }
 
 double getDistanceError(Point point) {
+	const std::lock_guard<pros::Mutex> lock(odomMutex);
 	double x = point.x;
 	double y = point.y;
 
@@ -186,6 +211,7 @@ void init(bool debug, EncoderType_e_t encoderType,
           std::array<int, 3> encoderPorts, int expanderPort, int imuPort,
           double track_width, double middle_distance, double tpi,
           double middle_tpi) {
+	odomMutex.take(TIMEOUT_MAX);
 	odom::debug = debug;
 	odom::track_width = track_width;
 	odom::left_right_distance = track_width / 2;
@@ -257,6 +283,7 @@ void init(bool debug, EncoderType_e_t encoderType,
 	default:
 		break;
 	}
+	odomMutex.give(); // releasing mutex here since imu reset is protected already
 	// initialize imu
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
@@ -265,6 +292,7 @@ void init(bool debug, EncoderType_e_t encoderType,
 			printf("ARMS ERROR: IMU reset failed with error code %d", errno);
 		}
 	}
+	
 	pros::delay(100);
 	reset();
 }
