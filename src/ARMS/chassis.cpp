@@ -254,8 +254,8 @@ void turn(double target, MoveFlags flags) {
 // turn to point
 void turn(Point target, double max, double exit_error, double ap,
           MoveFlags flags) {
-	double angle_error = odom::getAngleError(target);
-	turn(angle_error, max, exit_error, ap, flags);
+	double angle_error = odom::getAngleError(target) * 180 / M_PI;
+	turn(angle_error, max, exit_error, ap, flags | RELATIVE);
 }
 
 void turn(Point target, double max, double exit_error, MoveFlags flags) {
