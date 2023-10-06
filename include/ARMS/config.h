@@ -3,7 +3,6 @@
 
 #include "ARMS/api.h"
 
-
 namespace arms {
 
 // Debug

@@ -42,9 +42,30 @@ double getMiddleEncoder();
 Point getPosition();
 
 /**
+ * Return the desired robot position coordinates
+*/
+Point getDesiredPosition();
+
+
+/**
+ * Set the desired robot position coordinates
+*/
+void setDesiredPosition(Point point);
+
+/**
+ * Set the desired robot heading
+ */
+void setDesiredHeading(double angle);
+
+/**
  * Return the robot heading
  */
 double getHeading(bool radians = false);
+
+/**
+ * Return the desired robot heading
+ */
+double getDesiredHeading(bool radians = false);
 
 /**
  * Reset the robot position to a desired coordinate
