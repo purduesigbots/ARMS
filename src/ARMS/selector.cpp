@@ -12,6 +12,7 @@ lv_obj_t* redBtnm;
 lv_obj_t* blueBtnm;
 
 pros::task_t tabWatcher_task = (pros::task_t)NULL;
+pros::Mutex sel_mutex;
 
 lv_res_t redBtnmAction(lv_obj_t* btnm, const char* txt) {
 	// printf("red button: %s released\n", txt);
@@ -46,6 +47,7 @@ lv_res_t skillsBtnAction(lv_obj_t* btn) {
 int tabWatcher() {
 	int activeTab = lv_tabview_get_tab_act(tabview);
 	while (1) {
+		sel_mutex.take();
 		int currentTab = lv_tabview_get_tab_act(tabview);
 
 		if (currentTab != activeTab) {
@@ -64,7 +66,7 @@ int tabWatcher() {
 				auton = 0;
 			}
 		}
-
+		sel_mutex.give();
 		pros::delay(10);
 	}
 }
