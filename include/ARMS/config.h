@@ -40,6 +40,7 @@ namespace arms {
 #define LINEAR_KI 0
 #define LINEAR_KD 0
 #define TRACKING_KP 60 // point tracking turning strength
+#define TRACKING_KD 0
 #define ANGULAR_KP 1
 #define ANGULAR_KI 0
 #define ANGULAR_KD 0
@@ -66,7 +67,7 @@ inline void init() {
 	           TRACK_WIDTH, MIDDLE_DISTANCE, TPI, MIDDLE_TPI);
 
 	pid::init(LINEAR_KP, LINEAR_KI, LINEAR_KD, ANGULAR_KP, ANGULAR_KI, ANGULAR_KD,
-	          TRACKING_KP, MIN_ERROR, LEAD_PCT);
+	          TRACKING_KP, TRACKING_KD, MIN_ERROR, LEAD_PCT);
 
 	const char* b[] = {AUTONS, ""};
 	selector::init(HUE, DEFAULT, b);

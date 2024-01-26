@@ -19,6 +19,7 @@ extern double angularKP;
 extern double angularKI;
 extern double angularKD;
 extern double trackingKP;
+extern double trackingKD;
 extern double minError;
 
 // integral
@@ -41,7 +42,7 @@ std::array<double, 2> angular();
 
 // initializer
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double trackingKP, double minError, double leadPct);
+          double angularKI, double angularKD, double trackingKP, double trakcingKD, double minError, double leadPct);
 
 } // namespace arms::pid
 
