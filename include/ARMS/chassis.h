@@ -20,7 +20,7 @@ extern std::shared_ptr<pros::Motor_Group> rightMotors;
 void setBrakeMode(pros::motor_brake_mode_e_t b);
 
 /**
- * Return true of the chassis is not moving
+ * Return true if the chassis is not moving
  */
 bool settled();
 
