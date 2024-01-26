@@ -67,7 +67,7 @@ In both `move()` and `turn()`, only the `target` parameter is required. The othe
 In `turn()`,  the target is an angle in degrees; however, `move()` has 3 variations for the target parameter:
 * `move(12.0, ...)` - Moves the robot forward by the specified amount. In this case, 12 inches forward.
 * `move({12.0, 12.0}, ...)` - Moves the robot to the specified coordinate. In this case, `(12,12)`.
-* `move({12.0, 12.0, 90.0}, ...)` - moves the robot to the specified pose. The first two numbers are the coordinate to move to, and the 3rd specifies the angle the robot should face after the movement. In this case, the robot will move to the point `(12, 12)` and face 90° degrees.
+* `move({12.0, 12.0, 90.0}, ...)` - moves the robot to the specified pose. The first two numbers are the coordinate to move to, and the 3rd specifies the angle the robot should face after the movement. In this case, the robot will move to the point `(12, 12)` and face 90 degrees.
 
 #### Movement Flags:
 By default, movement in ARMS is relative to where the robots position was last reset, performed using the PID controller, and blocks the calling function until the movement is finished. These behaviors can be changed by passing various flags to the movement functions:

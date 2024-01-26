@@ -1,0 +1,147 @@
+/*! \page odometry Odometry Explanation
+The ARMS implementation of odometry follows the <a href="http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf">PiLons odometry algorithm</a>,
+with a couple of modifications.
+\section odometry_steps Odometry Steps
+\subsection step_1 Step 1: Calculate Encoder Deltas
+Calculate how far each tracking wheel has moved since the previous update.
+@code
+// get positions of each encoder
+double left_pos = getLeftEncoder();
+double right_pos = getRightEncoder();
+double middle_pos = configData.middleEncoderPort ? getMiddleEncoder() : 0;
+
+// calculate change in each encoder
+double delta_left = (left_pos - prev_left_pos) / tpi;
+double delta_right = (right_pos - prev_right_pos) / tpi;
+double delta_middle = configData.middleEncoderPort
+                        ? (middle_pos - prev_middle_pos) / middle_tpi
+                        : 0;
+@endcode
+\subsection step_2 Step 2: Calculate Change in Heading and Current Heading
+If using an IMU, the current heading is obtained from the IMU, and the change in heading is calculated as the difference between the
+current and previous headings.
+If not using an IMU, the change in heading is calculated based on the change in position of the left and right tracking wheels,
+and the current heading is calculated as the sum of the previous heading with the change in heading.
+@code
+double delta_angle;
+if (imu) {
+    heading = -imu->get_rotation() * M_PI / 180.0;
+    delta_angle = heading - prev_heading;
+} else {
+    delta_angle = (delta_right - delta_left) / track_width;
+
+    heading += delta_angle;
+}
+@endcode
+\subsection step_3 Step 3: Store Previous Positions
+The current encoder positions and heading are stored as the previous encoder positions and heading for the next update.
+@code
+prev_left_pos = left_pos;
+prev_right_pos = right_pos;
+prev_middle_pos = middle_pos;
+prev_heading = heading;
+@endcode
+\subsection step_4 Step 4: Calculate Local Displacement
+Calculate the change in the robot's position from the previous step in local coordinates.
+
+Note: The ARMS equations are slightly different from the PiLons equations due to ARMS using counterclockwise rotation as positive while
+PiLons uses clockwise rotation as positive.
+@code
+double local_x;
+double local_y;
+
+if (delta_angle) {
+    double i = sin(delta_angle / 2.0) * 2.0;
+    local_x = (delta_right / delta_angle - left_right_distance) * i;
+    local_y = (delta_middle / delta_angle + middle_distance) * i;
+} else {
+    local_x = delta_right;
+    local_y = delta_middle;
+}
+@endcode
+\subsection step_5 Step 5: Convert Local Displacement to Absolute Displacement and Add to Previous Position
+After this step is complete, we now have the robot's current x and y position as well as its heading.
+@code
+double p = heading - delta_angle / 2.0; // global angle
+
+// convert to absolute displacement
+position.x += cos(p) * local_x - sin(p) * local_y;
+position.y += cos(p) * local_y + sin(p) * local_x;
+@endcode
+\subsection step_6 Step 6: Repeat Above Steps
+After a 10 millisecond delay to let the sensors update, we repeat the above steps.
+\section odometry_code Odometry Code
+@code
+// odom position values
+Point position;
+double heading;
+
+// previous values
+double prev_left_pos = 0;
+double prev_right_pos = 0;
+double prev_middle_pos = 0;
+double prev_heading = 0;
+
+int odomTask() {
+
+    position.x = 0;
+    position.y = 0;
+    heading = 0;
+
+    while (true) {
+        // get positions of each encoder
+        double left_pos = getLeftEncoder();
+        double right_pos = getRightEncoder();
+        double middle_pos = configData.middleEncoderPort ? getMiddleEncoder() : 0;
+
+        // calculate change in each encoder
+        double delta_left = (left_pos - prev_left_pos) / tpi;
+        double delta_right = (right_pos - prev_right_pos) / tpi;
+        double delta_middle = configData.middleEncoderPort
+                                ? (middle_pos - prev_middle_pos) / middle_tpi
+                                : 0;
+
+        // calculate new heading
+        double delta_angle;
+        if (imu) {
+            heading = -imu->get_rotation() * M_PI / 180.0;
+            delta_angle = heading - prev_heading;
+        } else {
+            delta_angle = (delta_right - delta_left) / track_width;
+
+            heading += delta_angle;
+        }
+
+        // store previous positions
+        prev_left_pos = left_pos;
+        prev_right_pos = right_pos;
+        prev_middle_pos = middle_pos;
+        prev_heading = heading;
+
+        // calculate local displacement
+        double local_x;
+        double local_y;
+
+        if (delta_angle) {
+            double i = sin(delta_angle / 2.0) * 2.0;
+            local_x = (delta_right / delta_angle - left_right_distance) * i;
+            local_y = (delta_middle / delta_angle + middle_distance) * i;
+        } else {
+            local_x = delta_right;
+            local_y = delta_middle;
+        }
+
+        double p = heading - delta_angle / 2.0; // global angle
+
+        // convert to absolute displacement
+        position.x += cos(p) * local_x - sin(p) * local_y;
+        position.y += cos(p) * local_y + sin(p) * local_x;
+
+        if (debug)
+            printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
+
+        pros::delay(10);
+    }
+}
+@endcode
+ */

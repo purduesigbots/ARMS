@@ -1,0 +1,40 @@
+/*! \page motion_control Motion Control Explanation
+\section move_to_point Move To Point Algorithm
+\subsection setup Setup
+If the target vector has 2 elements (x and y), the standard move to point algorithm will be used.
+If the target vector has 3 elements (x y and heading), the \ref boomerang will be used.
+
+If the `arms::RELATIVE` flag is specified, the target will be positioned relative to the robot's current position, rather than globaly
+\subsection calculate_error Calculating Linear and Angular Error
+Linear error is calculated as the Euclidean distance between the current and target positions.
+To calculate angular error, we first calculate the target heading using the atan2 function, then calculate the error as the
+difference between the current and target headings.
+\subsection lin_speed Calculating Linear Speed
+If the `arms::THRU` flag is specified, the linear speed will be set to the maximum speed, ignoring the linear PID controller. 
+Otherwise, the linear speed is calculated by the linear PID controller.
+If the `arms::REVERSE` flag is specified, the linear speed will be made negative so the chassis moves backwards.
+\subsection ang_speed Calculating Angular Speed
+Angular speed is calculated using a simple proportional controller, as `TRACKING_KP * ang_error`.
+\subsection near_target Modifications When Near Target Position
+When the linear error falls below `MIN_ERROR`, angular speed is set to 0 and linear speed is multiplied by the cosine of the
+angular error. This ensures that the chassis stops moving when close enough to the target point instead of continuing to move.
+\subsection reverse_on_overshoot Reverse On Overshoot
+If the chassis somehow manages to overshoot the target point and linear error is above `MIN_ERROR` again, we reverse the linear speed
+so that the robot can back into the target position instead of turning all the way around.
+\subsection drive_speed Calculating Drive Speeds
+If the sum of the absolute values of linear and angular speed is greater than the maximum speed, linear speed is reduced so that the sum
+will equal the maximum speed. This way, turning is prioritized.
+The speed for the left side of the drivetrain is then calculated as `lin_speed - ang_speed`, and the the speed for the right side is
+`lin_speed + ang_speed`.
+
+\section boomerang Boomerang Algorithm
+The Boomerang algorithm modifies the move to point algorithm so that the robot will approach the target point from the specified heading.
+\subsection carrot_point Carrot Point
+Instead of calculating linear and angular error directly from the target point, the boomerang algorithm utilizes a carrot point, which is
+offset from the target point in the direction of the specified heading. The distance by which the carrot point is offset from the target point
+is equal to the product of linear error to the target point and `LEAD_PCT`. This way, as the robot gets closer to the target, the carrot point
+also gets closer to the target, thus leading the robot to the target.
+\subsection near_target_boomerang Modifications When Near Target Position
+While in the standard move to point angular speed is set to 0 when the linear error is less than `MIN_ERROR`, in boomerang the angular speed is
+calculated based on the error from the specified heading, thus ensuring that the robot faces the speficied heading before it stops moving.
+ */

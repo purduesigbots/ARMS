@@ -2,6 +2,12 @@
 *.o
 *.obj
 
+# Doxygen stuff
+*.html
+*.idx
+*.tex
+doxygen-output/
+
 # Executables
 *.bin
 *.elf
