@@ -10,19 +10,15 @@ ARMS is a [PROS](https://pros.cs.purdue.edu/) library that makes writing autonom
 
 ## Installing ARMS
 
-1. Download the most recent [template](https://github.com/purduesigbots/ARMS/releases)
+1. Register the PROS mainline template depot whith your local CLI by running the following command in the PROS integrated terminal: `pros conduct add-depot mainline https://purduesigbots.github.io/pros-mainline/pros-mainline.json`
 
-2. Run this command from terminal `pros c fetch ARMS@3.2.0.zip`
+2. Apply the latest version of ARMS to your project by running the following command in the PROS integrated terminal: `pros c apply ARMS@3.2.1`
 
-3.  `cd` into your pros project directory in your terminal
+3. Put `#include "ARMS/api.h"` in your main.h
 
-4. Apply the library to the project `pros c apply ARMS`
+4. Put `#include "ARMS/config.h"` in your main.cpp
 
-5. Put `#include "ARMS/api.h"` in your main.h
-
-6. Put `#include "ARMS/config.h"` in your main.cpp
-
-7. Call `arms::init()` in your initialize()
+5. Call `arms::init()` in your initialize()
 
 
 ## Quick start guide 
