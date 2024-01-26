@@ -23,6 +23,12 @@ namespace arms::chassis {
     * @var double maxSpeed;
     * This variable is used to set the maximum speed of the chassis.
     * 
+    * @var double min_linear_speed;
+    * This variable is used to set the minimum linear speed of the chassis.
+    * 
+    * @var double min_angular_speed;
+    * This variable is used to set the minimum angular speed of the chassis.
+    * 
     * @var std::shared_ptr<pros::Motor_Group> leftMotors;
     * This variable is a pointer to a Motor_Group object that contains all of the left motors.
     * 
@@ -119,7 +125,7 @@ void waitUntilFinished(double exit_error);
     * @endcode
     * 
     * @details Moves the chassis to a target point. Almost all parameters are optional. 
-    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     *
     * The \a target parameter is a vector of doubles that represents the target point (x, y), or pose (x, y, theta). For a target point, our standard point-point odometry motion is used. For a target pose, our Boomerang controller is used. More information on these can be seen at \ref MotionControl.\n
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
@@ -151,7 +157,7 @@ void move(std::vector<double> target, MoveFlags = NONE);
     * @param ap The angular kP for the movement.
     * @param flags The flags to use when moving the chassis.
     * 
-    * Almost all parameters are optional. Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Almost all parameters are optional. Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     * 
     * <b>Example 1:</b>
     * @code
@@ -172,7 +178,7 @@ void move(std::vector<double> target, MoveFlags = NONE);
     * @endcode
     * 
     * @details Moves the chassis a target distance. Almost all parameters are optional. 
-    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     *
     * The \a target parameter is used to specify how far the chassis should move.
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
@@ -208,7 +214,7 @@ void move(double target, MoveFlags = NONE);
     * @param ap The angular kP for the movement.
     * @param flags The flags to use when moving the chassis.
     *   
-    * Almost all parameters are optional. Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Almost all parameters are optional. Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     * 
     * <b>Example 1:</b>
     * @code
@@ -229,7 +235,7 @@ void move(double target, MoveFlags = NONE);
     * @endcode
     * 
     * @details Turns the chassis a target angle. Almost all parameters are optional.
-    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     * 
     * The \a target parameter is a double that represents the target angle (theta). We use our PID controller to turn to the target angle. More information on this can be seen at \ref MotionControl.\n
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
@@ -279,7 +285,7 @@ void turn(double target, MoveFlags = NONE);
     * @endcode
     * 
     * @details Turns the chassis a target angle. Almost all parameters are optional.
-    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter aswell so that you have control over the maximum speed of the chassis.
+    * Technically, only the \a target parameter is required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
     * 
     * The \a target parameter is a Point that represents the point we want to turn to face. We use our PID controller to turn to the target angle. More information on this can be seen at \ref MotionControl.\n
     * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
@@ -297,20 +303,108 @@ void turn(Point target, double max, MoveFlags = NONE);
 void turn(Point target, MoveFlags = NONE);
 /// @endcond
 
-
+/*!
+    *@fn void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
+        double lp, double ap, MoveFlags flags = NONE)
+    * @brief given a vector's magnitude and magnitude, move the robot to the end of that vector using a 2D motion (boomerang)
+    *
+    * @param magnitude The magnitude of the vector
+    * @param angle The angle of the vector. Also the angle the robot will be facing at the end of the movement.
+    * @param max The maximum speed to move at.
+    * @param exit_error The minimum distance from the target point to exit the movement.
+    * @param lp The linear kP for the movement.
+    * @param ap The angular kP for the movement.
+    * @param flags The flags to use when moving the chassis.
+    * 
+    * <b>Example 1:</b>
+    * @code
+    * //move the chassis to the end of the vector with magnitude 24 and angle 45 degrees at 100% speed
+    * chassis::moveVectorEnd(24, 45, 100);
+    * @endcode
+    * 
+    * <b>Example 2:</b>
+    * @code
+    * //move the chassis to the end of the vector with magnitude 48 and angle 90 degrees at 75% speed
+    * chassis::moveVectorEnd(48, 90, 75);
+    * @endcode
+    * 
+    * <b>Example 3:</b>
+    * @code
+    * //move the chassis to the end of the vector with magnitude 24 and angle 45 degrees at 100% speed with a 2 inch exit error with PID disabled
+    * chassis::moveVectorEnd(24, 45, 100, 2, arms::THRU);
+    * @endcode
+    * 
+    * @details Moves the chassis to the end of a vector with the boomerang controller. Almost all parameters are optional.
+    * Technically, only the \a magnitude and \a angle parameters are required. However, it is recommended to provide the max parameter as well so that you have control over the maximum speed of the chassis.
+    * 
+    * The \a magnitude parameter is a double that represents the magnitude of the vector we want to move to the end of.
+    * The \a angle parameter is a double that represents the angle of the vector we want to move to the end of. It is a global angle, not an angle relative to the robot's current/last target angle. It is also the angle the robot will be facing at the end of the movement.\n
+    * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
+    * The \a exit_error parameter can be used to set the minimum error from the target point to exit the movement. It will default to what is provided in \ref config.h::MIN_ERROR if not provided.\n
+    * The \a lp parameter can be used to set the linear kP for the movement. It will default to what is provided in \ref config.h if not provided.\n
+    * The \a ap parameter can be used to set the angular kP for the movement. It will default to what is provided in \ref config.h if not provided.\n
+    * The \a flags parameter can be used to set the flags for the movement. A list of them and their descriptions can be found in the \ref MoveFlags enum.
+    * 
+*/
 void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
                    double lp, double ap, MoveFlags = NONE);
+/// @cond DO_NOT_DOCUMENT
 void moveVectorEnd(double magnitude, double angle, double max, double exit_error,
                    MoveFlags = NONE);
 void moveVectorEnd(double magnitude, double angle, double max, MoveFlags = NONE);
 void moveVectorEnd(double magnitude, double angle, MoveFlags = NONE);
+/// @endcond
 
+/*!
+    * @fn void moveVectorPath(double magnitude, double angle, double max, double exit_error,
+          double lp, double ap, MoveFlags flags = NONE)
+    * @brief given a vector's magnitude and magnitude, move the robot along that vector using a 1D motion (chassis::turn, then chassis::move)
+    *
+    * @param magnitude The magnitude of the vector
+    * @param angle The angle of the vector. Also the angle the robot will be facing at the end of the movement.
+    * @param max The maximum speed to move at.
+    * @param exit_error The minimum distance from the target point to exit the movement.
+    * @param lp The linear kP for the movement.
+    * @param ap The angular kP for the movement.
+    * @param flags The flags to use when moving the chassis.
+    * 
+    * <b>Example 1:</b>
+    * @code
+    * //move the chassis along the vector with magnitude 24 and angle 45 degrees at 100% speed
+    * chassis::moveVectorPath(24, 45, 100);
+    * @endcode
+    * 
+    * <b>Example 2:</b>
+    * @code
+    * //move the chassis along the vector with magnitude 48 and angle 90 degrees at 75% speed
+    * chassis::moveVectorPath(48, 90, 75);
+    * @endcode
+    * 
+    * <b>Example 3:</b>
+    * @code
+    * //move the chassis along the vector with magnitude 24 and angle 45 degrees at 100% speed with a 2 inch exit error with PID disabled
+    * chassis::moveVectorPath(24, 45, 100, 2, arms::THRU);
+    * @endcode
+    * 
+    * @details Moves the chassis along a vector by turning to align with the vector and then driving to the end of it. Almost all parameters are optional.
+    * 
+    * The \a magnitude parameter is a double that represents the magnitude of the vector we want to move along.
+    * The \a angle parameter is a double that represents the angle of the vector we want to move along. It is a global angle, not an angle relative to the robot's current/last target angle. It is also the angle the robot will be facing at the end of the movement.\n
+    * The \a max parameter can be used to set the maximum speed of the movement. It will default to 100% if not provided.\n
+    * The \a exit_error parameter can be used to set the minimum error from the target point to exit the movement. It will default to what is provided in \ref config.h::MIN_ERROR if not provided.\n
+    * The \a lp parameter can be used to set the linear kP for the movement. It will default to what is provided in \ref config.h if not provided.\n
+    * The \a ap parameter can be used to set the angular kP for the movement. It will default to what is provided in \ref config.h if not provided.\n
+    * The \a flags parameter can be used to set the flags for the movement. A list of them and their descriptions can be found in the \ref MoveFlags enum.
+    * 
+*/
+/// @cond DO_NOT_DOCUMENT
 void moveVectorPath(double magnitude, double angle, double max, double exit_error,
                     double lp, double ap, MoveFlags = NONE);
 void moveVectorPath(double magnitude, double angle, double max, double exit_error,
                     MoveFlags = NONE);
 void moveVectorPath(double magnitude, double angle, double max, MoveFlags = NONE);
 void moveVectorPath(double magnitude, double angle, MoveFlags = NONE);
+/// @endcond
 
 /*!
     * @fn void tank(double left, double right, bool velocity = false)
@@ -378,7 +472,7 @@ void init(std::initializer_list<int8_t> leftMotors,
           pros::motor_gearset_e_t gearset, double slew_step,
           double linear_exit_error, double angular_exit_error,
           double settle_thresh_linear, double settle_thresh_angular,
-          int settle_time);
+          int settle_time, double min_linear_speed, double min_angular_speed);
 /// @endcond
 } // namespace arms::chassis
 

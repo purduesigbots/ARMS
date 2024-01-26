@@ -101,22 +101,24 @@ Point getPosition();
 */
 Point getDesiredPosition();
 
-
 /*!
     * @fn void setDesiredPosition(Point point)
     *
-    * @details
+    * @param point The desired position to set the robot's target position to
+    * 
+    * @details Set the desired robot position
 */
 void setDesiredPosition(Point point);
 
-/**
- * Set the desired robot heading
- */
+/*!
+    * @fn void setDesiredHeading(double angle)
+    *
+    * @param angle The desired heading to set the robot's target heading to
+    * 
+    * @details Set the desired robot heading
+*/
 void setDesiredHeading(double angle);
 
-/**
- * Return the robot heading
- */
 /*!
     * @fn double getHeading(bool radians = false)
     *
