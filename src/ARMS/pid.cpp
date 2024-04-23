@@ -14,6 +14,7 @@ double linearKD;
 double angularKI;
 double angularKD;
 double trackingKP;
+double trackingKI;
 double trackingKD;
 double minError;
 double leadPct;
@@ -26,7 +27,6 @@ double in_ang;
 double defaultLinearKP;
 double defaultAngularKP;
 double defaultTrackingKP;
-double defaultTrackingKD;
 
 // flags
 bool reverse;
@@ -92,9 +92,6 @@ std::array<double, 2> translational() {
 		linearKP = defaultLinearKP;
 	if (trackingKP == -1)
 		trackingKP = defaultTrackingKP;
-	if (trackingKD == -1)
-		trackingKD = defaultTrackingKD;
-
 
 	// calculate linear speed
 	double lin_speed;
@@ -127,7 +124,7 @@ std::array<double, 2> translational() {
 			double poseError = (angularTarget * M_PI / 180) - odom::getHeading(true);
 			while (fabs(poseError) > M_PI)
 				poseError -= 2 * M_PI * poseError / fabs(poseError);
-			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, 0, trackingKD);
+			ang_speed = pid(poseError, &pe_ang, &in_ang, trackingKP, trackingKI, trackingKD);
 
 			if (fabs(ang_speed) < chassis::min_angular_speed) {
 				ang_speed =
@@ -145,7 +142,7 @@ std::array<double, 2> translational() {
 			lin_speed = -lin_speed;
 		}
 
-		ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, 0, trackingKD);
+		ang_speed = pid(ang_error, &pe_ang, &in_ang, trackingKP, trackingKI, trackingKD);
 	}
 
 	// overturn
@@ -167,13 +164,16 @@ std::array<double, 2> angular() {
 		angularKP = defaultAngularKP;
 
 	double sv = odom::getHeading();
-	double speed =
-	    pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
+	double speed = chassis::maxSpeed;
+	if (!thru) {
+		speed =
+			pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
+	}
 	return {-speed, speed}; // clockwise positive
 }
 
 void init(double linearKP, double linearKI, double linearKD, double angularKP,
-          double angularKI, double angularKD, double trackingKP, double trackingKD,
+          double angularKI, double angularKD, double trackingKP, double trackingKI, double trackingKD,
           double minError, double leadPct) {
 
 	pid::defaultLinearKP = linearKP;
@@ -183,7 +183,8 @@ void init(double linearKP, double linearKI, double linearKD, double angularKP,
 	pid::angularKI = angularKI;
 	pid::angularKD = angularKD;
 	pid::defaultTrackingKP = trackingKP;
-	pid::defaultTrackingKD = trackingKD;
+	pid::trackingKI = trackingKI;
+	pid::trackingKD = trackingKD;
 	pid::minError = minError;
 	pid::leadPct = leadPct;
 }

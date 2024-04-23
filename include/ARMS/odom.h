@@ -58,6 +58,11 @@ void setDesiredPosition(Point point);
 void setDesiredHeading(double angle);
 
 /**
+ * Set the tracking offset. helps when center of rotation shifts
+ */
+void setTrackingOffset(double offset);
+
+/**
  * Return the robot heading
  */
 double getHeading(bool radians = false);
@@ -92,7 +97,7 @@ double getDistanceError(Point point);
  */
 void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
           int expanderPort, int imuPort, double track_width,
-          double middle_distance, double tpi, double middle_tpi);
+          double middle_distance, double tpi, double middle_tpi, double tracking_offset);
 
 } // namespace arms::odom
 

@@ -1,5 +1,7 @@
 #include "ARMS/api.h"
 #include "api.h"
+#include "odom.h"
+#include "pid.h"
 #include "pros/motors.h"
 
 #include <tuple>
@@ -116,8 +118,7 @@ void waitUntilFinished(double exit_error) {
 	pros::delay(400); // minimum movement time
 	switch (pid::mode) {
 	case TRANSLATIONAL:
-		while (odom::getDistanceError(pid::pointTarget) > exit_error &&
-		       !settled()) {
+		for (int i = 0; i < 5000 && odom::getDistanceError(pid::pointTarget) > exit_error && !settled(); i += 10) {
 			pros::delay(10);
 		}
 

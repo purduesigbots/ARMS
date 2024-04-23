@@ -19,6 +19,7 @@ std::shared_ptr<pros::ADIEncoder> middleADIEncoder = nullptr;
 bool debug;
 
 // tracker wheel configuration
+double tracking_offset;
 double track_width;
 double left_right_distance;
 double middle_distance;
@@ -27,6 +28,7 @@ double middle_tpi;
 
 // odom position values
 Point position;
+Point local_pos;
 double heading;
 
 Point desired_pos = {0, 0};
@@ -70,9 +72,8 @@ double getMiddleEncoder() {
 }
 
 int odomTask() {
-
-	position.x = 0;
-	position.y = 0;
+	local_pos = {0, 0};
+	position = {0, 0};
 	heading = 0;
 
 	while (true) {
@@ -118,11 +119,14 @@ int odomTask() {
 			local_y = delta_middle;
 		}
 
-		double p = heading - delta_angle / 2.0; // global angle
+		double p = M_PI_4 + heading - delta_angle / 2.0; // global angle
 
 		// convert to absolute displacement
-		position.x += cos(p) * local_x - sin(p) * local_y;
-		position.y += cos(p) * local_y + sin(p) * local_x;
+		local_pos.x += cos(p) * local_x - sin(p) * local_y;
+		local_pos.y += cos(p) * local_y + sin(p) * local_x;
+
+		position.x = local_pos.x + tracking_offset * cos(heading);
+		position.y = local_pos.y + tracking_offset * sin(heading);
 
 		if (debug)
 			printf("%.2f, %.2f, %.2f \n", position.x, position.y, getHeading());
@@ -132,19 +136,19 @@ int odomTask() {
 }
 
 void reset(Point point) {
-	position.x = point.x;
-	position.y = point.y;
 	desired_pos.x = point.x;
 	desired_pos.y = point.y;
+	local_pos.x = point.x - tracking_offset * cos(heading);
+	local_pos.y = point.y - tracking_offset * sin(heading);
 }
 
 void reset(Point point, double angle) {
-	reset(point);
 	heading = angle * M_PI / 180.0;
 	prev_heading = heading;
 	desired_heading = heading;
 	if (imu)
 		imu->set_rotation(-angle);
+	reset(point);
 }
 
 Point getPosition() {
@@ -161,6 +165,12 @@ void setDesiredPosition(Point point) {
 
 void setDesiredHeading(double angle) {
 	desired_heading = angle;
+}
+
+void setTrackingOffset(double offset) {
+	local_pos.x -= (offset - tracking_offset) * cos(heading);
+	local_pos.y -= (offset - tracking_offset) * sin(heading);
+	tracking_offset = offset;
 }
 
 double getHeading(bool radians) {
@@ -209,13 +219,14 @@ double getDistanceError(Point point) {
 void init(bool debug, EncoderType_e_t encoderType,
           std::array<int, 3> encoderPorts, int expanderPort, int imuPort,
           double track_width, double middle_distance, double tpi,
-          double middle_tpi) {
+          double middle_tpi, double tracking_offset) {
 	odom::debug = debug;
 	odom::track_width = track_width;
 	odom::left_right_distance = track_width / 2;
 	odom::middle_distance = middle_distance;
 	odom::tpi = tpi;
 	odom::middle_tpi = middle_tpi;
+	odom::tracking_offset = tracking_offset;
 
 	pros::Task odom_task(odomTask);
 
