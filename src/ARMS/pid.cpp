@@ -164,11 +164,7 @@ std::array<double, 2> angular() {
 		angularKP = defaultAngularKP;
 
 	double sv = odom::getHeading();
-	double speed = chassis::maxSpeed;
-	if (!thru) {
-		speed =
-			pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
-	}
+	double speed = pid(angularTarget, sv, &pe, &in_ang, angularKP, angularKI, angularKD);
 	return {-speed, speed}; // clockwise positive
 }
 

@@ -168,8 +168,8 @@ void setDesiredHeading(double angle) {
 }
 
 void setTrackingOffset(double offset) {
-	local_pos.x -= (offset - tracking_offset) * cos(heading);
-	local_pos.y -= (offset - tracking_offset) * sin(heading);
+	// local_pos.x -= (offset - tracking_offset) * cos(heading);
+	// local_pos.y -= (offset - tracking_offset) * sin(heading);
 	tracking_offset = offset;
 }
 
