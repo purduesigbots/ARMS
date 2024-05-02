@@ -20,6 +20,7 @@ typedef struct config_data_s {
 
 // sensors
 extern std::shared_ptr<pros::Imu> imu;
+extern std::shared_ptr<pros::Imu> imu2;
 
 /**
  * Return the left encoder position
@@ -96,7 +97,7 @@ double getDistanceError(Point point);
  * Initialize the odometry
  */
 void init(bool debug, EncoderType_e_t encoderType, std::array<int, 3> encoderPorts,
-          int expanderPort, int imuPort, double track_width,
+          int expanderPort, int imuPort, int imuPort2, double track_width,
           double middle_distance, double tpi, double middle_tpi, double tracking_offset);
 
 } // namespace arms::odom

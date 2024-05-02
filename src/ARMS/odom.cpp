@@ -8,6 +8,7 @@ config_data_s_t configData;
 
 // sensors
 std::shared_ptr<pros::Imu> imu = nullptr;
+std::shared_ptr<pros::Imu> imu2 = nullptr;
 std::shared_ptr<pros::Rotation> rightRotation = nullptr;
 std::shared_ptr<pros::Rotation> leftRotation = nullptr;
 std::shared_ptr<pros::Rotation> middleRotation = nullptr;
@@ -92,7 +93,10 @@ int odomTask() {
 		// calculate new heading
 		double delta_angle;
 		if (imu) {
-			heading = -imu->get_rotation() * M_PI / 180.0;
+      if (imu2) 
+			  heading = -(imu->get_rotation() + imu2->get_rotation()) * M_PI / 180.0 / 2.0;
+      else
+			  heading = -imu->get_rotation() * M_PI / 180.0;
 			delta_angle = heading - prev_heading;
 		} else {
 			delta_angle = (delta_right - delta_left) / track_width;
@@ -148,6 +152,8 @@ void reset(Point point, double angle) {
 	desired_heading = heading;
 	if (imu)
 		imu->set_rotation(-angle);
+	if (imu2)
+		imu2->set_rotation(-angle);
 	reset(point);
 }
 
@@ -168,8 +174,6 @@ void setDesiredHeading(double angle) {
 }
 
 void setTrackingOffset(double offset) {
-	// local_pos.x -= (offset - tracking_offset) * cos(heading);
-	// local_pos.y -= (offset - tracking_offset) * sin(heading);
 	tracking_offset = offset;
 }
 
@@ -217,7 +221,7 @@ double getDistanceError(Point point) {
 }
 
 void init(bool debug, EncoderType_e_t encoderType,
-          std::array<int, 3> encoderPorts, int expanderPort, int imuPort,
+          std::array<int, 3> encoderPorts, int expanderPort, int imuPort, int imuPort2,
           double track_width, double middle_distance, double tpi,
           double middle_tpi, double tracking_offset) {
 	odom::debug = debug;
@@ -293,6 +297,13 @@ void init(bool debug, EncoderType_e_t encoderType,
 		break;
 	}
 	// initialize imu
+	if (imuPort2 != 0) {
+		imu2 = std::make_shared<pros::Imu>(imuPort2);
+		int rtn = imu2->reset(true);
+		if (rtn != 1) {
+			printf("ARMS ERROR: IMU 2 reset failed with error code %d", errno);
+		}
+	}
 	if (imuPort != 0) {
 		imu = std::make_shared<pros::Imu>(imuPort);
 		int rtn = imu->reset(true);
